@@ -1065,8 +1065,10 @@ cancel_url:
 
 // SAVE PAID DEPOSIT BOOKING
 
+// SAVE PAID DEPOSIT BOOKING
 
-db.prepare(`
+
+const result = db.prepare(`
 
 INSERT INTO bookings
 
@@ -1153,7 +1155,6 @@ new Date().toISOString()
 
 
 
-
 // SEND EMAIL
 
 
@@ -1193,8 +1194,9 @@ remaining
 
 res.json({
 
-url:
-session.url
+url: session.url,
+
+bookingId: result.lastInsertRowid
 
 });
 
@@ -2304,7 +2306,63 @@ success:false
 
 
 
+// 
+// ================= GET SINGLE BOOKING =================
 
+app.get(
+"/api/booking/:id",
+(req,res)=>{
+
+try{
+
+const booking = db.prepare(`
+
+SELECT *
+
+FROM bookings
+
+WHERE id=?
+
+`).get(
+req.params.id
+);
+
+
+if(!booking){
+
+return res.status(404).json({
+
+error:"Booking not found"
+
+});
+
+}
+
+
+res.json(booking);
+
+
+}
+
+catch(error){
+
+console.log(
+"GET BOOKING ERROR:",
+error
+);
+
+
+res.status(500).json({
+
+error:"Server error"
+
+});
+
+
+}
+
+});
+// 
 
 
 
