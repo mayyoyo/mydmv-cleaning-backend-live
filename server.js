@@ -5,10 +5,10 @@ const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
 const PDFDocument = require("pdfkit");
-const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const Stripe = require("stripe");
 const Database = require("better-sqlite3");
+const { Resend } = require("resend");
 
 require("dotenv").config();
 
@@ -21,7 +21,6 @@ const app = express();
 // ================= MIDDLEWARE =================
 
 app.use(cors());
-
 
 app.use(
     express.json({
@@ -42,8 +41,7 @@ process.env.JWT_SECRET || "supersecretkey123";
 
 const FRONTEND_URL =
 process.env.FRONTEND_URL ||
-"http://localhost:5000";
-
+"https://mydmvcleaningservice.com";
 
 
 // ================= STRIPE =================
@@ -53,6 +51,16 @@ Stripe(
     process.env.STRIPE_SECRET_KEY
 );
 
+
+// ================= RESEND EMAIL =================
+
+const resend =
+new Resend(
+    process.env.RESEND_API_KEY
+);
+
+
+console.log("✅ Resend email system loaded");
 
 
 // ================= ADMIN =================
@@ -65,7 +73,6 @@ const ADMIN_PASS = "123456";
 
 // ================= DATABASE =================
 
-
 const db =
 new Database(
     path.join(
@@ -75,13 +82,11 @@ new Database(
 );
 
 
-
 console.log("✅ SQLite connected");
 
 
 
 // ================= CREATE TABLES =================
-
 
 db.exec(`
 
@@ -118,7 +123,6 @@ createdAt TEXT
 );
 
 
-
 CREATE TABLE IF NOT EXISTS contracts(
 
 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -140,7 +144,6 @@ createdAt TEXT
 );
 
 
-
 CREATE TABLE IF NOT EXISTS contacts(
 
 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -157,106 +160,80 @@ createdAt TEXT
 
 );
 
-
 `);
-
 
 
 console.log("✅ Database ready");
 
 
 
-// ================= EMAIL =================
+// ================= EMAIL FUNCTIONS =================
 
 
-// Gmail SMTP FIX
+async function sendEmail({to, subject, html}) {
 
-// ================= EMAIL =================
+try {
 
-const transporter = nodemailer.createTransport({
 
-host: "smtp.gmail.com",
+await resend.emails.send({
 
-port: 587,
+from:
+"My DMV Cleaning Services <onboarding@resend.dev>",
 
-secure: false,
+to,
 
-family: 4,
+subject,
 
-auth: {
-
-user: process.env.EMAIL_USER,
-
-pass: process.env.EMAIL_PASS
-
-},
-
-tls: {
-
-rejectUnauthorized: false
-
-}
+html
 
 });
 
 
-transporter.verify((error)=>{
+console.log(
+"✅ EMAIL SENT:",
+subject
+);
 
-if(error){
+
+}
+
+catch(error){
 
 console.log(
-"❌ EMAIL SERVER ERROR:",
+"❌ EMAIL ERROR:",
 error
 );
 
 }
-else{
-
-console.log(
-"✅ EMAIL SERVER READY"
-);
 
 }
-
-});
 // ================= ADMIN AUTH =================
 
-
 function verifyAdmin(req,res,next){
-
 
 const auth =
 req.headers.authorization;
 
 
-
 if(!auth){
 
 return res.status(401).json({
-
 error:"No token"
-
 });
 
 }
 
 
-
 try{
-
 
 const token =
 auth.split(" ")[1];
 
 
 jwt.verify(
-
 token,
-
 SECRET
-
 );
-
 
 
 next();
@@ -266,77 +243,50 @@ next();
 
 catch(error){
 
-
 return res.status(401).json({
-
 error:"Invalid token"
-
 });
 
-
 }
 
-
 }
-
-
 
 
 
 
 // ================= CONTACT =================
 
-
 app.post(
 "/api/contact",
 async(req,res)=>{
-
 
 try{
 
 
 const {
-
 name,
-
 email,
-
 phone,
-
 message
-
 }=req.body;
 
 
 
 console.log("NEW CONTACT:",{
-
 name,
-
 email,
-
 phone,
-
 message
-
 });
 
 
 
-
-
 if(
-
 !name ||
-
 !email ||
-
 !email.includes("@") ||
-
 !message
-
 ){
-
 
 return res.status(400).json({
 
@@ -346,53 +296,38 @@ error:"Missing or invalid fields"
 
 });
 
-
 }
-
 
 
 
 
 // SAVE DATABASE
 
-
 db.prepare(`
 
 INSERT INTO contacts
 
 (
-
 name,
-
 email,
-
 phone,
-
 message,
-
 createdAt
-
 )
 
 VALUES(?,?,?,?,?)
 
 `).run(
 
-
 name,
-
 
 email,
 
-
 phone || "",
-
 
 message,
 
-
 new Date().toISOString()
-
 
 );
 
@@ -400,87 +335,31 @@ new Date().toISOString()
 
 
 
+// SEND OWNER EMAIL
 
-
-// SEND EMAIL TO OWNER
-
-
-await transporter.sendMail({
-
-
-from:
-
-process.env.EMAIL_USER,
-
+await sendEmail({
 
 to:
-
 process.env.EMAIL_USER,
 
-
-
 subject:
-
 "New Contact Message - My DMV Cleaning Services LLC",
-
-
-
 
 html:`
 
+<h2>New Contact Request</h2>
 
-<h2>
-New Contact Request
-</h2>
+<p><b>Name:</b> ${name}</p>
 
+<p><b>Email:</b> ${email}</p>
 
-<hr>
+<p><b>Phone:</b> ${phone || ""}</p>
 
-
-<p>
-<b>Name:</b> ${name}
-</p>
-
-
-<p>
-<b>Email:</b> ${email}
-</p>
-
-
-<p>
-<b>Phone:</b> ${phone || ""}
-</p>
-
-
-
-<p>
-<b>Message:</b>
-</p>
-
-
-<p>
-${message}
-</p>
-
-
-<hr>
-
-
-<p>
-My DMV Cleaning Services LLC
-</p>
-
+<p><b>Message:</b> ${message}</p>
 
 `
 
 });
-
-
-
-
-console.log(
-"✅ CONTACT EMAIL SENT"
-);
 
 
 
@@ -492,21 +371,14 @@ success:true
 });
 
 
-
 }
-
 
 catch(error){
 
-
 console.log(
-
-"❌ CONTACT EMAIL ERROR:",
-
+"CONTACT ERROR:",
 error
-
 );
-
 
 
 res.status(500).json({
@@ -521,9 +393,7 @@ error:"Email failed"
 }
 
 
-
 });
-
 
 
 
@@ -533,11 +403,8 @@ error:"Email failed"
 // ================= CHECK BOOKED TIMES =================
 
 
-
 app.get(
-
 "/api/bookings-by-date/:date",
-
 (req,res)=>{
 
 
@@ -557,21 +424,15 @@ WHERE date=?
 `)
 
 .all(
-
 req.params.date
-
 );
-
-
 
 
 
 res.json(
 
 rows.map(
-
 row=>row.timeSlot
-
 )
 
 );
@@ -582,15 +443,7 @@ row=>row.timeSlot
 
 catch(error){
 
-
-console.log(
-
-"BOOKING DATE ERROR:",
-
-error
-
-);
-
+console.log(error);
 
 res.json([]);
 
@@ -604,91 +457,49 @@ res.json([]);
 
 
 
-
-
-
-// ================= SEND BOOKING EMAIL =================
+// ================= BOOKING EMAIL =================
 
 
 async function sendBookingEmail(booking){
 
 
-try{
-
-
-await transporter.sendMail({
-
-
-from:
-
-process.env.EMAIL_USER,
-
+await sendEmail({
 
 to:
-
 booking.email,
 
 
-
 subject:
-
 "Booking Confirmation - My DMV Cleaning Services LLC",
-
 
 
 html:`
 
-
-<h2>
-✅ Booking Confirmed
-</h2>
+<h2>✅ Booking Confirmed</h2>
 
 
-<p>
-Thank you for choosing My DMV Cleaning Services LLC.
-</p>
+<p>Thank you for choosing My DMV Cleaning Services LLC.</p>
 
 
 <hr>
 
 
-<p>
-<b>Name:</b> ${booking.name}
-</p>
+<p><b>Name:</b> ${booking.name}</p>
 
+<p><b>Service:</b> ${booking.service}</p>
 
-<p>
-<b>Service:</b> ${booking.service}
-</p>
+<p><b>Date:</b> ${booking.date}</p>
 
+<p><b>Time:</b> ${booking.timeSlot}</p>
 
-<p>
-<b>Date:</b> ${booking.date}
-</p>
+<p><b>Total:</b> $${booking.price}</p>
 
+<p><b>Deposit:</b> $${booking.deposit}</p>
 
-<p>
-<b>Time:</b> ${booking.timeSlot}
-</p>
-
-
-<p>
-<b>Total:</b> $${booking.price}
-</p>
-
-
-<p>
-<b>Deposit:</b> $${booking.deposit}
-</p>
-
-
-<p>
-<b>Remaining:</b> $${booking.remaining}
-</p>
+<p><b>Remaining:</b> $${booking.remaining}</p>
 
 
 <hr>
-
 
 <p>
 My DMV Cleaning Services LLC
@@ -700,29 +511,6 @@ My DMV Cleaning Services LLC
 });
 
 
-console.log(
-"✅ BOOKING EMAIL SENT"
-);
-
-
-
-}
-
-catch(error){
-
-
-console.log(
-
-"❌ BOOKING EMAIL ERROR:",
-
-error
-
-);
-
-
-}
-
-
 }
 
 
@@ -731,14 +519,11 @@ error
 
 
 
-// ================= PAY LATER BOOKING =================
-
+// ================= PAY LATER =================
 
 
 app.post(
-
 "/api/book-pay-later",
-
 (req,res)=>{
 
 
@@ -750,19 +535,12 @@ req.body;
 
 
 
-
 if(
-
 !booking.name ||
-
 !booking.email ||
-
 !booking.date ||
-
 !booking.timeSlot
-
 ){
-
 
 return res.status(400).json({
 
@@ -770,9 +548,7 @@ error:"Missing booking information"
 
 });
 
-
 }
-
 
 
 
@@ -801,9 +577,7 @@ booking.timeSlot
 
 
 
-
 if(existing){
-
 
 return res.status(400).json({
 
@@ -811,17 +585,12 @@ error:"Time slot already booked"
 
 });
 
-
 }
-
-
 
 
 
 const price =
 Number(booking.price);
-
-
 
 
 
@@ -834,29 +603,17 @@ INSERT INTO bookings
 (
 
 name,
-
 email,
-
 phone,
-
 address,
-
 service,
-
 price,
-
 deposit,
-
 remaining,
-
 date,
-
 timeSlot,
-
 status,
-
 stripeSession,
-
 createdAt
 
 )
@@ -867,48 +624,33 @@ VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
 
 .run(
 
-
 booking.name,
-
 
 booking.email,
 
-
 booking.phone || "",
-
 
 booking.address || "",
 
-
 booking.service,
 
-
 price,
-
 
 0,
 
-
 price,
-
 
 booking.date,
 
-
 booking.timeSlot,
-
 
 "pending",
 
-
 null,
-
 
 new Date().toISOString()
 
-
 );
-
 
 
 
@@ -926,7 +668,7 @@ date:booking.date,
 
 timeSlot:booking.timeSlot,
 
-price:price,
+price,
 
 deposit:0,
 
@@ -949,21 +691,14 @@ result.lastInsertRowid
 
 
 
-
 }
-
 
 catch(error){
 
-
 console.log(
-
 "PAY LATER ERROR:",
-
 error
-
 );
-
 
 
 res.status(500).json({
@@ -976,9 +711,13 @@ error:"Server error"
 }
 
 
-
 });
-// ================= STRIPE 25% DEPOSIT CHECKOUT =================
+
+
+
+
+
+// ================= STRIPE DEPOSIT CHECKOUT =================
 
 
 app.post(
@@ -997,15 +736,10 @@ req.body;
 
 
 if(
-
 !booking.name ||
-
 !booking.email ||
-
 !booking.price
-
 ){
-
 
 return res.status(400).json({
 
@@ -1013,54 +747,7 @@ error:"Missing booking information"
 
 });
 
-
 }
-
-
-
-
-
-// CHECK TIME SLOT
-
-
-const existing =
-
-db.prepare(`
-
-SELECT id
-
-FROM bookings
-
-WHERE date=?
-
-AND timeSlot=?
-
-`)
-
-.get(
-
-booking.date,
-
-booking.timeSlot
-
-);
-
-
-
-
-
-if(existing){
-
-
-return res.status(400).json({
-
-error:"Time slot already booked"
-
-});
-
-
-}
-
 
 
 
@@ -1074,7 +761,6 @@ const deposit =
 total * 0.25;
 
 
-
 const remaining =
 total - deposit;
 
@@ -1082,76 +768,49 @@ total - deposit;
 
 
 
-
-
-// CREATE STRIPE SESSION
-
-
 const session =
 
 await stripe.checkout.sessions.create({
 
-
 payment_method_types:[
-
 "card"
-
 ],
-
 
 mode:"payment",
 
 
-
 customer_email:
-
 booking.email,
-
 
 
 line_items:[
 
 {
 
-
 price_data:{
-
 
 currency:"usd",
 
-
-
 product_data:{
 
-
 name:
-
 booking.service
 
-
 },
-
 
 unit_amount:
 
 Math.round(
-
 deposit * 100
-
 )
-
 
 },
 
-
-
 quantity:1
-
 
 }
 
 ],
-
 
 
 success_url:
@@ -1159,11 +818,9 @@ success_url:
 `${FRONTEND_URL}/success.html`,
 
 
-
 cancel_url:
 
 `${FRONTEND_URL}/booking.html`
-
 
 
 });
@@ -1172,14 +829,6 @@ cancel_url:
 
 
 
-
-
-
-// SAVE BOOKING
-
-
-const result =
-
 db.prepare(`
 
 INSERT INTO bookings
@@ -1187,29 +836,17 @@ INSERT INTO bookings
 (
 
 name,
-
 email,
-
 phone,
-
 address,
-
 service,
-
 price,
-
 deposit,
-
 remaining,
-
 date,
-
 timeSlot,
-
 status,
-
 stripeSession,
-
 createdAt
 
 )
@@ -1220,49 +857,33 @@ VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
 
 .run(
 
-
 booking.name,
-
 
 booking.email,
 
-
 booking.phone || "",
-
 
 booking.address || "",
 
-
 booking.service,
-
 
 total,
 
-
 deposit,
-
 
 remaining,
 
-
 booking.date,
-
 
 booking.timeSlot,
 
-
 "deposit-paid",
-
 
 session.id,
 
-
 new Date().toISOString()
 
-
 );
-
-
 
 
 
@@ -1283,12 +904,11 @@ timeSlot:booking.timeSlot,
 
 price:total,
 
-deposit:deposit,
+deposit,
 
-remaining:remaining
+remaining
 
 });
-
 
 
 
@@ -1299,30 +919,20 @@ res.json({
 
 success:true,
 
-url:session.url,
-
-bookingId:
-result.lastInsertRowid
+url:session.url
 
 });
 
 
-
-
-
 }
+
 
 catch(error){
 
-
 console.log(
-
 "STRIPE ERROR:",
-
 error
-
 );
-
 
 
 res.status(500).json({
@@ -1335,25 +945,12 @@ error:"Payment error"
 }
 
 
-
 });
-
-
-
-
-
-
-
-
-
 // ================= CREATE CONTRACT PDF =================
-
 
 function createContractPDF(contract){
 
-
 return new Promise((resolve,reject)=>{
-
 
 try{
 
@@ -1374,45 +971,27 @@ fs.mkdirSync(folder);
 
 
 
-
 const filename =
-
-"contract_" +
-
-Date.now() +
-
-".pdf";
-
+"contract_" + Date.now() + ".pdf";
 
 
 const filepath =
-
 path.join(
-
 folder,
-
 filename
-
 );
 
 
 
-
 const doc =
-
 new PDFDocument({
-
 size:"LETTER",
-
 margin:60
-
 });
 
 
 
-
 const stream =
-
 fs.createWriteStream(filepath);
 
 
@@ -1421,20 +1000,12 @@ doc.pipe(stream);
 
 
 
-
-
 doc.fontSize(20)
-
 .text(
-
 "My DMV Cleaning Services LLC",
-
 {
-
 align:"center"
-
 }
-
 );
 
 
@@ -1444,17 +1015,11 @@ doc.moveDown();
 
 
 doc.fontSize(15)
-
 .text(
-
 "Cleaning Service Agreement",
-
 {
-
 align:"center"
-
 }
-
 );
 
 
@@ -1464,11 +1029,8 @@ doc.moveDown(2);
 
 
 doc.fontSize(12)
-
 .text(
-
 "Customer Information"
-
 );
 
 
@@ -1478,25 +1040,17 @@ doc.moveDown();
 
 
 doc.text(
-
 "Name: " + contract.name
-
 );
 
 
-
 doc.text(
-
 "Email: " + contract.email
-
 );
 
 
-
 doc.text(
-
 "Phone: " + (contract.phone || "")
-
 );
 
 
@@ -1506,14 +1060,9 @@ doc.moveDown();
 
 
 doc.text(
-
 "Agreement Type: " +
-
 (contract.contractType || "Service Agreement")
-
 );
-
-
 
 
 
@@ -1522,15 +1071,12 @@ doc.moveDown(2);
 
 
 doc.text(
-
 "Customer Signature:"
-
 );
 
 
 
 doc.moveDown();
-
 
 
 
@@ -1538,55 +1084,34 @@ if(contract.signature){
 
 
 const base64 =
-
 contract.signature.replace(
-
 "data:image/png;base64,",
-
 ""
-
 );
 
 
 
 const signatureFile =
-
 path.join(
-
 folder,
-
-"signature_" +
-
-Date.now() +
-
-".png"
-
+"signature_" + Date.now() + ".png"
 );
 
 
 
 fs.writeFileSync(
-
 signatureFile,
-
 base64,
-
 "base64"
-
 );
 
 
 
 doc.image(
-
 signatureFile,
-
 {
-
 width:160
-
 }
-
 );
 
 
@@ -1598,23 +1123,16 @@ doc.moveDown();
 
 
 
-
 doc.text(
-
 "Signed Name: " +
-
 contract.typedName
-
 );
 
 
 
 doc.text(
-
 "Date Signed: " +
-
 new Date().toLocaleDateString()
-
 );
 
 
@@ -1623,21 +1141,13 @@ doc.end();
 
 
 
-
-
 stream.on(
-
 "finish",
-
 ()=>{
 
-
 resolve(
-
 "/contracts/" + filename
-
 );
-
 
 }
 
@@ -1645,14 +1155,9 @@ resolve(
 
 
 
-
-
 stream.on(
-
 "error",
-
 reject
-
 );
 
 
@@ -1661,21 +1166,15 @@ reject
 
 catch(error){
 
-
 reject(error);
 
-
 }
-
 
 
 });
 
 
 }
-
-
-
 
 
 
@@ -1687,9 +1186,7 @@ reject(error);
 
 
 app.post(
-
 "/api/sign-contract",
-
 async(req,res)=>{
 
 
@@ -1702,15 +1199,10 @@ req.body;
 
 
 if(
-
 !contract.name ||
-
 !contract.email ||
-
 !contract.typedName
-
 ){
-
 
 return res.status(400).json({
 
@@ -1720,7 +1212,6 @@ error:"Missing required fields"
 
 });
 
-
 }
 
 
@@ -1728,7 +1219,6 @@ error:"Missing required fields"
 
 
 const pdfUrl =
-
 await createContractPDF(contract);
 
 
@@ -1742,17 +1232,11 @@ INSERT INTO contracts
 (
 
 name,
-
 email,
-
 phone,
-
 contractType,
-
 typedName,
-
 pdfUrl,
-
 createdAt
 
 )
@@ -1763,27 +1247,19 @@ VALUES(?,?,?,?,?,?,?)
 
 .run(
 
-
 contract.name,
-
 
 contract.email,
 
-
 contract.phone || "",
-
 
 contract.contractType || "Contract",
 
-
 contract.typedName,
-
 
 pdfUrl,
 
-
 new Date().toISOString()
-
 
 );
 
@@ -1791,60 +1267,29 @@ new Date().toISOString()
 
 
 
-
-// SEND CONTRACT EMAIL
-
-
-await transporter.sendMail({
-
-
-from:
-
-process.env.EMAIL_USER,
-
+await sendEmail({
 
 to:
-
 process.env.EMAIL_USER,
 
 
 subject:
-
 "New Signed Contract - My DMV Cleaning Services LLC",
-
 
 
 html:`
 
+<h2>New Contract Signed</h2>
 
-<h2>
-New Contract Signed
-</h2>
+<p><b>Name:</b> ${contract.name}</p>
 
+<p><b>Email:</b> ${contract.email}</p>
 
-<p>
-Name: ${contract.name}
-</p>
+<p><b>Signed Name:</b> ${contract.typedName}</p>
 
-
-<p>
-Email: ${contract.email}
-</p>
-
-
-<p>
-Signed Name: ${contract.typedName}
-</p>
-
-
-<p>
-PDF:
-${pdfUrl}
-</p>
-
+<p>PDF: ${pdfUrl}</p>
 
 `
-
 
 });
 
@@ -1862,19 +1307,14 @@ pdf:pdfUrl
 
 
 
-
 }
-
 
 catch(error){
 
 
 console.log(
-
 "CONTRACT ERROR:",
-
 error
-
 );
 
 
@@ -1891,60 +1331,49 @@ error:"Server contract error"
 }
 
 
-
 });
+
+
+
+
+
+
 // ================= ADMIN LOGIN =================
 
 
 app.post(
-
 "/api/admin/login",
-
 (req,res)=>{
 
 
 const {
-
 username,
-
 password
-
 }=req.body;
 
 
 
-
 if(
-
 username === ADMIN_USER &&
-
 password === ADMIN_PASS
-
 ){
 
 
 
 const token =
-
 jwt.sign(
 
 {
-
 role:"admin"
-
 },
 
 SECRET,
 
 {
-
 expiresIn:"2h"
-
 }
 
 );
-
-
 
 
 
@@ -1955,7 +1384,6 @@ success:true,
 token
 
 });
-
 
 
 }
@@ -1971,9 +1399,7 @@ error:"Invalid username or password"
 });
 
 
-
 });
-
 
 
 
@@ -1985,11 +1411,8 @@ error:"Invalid username or password"
 
 
 app.get(
-
 "/api/admin/bookings",
-
 verifyAdmin,
-
 (req,res)=>{
 
 
@@ -2012,7 +1435,6 @@ ORDER BY id DESC
 
 
 
-
 res.json(rows);
 
 
@@ -2022,17 +1444,11 @@ res.json(rows);
 catch(error){
 
 
-console.log(
-
-"ADMIN BOOKINGS ERROR:",
-
-error
-
-);
-
+console.log(error);
 
 
 res.status(500).json([]);
+
 
 }
 
@@ -2045,17 +1461,12 @@ res.status(500).json([]);
 
 
 
-
-
 // ================= UPDATE BOOKING STATUS =================
 
 
 app.put(
-
 "/api/admin/bookings/:id",
-
 verifyAdmin,
-
 (req,res)=>{
 
 
@@ -2063,11 +1474,8 @@ try{
 
 
 const {
-
 status
-
 }=req.body;
-
 
 
 
@@ -2091,8 +1499,6 @@ req.params.id
 
 
 
-
-
 res.json({
 
 success:true
@@ -2100,14 +1506,9 @@ success:true
 });
 
 
-
 }
 
 catch(error){
-
-
-console.log(error);
-
 
 
 res.status(500).json({
@@ -2117,13 +1518,10 @@ success:false
 });
 
 
-
 }
 
 
 });
-
-
 
 
 
@@ -2135,11 +1533,8 @@ success:false
 
 
 app.delete(
-
 "/api/admin/bookings/:id",
-
 verifyAdmin,
-
 (req,res)=>{
 
 
@@ -2155,12 +1550,8 @@ WHERE id=?
 `)
 
 .run(
-
 req.params.id
-
 );
-
-
 
 
 
@@ -2171,14 +1562,9 @@ success:true
 });
 
 
-
 }
 
 catch(error){
-
-
-console.log(error);
-
 
 
 res.status(500).json({
@@ -2191,10 +1577,7 @@ success:false
 }
 
 
-
 });
-
-
 
 
 
@@ -2206,11 +1589,8 @@ success:false
 
 
 app.get(
-
 "/api/admin/contracts",
-
 verifyAdmin,
-
 (req,res)=>{
 
 
@@ -2233,7 +1613,6 @@ ORDER BY id DESC
 
 
 
-
 res.json(rows);
 
 
@@ -2243,11 +1622,8 @@ res.json(rows);
 catch(error){
 
 
-console.log(error);
-
-
-
 res.status(500).json([]);
+
 
 }
 
@@ -2260,17 +1636,12 @@ res.status(500).json([]);
 
 
 
-
-
 // ================= DELETE CONTRACT =================
 
 
 app.delete(
-
 "/api/admin/contracts/:id",
-
 verifyAdmin,
-
 (req,res)=>{
 
 
@@ -2286,12 +1657,8 @@ WHERE id=?
 `)
 
 .run(
-
 req.params.id
-
 );
-
-
 
 
 
@@ -2302,14 +1669,9 @@ success:true
 });
 
 
-
 }
 
 catch(error){
-
-
-console.log(error);
-
 
 
 res.status(500).json({
@@ -2324,21 +1686,11 @@ success:false
 
 });
 
-
-
-
-
-
-
-
-
 // ================= GET SINGLE BOOKING =================
 
 
 app.get(
-
 "/api/booking/:id",
-
 (req,res)=>{
 
 
@@ -2358,16 +1710,12 @@ WHERE id=?
 `)
 
 .get(
-
 req.params.id
-
 );
 
 
 
-
 if(!booking){
-
 
 return res.status(404).json({
 
@@ -2375,10 +1723,7 @@ error:"Booking not found"
 
 });
 
-
 }
-
-
 
 
 
@@ -2392,13 +1737,9 @@ catch(error){
 
 
 console.log(
-
 "GET BOOKING ERROR:",
-
 error
-
 );
-
 
 
 res.status(500).json({
@@ -2411,10 +1752,7 @@ error:"Server error"
 }
 
 
-
 });
-
-
 
 
 
@@ -2473,7 +1811,8 @@ __dirname,
 
 
 
-// FRONTEND (IONOS / LOCAL)
+
+// FRONTEND
 
 app.use(
 
@@ -2490,8 +1829,6 @@ __dirname,
 )
 
 );
-
-
 
 
 
@@ -2524,8 +1861,6 @@ error:"Route not found"
 
 
 
-
-
 // ================= START SERVER =================
 
 
@@ -2551,7 +1886,6 @@ console.log(
 console.log(
 "================================="
 );
-
 
 
 }
