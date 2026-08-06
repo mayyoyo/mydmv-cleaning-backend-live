@@ -171,62 +171,52 @@ console.log("✅ Database ready");
 
 // Gmail SMTP FIX
 
-const transporter =
-nodemailer.createTransport({
+// ================= EMAIL =================
 
-host:"smtp.gmail.com",
+const transporter = nodemailer.createTransport({
 
-port:587,
+host: "smtp.gmail.com",
 
-secure:false,
+port: 587,
 
-auth:{
+secure: false,
 
-user:
-process.env.EMAIL_USER,
+family: 4,
 
-pass:
-process.env.EMAIL_PASS
+auth: {
+
+user: process.env.EMAIL_USER,
+
+pass: process.env.EMAIL_PASS
 
 },
 
-tls:{
+tls: {
 
-rejectUnauthorized:false
+rejectUnauthorized: false
 
 }
-
 
 });
 
 
-
-
-
 transporter.verify((error)=>{
-
 
 if(error){
 
-
 console.log(
-"❌ EMAIL LOGIN ERROR:",
+"❌ EMAIL SERVER ERROR:",
 error
 );
 
-
 }
-
 else{
-
 
 console.log(
 "✅ EMAIL SERVER READY"
 );
 
-
 }
-
 
 });
 // ================= ADMIN AUTH =================
