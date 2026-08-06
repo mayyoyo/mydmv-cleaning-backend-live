@@ -15,73 +15,18 @@ Contact Us | My DMV Cleaning Services LLC
 
 <link rel="stylesheet" href="./css/style.css">
 
-
 </head>
 
 
 <body>
 
 
-<header class="navbar">
-
-
-<div class="logo">
-
-🧼 My DMV Cleaning Services LLC
-
-</div>
-
-
-
-<div class="hamburger" onclick="toggleMenu()">
-
-☰
-
-</div>
-
-
-
-
-<nav class="nav-links" id="navLinks">
-
-
-<a href="index.html">
-🏠 Home
-</a>
-
-
-<a href="booking.html">
-📅 Booking
-</a>
-
-
-<a href="documents.html">
-📄 Documents
-</a>
-
-
-<a href="contact.html" class="active">
-📞 Contact
-</a>
-
-
-
-</nav>
-
-
-</header>
-
-
-
-
-
-<main class="container">
+<div class="container">
 
 
 <h1>
 📞 Contact My DMV Cleaning Services LLC
 </h1>
-
 
 
 <p>
@@ -91,36 +36,38 @@ Have questions? Send us a message and we will get back to you.
 
 
 
+
 <form id="contactForm">
 
 
-
 <label>
-Name *
+Name
 </label>
 
 
 <input
 type="text"
 id="name"
-placeholder="Your full name"
 required
->
+placeholder="Your name">
+
+
 
 
 
 
 <label>
-Email *
+Email
 </label>
 
 
 <input
 type="email"
 id="email"
-placeholder="Your email"
 required
->
+placeholder="Your email">
+
+
 
 
 
@@ -133,29 +80,32 @@ Phone
 <input
 type="text"
 id="phone"
-placeholder="Your phone number"
->
+placeholder="Your phone number">
+
+
 
 
 
 
 <label>
-Message *
+Message
 </label>
+
 
 
 <textarea
 id="message"
-rows="6"
-placeholder="Write your message"
-required>
+rows="5"
+required
+placeholder="Write your message">
 </textarea>
 
 
 
 
 
-<button type="submit" class="btn">
+
+<button type="submit">
 
 📩 Send Message
 
@@ -163,34 +113,16 @@ required>
 
 
 
-
 <p id="result"></p>
-
 
 
 
 </form>
 
 
-</main>
 
+</div>
 
-
-
-
-
-
-<footer class="footer">
-
-
-<p>
-
-© 2026 My DMV Cleaning Services LLC
-
-</p>
-
-
-</footer>
 
 
 
@@ -203,32 +135,20 @@ required>
 
 // ================= API =================
 
+
 const API =
-
-window.location.hostname === "localhost"
-
+(
+window.location.hostname === "localhost" ||
+window.location.hostname === "127.0.0.1"
+)
 ?
-
 "http://localhost:5000"
-
 :
-
 "https://dmv-cleaning-backend.onrender.com";
 
 
 
 
-// ================= MOBILE MENU =================
-
-
-function toggleMenu(){
-
-document
-.getElementById("navLinks")
-.classList
-.toggle("active");
-
-}
 
 
 
@@ -247,8 +167,11 @@ e.preventDefault();
 
 
 
+
 const result =
 document.getElementById("result");
+
+
 
 
 
@@ -261,10 +184,12 @@ document.getElementById("name")
 .trim(),
 
 
+
 email:
 document.getElementById("email")
 .value
 .trim(),
+
 
 
 phone:
@@ -273,10 +198,12 @@ document.getElementById("phone")
 .trim(),
 
 
+
 message:
 document.getElementById("message")
 .value
 .trim()
+
 
 
 };
@@ -284,18 +211,34 @@ document.getElementById("message")
 
 
 
+
+
+// ================= VALIDATION =================
+
+
 if(
+
 !data.name ||
+
 !data.email ||
+
+!data.email.includes("@") ||
+
 !data.message
+
 ){
 
+
 result.innerHTML =
-"❌ Please complete required fields.";
+"❌ Please enter a valid name, email, and message.";
+
 
 return;
 
+
 }
+
+
 
 
 
@@ -306,7 +249,11 @@ result.innerHTML =
 
 
 
+
+
+
 try{
+
 
 
 const res =
@@ -320,16 +267,21 @@ await fetch(
 method:"POST",
 
 
+
 headers:{
+
 
 "Content-Type":"application/json"
 
+
 },
+
 
 
 body:
 
 JSON.stringify(data)
+
 
 
 }
@@ -339,18 +291,76 @@ JSON.stringify(data)
 
 
 
-const response =
+
+
+
+// ================= SAFE JSON RESPONSE =================
+
+
+let response;
+
+
+try{
+
+
+response =
 await res.json();
 
 
+}
+
+
+catch(error){
+
+
+throw new Error(
+"Invalid server response"
+);
+
+
+}
 
 
 
-if(response.success){
+
+
+
+
+
+console.log(
+"STATUS:",
+res.status
+);
+
+
+
+console.log(
+"RESPONSE:",
+response
+);
+
+
+
+
+
+
+
+
+
+if(
+
+res.ok &&
+
+response.success
+
+){
+
 
 
 result.innerHTML =
+
 "✅ Message sent successfully! We will contact you soon.";
+
 
 
 
@@ -359,16 +369,30 @@ document
 .reset();
 
 
+
+
 }
 
 else{
 
 
+
 result.innerHTML =
-"❌ " + (response.error || "Message failed");
+
+"❌ " +
+
+(
+response.error ||
+
+"Message failed"
+
+);
+
 
 
 }
+
+
 
 
 
@@ -377,15 +401,24 @@ result.innerHTML =
 catch(error){
 
 
+
 console.error(
+
 "CONTACT ERROR:",
+
 error
+
 );
 
 
 
+
 result.innerHTML =
-"❌ Server connection failed.";
+
+"❌ Server connection failed. Try again.";
+
+
+
 
 
 }
