@@ -1,191 +1,690 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
+```
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Booking Confirmed</title>
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-<link rel="stylesheet" href="./css/success.css">
+<title>
+    Booking Confirmed | My DMV Cleaning Services LLC
+</title>
+
+<link
+    rel="stylesheet"
+    href="./css/success.css"
+>
+```
 
 </head>
 
-
 <body>
 
-
+```
 <div class="success-container">
 
-<div class="card">
+    <div class="card">
 
-<div class="business-header">
+        <!-- ================= BUSINESS HEADER ================= -->
 
-<h2>🧼 My DMV Cleaning Services LLC</h2>
+        <div class="business-header">
 
-<p>📞 703-967-0674</p>
+            <h2>
+                🧼 My DMV Cleaning Services LLC
+            </h2>
 
-<p>Professional Cleaning Services</p>
+            <p>
+                📞 703-967-0674
+            </p>
+
+            <p>
+                Professional Cleaning Services
+            </p>
+
+        </div>
+
+        <hr>
+
+
+        <!-- ================= SUCCESS ICON ================= -->
+
+        <div class="icon">
+            ✅
+        </div>
+
+        <h1>
+            Booking Confirmed!
+        </h1>
+
+        <p class="sub">
+            Your cleaning service has been successfully scheduled.
+        </p>
+
+
+        <!-- ================= CUSTOMER INFORMATION ================= -->
+
+        <h3>
+            👤 Customer Information
+        </h3>
+
+        <div class="details">
+
+            <div>
+                <strong>Name:</strong>
+                <span id="name">Loading...</span>
+            </div>
+
+            <div>
+                <strong>Email:</strong>
+                <span id="email">Loading...</span>
+            </div>
+
+            <div>
+                <strong>Phone:</strong>
+                <span id="phone">Loading...</span>
+            </div>
+
+            <div>
+                <strong>Address:</strong>
+                <span id="address">Loading...</span>
+            </div>
+
+        </div>
+
+
+        <!-- ================= CLEANING APPOINTMENT ================= -->
+
+        <h3>
+            🧹 Cleaning Appointment
+        </h3>
+
+        <div class="details">
+
+            <div>
+                <strong>Service:</strong>
+                <span id="service">Loading...</span>
+            </div>
+
+            <div>
+                <strong>Date:</strong>
+                <span id="date">Loading...</span>
+            </div>
+
+            <div>
+                <strong>Time:</strong>
+                <span id="time">Loading...</span>
+            </div>
+
+        </div>
+
+
+        <!-- ================= PAYMENT DETAILS ================= -->
+
+        <h3>
+            💳 Payment Details
+        </h3>
+
+        <div class="payment-box">
+
+            <div>
+                <strong>
+                    Total Service Price:
+                </strong>
+
+                $
+
+                <span id="price">
+                    0.00
+                </span>
+            </div>
+
+
+            <div>
+                <strong>
+                    Deposit Required (25%):
+                </strong>
+
+                $
+
+                <span id="depositRequired">
+                    0.00
+                </span>
+            </div>
+
+
+            <div>
+                <strong>
+                    Deposit Paid:
+                </strong>
+
+                $
+
+                <span id="deposit">
+                    0.00
+                </span>
+            </div>
+
+
+            <div>
+                <strong>
+                    Remaining Balance:
+                </strong>
+
+                $
+
+                <span id="remaining">
+                    0.00
+                </span>
+            </div>
+
+
+            <div>
+
+                <strong>
+                    Payment Status:
+                </strong>
+
+                <span
+                    class="status"
+                    id="paymentStatus"
+                >
+                    Checking...
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= NOTICE ================= -->
+
+        <div
+            class="notice"
+            id="notice"
+        >
+
+            <p>
+                ⏳ Loading your booking information...
+            </p>
+
+        </div>
+
+
+        <!-- ================= HOME BUTTON ================= -->
+
+        <a
+            href="index.html"
+            class="btn"
+        >
+            🏠 Back to Home
+        </a>
+
+    </div>
 
 </div>
 
-<hr>
 
-
-<div class="icon">✅</div>
-
-<h1>Booking Confirmed!</h1>
-
-<p class="sub">
-Your cleaning service has been successfully scheduled.
-</p>
-
-
-
-<!-- CUSTOMER -->
-<h3>👤 Customer Information</h3>
-
-<div class="details">
-
-<div><strong>Name:</strong> <span id="name"></span></div>
-<div><strong>Email:</strong> <span id="email"></span></div>
-<div><strong>Phone:</strong> <span id="phone"></span></div>
-<div><strong>Address:</strong> <span id="address"></span></div>
-
-</div>
-
-
-
-<!-- SERVICE -->
-<h3>🧹 Cleaning Appointment</h3>
-
-<div class="details">
-
-<div><strong>Service:</strong> <span id="service"></span></div>
-<div><strong>Date:</strong> <span id="date"></span></div>
-<div><strong>Time:</strong> <span id="time"></span></div>
-
-</div>
-
-
-
-<!-- PAYMENT -->
-<h3>💳 Payment Details</h3>
-
-<div class="payment-box">
-
-<div><strong>Total Service Price:</strong> $<span id="price"></span></div>
-
-<div><strong>Deposit Required (25%):</strong> $<span id="deposit"></span></div>
-
-<div><strong>Deposit Paid:</strong> <span id="depositStatus"></span></div>
-
-<div><strong>Remaining Balance:</strong> $<span id="remaining"></span></div>
-
-<div>
-<strong>Payment Status:</strong>
-<span class="status" id="paymentStatus"></span>
-</div>
-
-</div>
-
-
-
-<div class="notice" id="notice">
-
-<p>Thank you for choosing My DMV Cleaning Services LLC.</p>
-<p>Your appointment details have been saved.</p>
-
-</div>
-
-
-<a href="index.html" class="btn">🏠 Back to Home</a>
-
-</div>
-</div>
-
-
-
+<!-- ================= JAVASCRIPT ================= -->
 
 <script>
 
-// ================= SAFE LOAD =================
-function safeJSON(key){
-  try{
-    return JSON.parse(localStorage.getItem(key)) || {};
-  } catch {
-    return {};
-  }
-}
+    // =====================================================
+    // API
+    // =====================================================
 
-// ================= LOAD DATA =================
-let data = safeJSON("bookingData");
-
-// 🚨 fallback if empty
-if(!data || !data.name){
-  document.getElementById("notice").innerHTML =
-  "<p>No booking data found.</p>";
-}
+    const API =
+        "https://dmv-cleaning-backend.onrender.com";
 
 
+    // =====================================================
+    // URL PARAMETERS
+    // =====================================================
 
-// ================= CALCULATIONS =================
-const total = Number(data.price || 0);
-
-const deposit =
-Number(data.deposit) ||
-Math.round(total * 0.25 * 100) / 100;
-
-let remaining;
-
-if(data.paymentType === "pay-now"){
-  remaining = total - deposit;
-} else {
-  remaining = total;
-}
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
 
 
-
-// ================= DISPLAY =================
-document.getElementById("name").innerText = data.name || "N/A";
-document.getElementById("email").innerText = data.email || "N/A";
-document.getElementById("phone").innerText = data.phone || "N/A";
-document.getElementById("address").innerText = data.address || "N/A";
-
-document.getElementById("service").innerText = data.serviceName || "Cleaning Service";
-document.getElementById("date").innerText = data.date || "N/A";
-document.getElementById("time").innerText = data.time || "N/A";
-
-document.getElementById("price").innerText = total.toFixed(2);
-document.getElementById("deposit").innerText = deposit.toFixed(2);
-document.getElementById("remaining").innerText = remaining.toFixed(2);
+    // Stripe Pay Now
+    const sessionId =
+        params.get("session_id");
 
 
-
-// ================= PAYMENT STATUS =================
-if(data.paymentType === "pay-now"){
-
-  document.getElementById("depositStatus").innerText = "Paid ✅";
-
-  document.getElementById("paymentStatus").innerText = "Deposit Paid";
-  document.getElementById("paymentStatus").style.color = "green";
-
-} else {
-
-  document.getElementById("depositStatus").innerText = "Not Paid";
-
-  document.getElementById("paymentStatus").innerText = "Pay Later";
-  document.getElementById("paymentStatus").style.color = "orange";
-
-}
+    // Pay Later
+    const bookingId =
+        params.get("booking_id");
 
 
-// ================= SAVE CLEANUP (optional) =================
-// localStorage.removeItem("bookingData");
+    // =====================================================
+    // DISPLAY BOOKING
+    // =====================================================
+
+    function display(data) {
+
+        if (!data) {
+
+            document
+                .getElementById("notice")
+                .innerHTML =
+                "<p>⚠️ No booking data found.</p>";
+
+            return;
+
+        }
+
+
+        // =================================================
+        // CUSTOMER INFORMATION
+        // =================================================
+
+        document
+            .getElementById("name")
+            .innerText =
+            data.name ||
+            "N/A";
+
+
+        document
+            .getElementById("email")
+            .innerText =
+            data.email ||
+            "N/A";
+
+
+        document
+            .getElementById("phone")
+            .innerText =
+            data.phone ||
+            "N/A";
+
+
+        document
+            .getElementById("address")
+            .innerText =
+            data.address ||
+            "N/A";
+
+
+        // =================================================
+        // APPOINTMENT
+        // =================================================
+
+        document
+            .getElementById("service")
+            .innerText =
+            data.service ||
+            data.serviceName ||
+            "Cleaning Service";
+
+
+        document
+            .getElementById("date")
+            .innerText =
+            data.date ||
+            "N/A";
+
+
+        document
+            .getElementById("time")
+            .innerText =
+            data.timeSlot ||
+            data.time ||
+            "N/A";
+
+
+        // =================================================
+        // PRICE
+        // =================================================
+
+        const total =
+            Number(
+                data.price || 0
+            );
+
+
+        const requiredDeposit =
+            Math.round(
+                total * 0.25 * 100
+            ) / 100;
+
+
+        // =================================================
+        // DETERMINE PAYMENT
+        // =================================================
+
+        const status =
+            String(
+                data.status || ""
+            ).toLowerCase();
+
+
+        let deposit = 0;
+
+        let remaining = total;
+
+
+        // ================= PAY NOW =================
+
+        if (
+            status === "deposit-paid" ||
+            data.paymentType === "pay-now"
+        ) {
+
+            deposit =
+                Number(
+                    data.deposit ||
+                    requiredDeposit
+                );
+
+
+            remaining =
+                Number(
+                    data.remaining ??
+                    (total - deposit)
+                );
+
+
+            document
+                .getElementById(
+                    "paymentStatus"
+                )
+                .innerText =
+                "Deposit Paid ✅";
+
+
+            document
+                .getElementById(
+                    "paymentStatus"
+                )
+                .className =
+                "status paid";
+
+        }
+
+
+        // ================= PAY LATER =================
+
+        else {
+
+            deposit = 0;
+
+            remaining = total;
+
+
+            document
+                .getElementById(
+                    "paymentStatus"
+                )
+                .innerText =
+                "Pay Later";
+
+
+            document
+                .getElementById(
+                    "paymentStatus"
+                )
+                .className =
+                "status pending";
+
+        }
+
+
+        // =================================================
+        // DISPLAY MONEY
+        // =================================================
+
+        document
+            .getElementById("price")
+            .innerText =
+            total.toFixed(2);
+
+
+        document
+            .getElementById(
+                "depositRequired"
+            )
+            .innerText =
+            requiredDeposit.toFixed(2);
+
+
+        document
+            .getElementById("deposit")
+            .innerText =
+            deposit.toFixed(2);
+
+
+        document
+            .getElementById("remaining")
+            .innerText =
+            remaining.toFixed(2);
+
+
+        // =================================================
+        // SUCCESS MESSAGE
+        // =================================================
+
+        document
+            .getElementById("notice")
+            .innerHTML = `
+
+                <p>
+                    ✅ Thank you for choosing
+                    My DMV Cleaning Services LLC.
+                </p>
+
+                <p>
+                    Your appointment details
+                    have been saved successfully.
+                </p>
+
+            `;
+
+    }
+
+
+    // =====================================================
+    // LOAD BOOKING
+    // =====================================================
+
+    async function loadBooking() {
+
+        try {
+
+            // =============================================
+            // STRIPE (PAY NOW)
+            // =============================================
+
+            if (sessionId) {
+
+                document
+                    .getElementById("notice")
+                    .innerHTML =
+                    "<p>⏳ Loading payment information...</p>";
+
+
+                const res =
+                    await fetch(
+                        `${API}/api/booking-by-session/${encodeURIComponent(sessionId)}`
+                    );
+
+
+                const data =
+                    await res.json();
+
+
+                if (!res.ok) {
+
+                    throw new Error(
+                        data.error ||
+                        "Could not load Stripe booking."
+                    );
+
+                }
+
+
+                display(data);
+
+                return;
+
+            }
+
+
+            // =============================================
+            // PAY LATER
+            // =============================================
+
+            if (bookingId) {
+
+                document
+                    .getElementById("notice")
+                    .innerHTML =
+                    "<p>⏳ Loading booking information...</p>";
+
+
+                const res =
+                    await fetch(
+                        `${API}/api/booking/${encodeURIComponent(bookingId)}`
+                    );
+
+
+                const data =
+                    await res.json();
+
+
+                if (!res.ok) {
+
+                    throw new Error(
+                        data.error ||
+                        "Could not load Pay Later booking."
+                    );
+
+                }
+
+
+                display(data);
+
+                return;
+
+            }
+
+
+            // =============================================
+            // FALLBACK - SESSION STORAGE
+            // =============================================
+
+            const sessionData =
+                sessionStorage.getItem(
+                    "bookingData"
+                );
+
+
+            if (sessionData) {
+
+                const data =
+                    JSON.parse(
+                        sessionData
+                    );
+
+
+                if (data) {
+
+                    display(data);
+
+                    return;
+
+                }
+
+            }
+
+
+            // =============================================
+            // FALLBACK - LOCAL STORAGE
+            // =============================================
+
+            const localData =
+                localStorage.getItem(
+                    "bookingData"
+                );
+
+
+            if (localData) {
+
+                const data =
+                    JSON.parse(
+                        localData
+                    );
+
+
+                if (data) {
+
+                    display(data);
+
+                    return;
+
+                }
+
+            }
+
+
+            // =============================================
+            // NOTHING FOUND
+            // =============================================
+
+            document
+                .getElementById("notice")
+                .innerHTML =
+                "<p>⚠️ No booking data found.</p>";
+
+        }
+
+
+        catch (error) {
+
+            console.error(
+                "LOAD BOOKING ERROR:",
+                error
+            );
+
+
+            document
+                .getElementById("notice")
+                .innerHTML = `
+
+                    <p>
+                        ⚠️ Unable to load your booking information.
+                    </p>
+
+                    <p>
+                        Please contact us at
+                        <strong>
+                            703-967-0674
+                        </strong>
+                        if you need assistance.
+                    </p>
+
+                `;
+
+        }
+
+    }
+
+
+    // =====================================================
+    // START
+    // =====================================================
+
+    loadBooking();
 
 </script>
-
+```
 
 </body>
+
 </html>

@@ -2,846 +2,191 @@
 <html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta charset="UTF-8">
+    <title>Book Cleaning Service | My DMV Cleaning Services LLC</title>
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/booking.css">
 
+    <link
+        href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css"
+        rel="stylesheet"
+    >
 
-<title>
-Book Cleaning Service | My DMV Cleaning Services LLC
-</title>
-
-
-<link rel="stylesheet" href="./css/booking.css">
-
-
-<link 
-href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css"
-rel="stylesheet">
-
-
-<script 
-src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js">
-</script>
-
-
+    <script
+        src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js">
+    </script>
 </head>
-
-
 
 <body>
 
-
 <header class="navbar">
+    <div class="logo">🧼 My DMV Cleaning Services</div>
 
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
 
-<div class="logo">
-
-🧼 My DMV Cleaning Services
-
-</div>
-
-
-
-<div class="hamburger" onclick="toggleMenu()">
-
-☰
-
-</div>
-
-
-
-<nav class="nav-links" id="navLinks">
-
-
-<a href="index.html">
-🏠 Home
-</a>
-
-
-<a href="booking.html">
-📅 Booking
-</a>
-
-
-<a href="documents.html">
-📄 Documents
-</a>
-
-
-</nav>
-
-
+    <nav class="nav-links" id="navLinks">
+        <a href="index.html">🏠 Home</a>
+        <a href="booking.html">📅 Booking</a>
+        <a href="documents.html">📄 Documents</a>
+    </nav>
 </header>
-
-
-
-
 
 <main class="booking-page">
 
-
 <section class="booking-card">
 
-
-
-<h1>
-📅 Book Cleaning Service
-</h1>
-
-
-
+<h1>📅 Book Cleaning Service</h1>
 
 <div id="calendar"></div>
-
-
-
-<p id="selectedDate">
-
-Please select a date
-
-</p>
-
-
-
-
+<p id="selectedDate">Please select a date</p>
 
 <select id="service" class="input" onchange="updatePrice()">
-
-
-<option value="">
-Select Service
-</option>
-
-
-<option value="120">
-House Cleaning - $120
-</option>
-
-
-<option value="180">
-Office Cleaning - $180
-</option>
-
-
-<option value="200">
-Deep Cleaning - $200
-</option>
-
-
-<option value="250">
-Move In / Out Cleaning - $250
-</option>
-
-
+    <option value="">Select Service</option>
+    <option value="120">House Cleaning - $120</option>
+    <option value="180">Office Cleaning - $180</option>
+    <option value="200">Deep Cleaning - $200</option>
+    <option value="250">Move In / Out Cleaning - $250</option>
 </select>
-
-
-
-
-
 
 <select id="timeSlot" class="input">
-
-
-<option value="">
-Select Time
-</option>
-
-
-<option value="08:00-10:00">
-08:00 - 10:00
-</option>
-
-
-<option value="10:00-12:00">
-10:00 - 12:00
-</option>
-
-
-<option value="12:00-14:00">
-12:00 - 14:00
-</option>
-
-
-<option value="14:00-16:00">
-14:00 - 16:00
-</option>
-
-
-<option value="16:00-18:00">
-16:00 - 18:00
-</option>
-
-
+    <option value="">Select Time</option>
+    <option value="08:00-10:00">08:00 - 10:00</option>
+    <option value="10:00-12:00">10:00 - 12:00</option>
+    <option value="12:00-14:00">12:00 - 14:00</option>
+    <option value="14:00-16:00">14:00 - 16:00</option>
+    <option value="16:00-18:00">16:00 - 18:00</option>
 </select>
 
-
-
-
-
-<input 
-id="name"
-class="input"
-placeholder="Full Name">
-
-
-
-<input 
-id="phone"
-class="input"
-placeholder="Phone Number">
-
-
-
-<input 
-id="email"
-class="input"
-type="email"
-placeholder="Email">
-
-
-
-<input 
-id="address"
-class="input"
-placeholder="Address">
-
-
-
-
-
+<input id="name" class="input" type="text" placeholder="Full Name">
+<input id="phone" class="input" type="tel" placeholder="Phone Number">
+<input id="email" class="input" type="email" placeholder="Email">
+<input id="address" class="input" type="text" placeholder="Address">
 
 <div class="price-box">
-
-
-<p>
-
-Total:
-<strong id="total">
-$0
-</strong>
-
-</p>
-
-
-
-<p>
-
-Deposit (25%):
-<strong id="deposit">
-$0
-</strong>
-
-</p>
-
-
-
-<p>
-
-Remaining:
-<strong id="remaining">
-$0
-</strong>
-
-</p>
-
-
-
+    <p>Total: <strong id="total">$0.00</strong></p>
+    <p>Deposit (25%): <strong id="deposit">$0.00</strong></p>
+    <p>Remaining: <strong id="remaining">$0.00</strong></p>
 </div>
-
-
-
-
-
-
 
 <div class="btn-group">
+    <button onclick="payNow()" class="btn pay">
+        💳 Pay Now<br>25% Deposit
+    </button>
 
-
-<button 
-onclick="payNow()"
-class="btn pay">
-
-💳 Pay Now
-<br>
-25% Deposit
-
-</button>
-
-
-
-
-<button 
-onclick="payLater()"
-class="btn later">
-
-📌 Pay Later
-
-</button>
-
-
-
+    <button onclick="payLater()" class="btn later">
+        📌 Pay Later
+    </button>
 </div>
-
-
-
-
 
 <div id="msg"></div>
 
-
-
 </section>
-
-
 </main>
-
-
-
-
-
 
 <script>
 
-
-// ================= BACKEND API =================
-
-const API =
-window.location.hostname === "localhost"
-?
-"http://localhost:5000"
-:
-"https://dmv-cleaning-backend.onrender.com";
-
-
+const API = "https://dmv-cleaning-backend.onrender.com";
 
 let selectedDate = null;
 
-
-
-// ================= MENU =================
-
-
 function toggleMenu(){
-
-
-document
-.getElementById("navLinks")
-.classList
-.toggle("active");
-
-
+    document.getElementById("navLinks").classList.toggle("active");
 }
 
-
-
-
-
-
-
-// ================= CALENDAR =================
-
-
-
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
-
-
-const calendar =
-
-new FullCalendar.Calendar(
-
-document.getElementById("calendar"),
-
-{
-
-
-initialView:"dayGridMonth",
-
-
-
-dateClick:async function(info){
-
-
-selectedDate =
-info.dateStr;
-
-
-
-document.getElementById(
-"selectedDate"
-)
-
-.innerHTML =
-
-"Selected Date: " + selectedDate;
-
-
-
-await loadBookedSlots(selectedDate);
-
-
-}
-
-
-
-}
-
-);
-
-
-
-calendar.render();
-
-
+document.addEventListener("DOMContentLoaded", () => {
+    const calendar = new FullCalendar.Calendar(
+        document.getElementById("calendar"),
+        {
+            initialView: "dayGridMonth",
+            dateClick: async function(info){
+                selectedDate = info.dateStr;
+                document.getElementById("selectedDate").innerText =
+                    "Selected Date: " + selectedDate;
+                await loadBookedSlots(selectedDate);
+            }
+        }
+    );
+    calendar.render();
 });
-
-
-
-
-
-
-
-// ================= LOAD BOOKED TIMES =================
-
-
 
 async function loadBookedSlots(date){
+    try{
+        const res = await fetch(`${API}/api/bookings-by-date/${date}`);
+        const booked = await res.json();
 
+        const select = document.getElementById("timeSlot");
 
-try{
+        Array.from(select.options).forEach(o=>{
+            if(o.value){
+                o.disabled=false;
+                o.textContent=o.value;
+            }
+        });
 
+        booked.forEach(slot=>{
+            const opt = Array.from(select.options).find(o=>o.value===slot);
+            if(opt){
+                opt.disabled=true;
+                opt.textContent = slot + " ❌ Booked";
+            }
+        });
 
-const res =
-
-await fetch(
-
-`${API}/api/bookings-by-date/${date}`
-
-);
-
-
-
-const booked =
-
-await res.json();
-
-
-
-
-
-const select =
-
-document.getElementById(
-"timeSlot"
-);
-
-
-
-
-
-
-Array.from(select.options)
-
-.forEach(option=>{
-
-
-if(option.value){
-
-
-option.disabled=false;
-
-
-option.textContent=option.value;
-
-
+    }catch(err){
+        console.error(err);
+    }
 }
-
-
-});
-
-
-
-
-
-
-booked.forEach(slot=>{
-
-
-const option =
-
-Array.from(select.options)
-
-.find(
-
-item=>item.value===slot
-
-);
-
-
-
-if(option){
-
-
-option.disabled=true;
-
-
-option.textContent =
-slot + " ❌ Booked";
-
-
-}
-
-
-
-});
-
-
-
-
-
-}
-
-catch(error){
-
-
-console.log(
-"BOOKING SLOT ERROR:",
-error
-);
-
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-// ================= PRICE =================
-
-
 
 function updatePrice(){
+    const price = Number(document.getElementById("service").value);
+    const deposit = price * 0.25;
+    const remaining = price - deposit;
 
-
-const price =
-
-Number(
-
-document.getElementById(
-"service"
-).value
-
-);
-
-
-
-const deposit =
-price * .25;
-
-
-
-const remaining =
-price - deposit;
-
-
-
-
-
-document.getElementById(
-"total"
-).innerText =
-"$"+price;
-
-
-
-document.getElementById(
-"deposit"
-).innerText =
-"$"+deposit;
-
-
-
-document.getElementById(
-"remaining"
-).innerText =
-"$"+remaining;
-
-
-
+    document.getElementById("total").innerText = `$${price.toFixed(2)}`;
+    document.getElementById("deposit").innerText = `$${deposit.toFixed(2)}`;
+    document.getElementById("remaining").innerText = `$${remaining.toFixed(2)}`;
 }
-
-
-
-
-
-
-// ================= COLLECT DATA =================
-
-
 
 function collectForm(){
 
-
-
-const service =
-
-document.getElementById(
-"service"
-);
-
-
-
-const time =
-
-document.getElementById(
-"timeSlot"
-);
-
-
-
-
-
-if(!selectedDate)
-
-throw Error(
-"Please select a date"
-);
-
-
-
-
-
-if(!service.value)
-
-throw Error(
-"Please select service"
-);
-
-
-
-
-
-if(!time.value)
-
-throw Error(
-"Please select time"
-);
-
-
-
-
-
-
-if(
-
-time.options[time.selectedIndex].disabled
-
-)
-
-throw Error(
-"Time already booked"
-);
-
-
-
-
-
-
-const data={
-
-
-name:
-
-document.getElementById("name").value.trim(),
-
-
-
-phone:
-
-document.getElementById("phone").value.trim(),
-
-
-
-email:
-
-document.getElementById("email").value.trim(),
-
-
-
-address:
-
-document.getElementById("address").value.trim(),
-
-
-
-service:
-
-service.options[
-service.selectedIndex
-].text,
-
-
-
-price:
-
-Number(service.value),
-
-
-
-date:selectedDate,
-
-
-
-timeSlot:
-
-time.value
-
-
-};
-
-
-
-
-
-
-
-if(
-
-!data.name ||
-
-!data.phone ||
-
-!data.email ||
-
-!data.address
-
-)
-
-throw Error(
-"Please complete all fields"
-);
-
-
-
-
-return data;
-
-
+    if(!selectedDate) throw new Error("Select date");
+
+    const service = document.getElementById("service");
+    const time = document.getElementById("timeSlot");
+
+    const data = {
+        name: name.value.trim(),
+        phone: phone.value.trim(),
+        email: email.value.trim(),
+        address: address.value.trim(),
+        service: service.options[service.selectedIndex].text,
+        price: Number(service.value),
+        date: selectedDate,
+        timeSlot: time.value
+    };
+
+    if(!data.name || !data.phone || !data.email || !data.address){
+        throw new Error("Fill all fields");
+    }
+
+    return data;
 }
-
-
-
-
-
-
-
-// ================= PAY NOW =================
-
-
 
 async function payNow(){
+    const data = collectForm();
 
+    const res = await fetch(`${API}/api/create-deposit-checkout`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(data)
+    });
 
-try{
+    const result = await res.json();
 
-
-const data =
-collectForm();
-
-
-
-
-document.getElementById(
-"msg"
-).innerHTML =
-"⏳ Creating payment...";
-
-
-
-
-
-const res =
-
-await fetch(
-
-`${API}/api/create-deposit-checkout`,
-
-{
-
-method:"POST",
-
-headers:{
-
-"Content-Type":
-"application/json"
-
-},
-
-body:
-
-JSON.stringify(data)
-
-}
-
-);
-
-
-
-
-
-
-const result =
-await res.json();
-
-
-
-
-
-if(!res.ok)
-
-throw Error(
-result.error
-);
-
-
-
-
-
-window.location.href =
-result.url;
-
-
-
-}
-
-catch(err){
-
-
-alert(
-err.message
-);
-
-
-console.log(
-"PAY NOW ERROR:",
-err
-);
-
-
-}
-
-
-
+    if(result.url){
+        window.location.href = result.url;
+    }
 }
 
 
@@ -849,117 +194,59 @@ err
 
 
 
+// ================= FIXED PAY LATER =================
+async function payLater() {
 
+    try {
 
-// ================= PAY LATER =================
+        const data = collectForm();
 
+        document.getElementById("msg").innerText =
+            "⏳ Saving your booking...";
 
+        const response = await fetch(
+            `${API}/api/book-pay-later`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            }
+        );
 
-async function payLater(){
+        const result = await response.json();
 
+        if (!response.ok) {
+            throw new Error(
+                result.error ||
+                "Booking could not be saved."
+            );
+        }
 
+        // ✅ FIX: redirect with booking_id
+        if (result.bookingId) {
+            window.location.href =
+                `success.html?booking_id=${result.bookingId}`;
+        } else {
+            throw new Error("Booking ID not returned from server.");
+        }
 
-try{
+    }
 
+    catch (error) {
 
-const data =
-collectForm();
+        document.getElementById("msg").innerText = "";
 
+        alert(error.message);
 
+        console.error("PAY LATER ERROR:", error);
 
-
-
-document.getElementById(
-"msg"
-).innerHTML =
-"⏳ Saving booking...";
-
-
-
-
-
-
-const res =
-
-await fetch(
-
-`${API}/api/book-pay-later`,
-
-{
-
-method:"POST",
-
-headers:{
-
-"Content-Type":
-"application/json"
-
-},
-
-body:
-
-JSON.stringify(data)
-
-}
-
-);
-
-
-
-
-
-
-const result =
-await res.json();
-
-
-
-
-
-if(!res.ok)
-
-throw Error(
-result.error
-);
-
-
-
-
-
-window.location.href =
-"success.html";
-
-
+    }
 
 }
-
-catch(err){
-
-
-alert(
-err.message
-);
-
-
-
-console.log(
-"PAY LATER ERROR:",
-err
-);
-
-
-
-}
-
-
-
-}
-
-
 
 </script>
 
-
 </body>
-
 </html>

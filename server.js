@@ -541,7 +541,52 @@ res.json([]);
 });
 
 
+// 
+// ================= GET BOOKING BY STRIPE SESSION =================
 
+app.get(
+    "/api/booking-by-session/:sessionId",
+    (req, res) => {
+
+        try {
+
+            const booking = db.prepare(`
+                SELECT *
+                FROM bookings
+                WHERE stripeSession = ?
+                LIMIT 1
+            `).get(req.params.sessionId);
+
+
+            if (!booking) {
+
+                return res.status(404).json({
+                    error: "Booking not found"
+                });
+
+            }
+
+
+            res.json(booking);
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "GET BOOKING BY SESSION ERROR:",
+                error
+            );
+
+            res.status(500).json({
+                error: "Server error"
+            });
+
+        }
+
+    }
+);
+// 
 
 
 // ================= BOOKING EMAIL =================
@@ -997,9 +1042,7 @@ quantity:1
 
 
 
-success_url:
-
-`${FRONTEND_URL}/success.html`,
+success_url: `${FRONTEND_URL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
 
 
 
