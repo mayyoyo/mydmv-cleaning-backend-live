@@ -1,246 +1,999 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Book Cleaning Service | My DMV Cleaning Services LLC</title>
+```
+<meta charset="UTF-8">
 
-    <link rel="stylesheet" href="./css/booking.css">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css"
-        rel="stylesheet"
-    >
+<title>
+    Book Cleaning Service | My DMV Cleaning Services LLC
+</title>
 
-    <script
-        src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js">
-    </script>
+<link
+    rel="stylesheet"
+    href="./css/booking.css"
+>
+
+<link
+    href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css"
+    rel="stylesheet"
+>
+
+<script
+    src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js">
+</script>
+```
+
 </head>
 
 <body>
 
+<!-- ============================================================
+     NAVIGATION
+============================================================ -->
+
 <header class="navbar">
-    <div class="logo">🧼 My DMV Cleaning Services</div>
 
-    <div class="hamburger" onclick="toggleMenu()">☰</div>
+```
+<div class="logo">
+    🧼 My DMV Cleaning Services
+</div>
 
-    <nav class="nav-links" id="navLinks">
-        <a href="index.html">🏠 Home</a>
-        <a href="booking.html">📅 Booking</a>
-        <a href="documents.html">📄 Documents</a>
-    </nav>
+<div
+    class="hamburger"
+    onclick="toggleMenu()"
+>
+    ☰
+</div>
+
+<nav
+    class="nav-links"
+    id="navLinks"
+>
+
+    <a href="index.html">
+        🏠 Home
+    </a>
+
+    <a href="booking.html">
+        📅 Booking
+    </a>
+
+    <a href="documents.html">
+        📄 Documents
+    </a>
+
+</nav>
+```
+
 </header>
+
+<!-- ============================================================
+     BOOKING PAGE
+============================================================ -->
 
 <main class="booking-page">
 
 <section class="booking-card">
 
-<h1>📅 Book Cleaning Service</h1>
+```
+<h1>
+    📅 Book Cleaning Service
+</h1>
+
+
+<!-- ========================================================
+     CALENDAR
+========================================================= -->
 
 <div id="calendar"></div>
-<p id="selectedDate">Please select a date</p>
 
-<select id="service" class="input" onchange="updatePrice()">
-    <option value="">Select Service</option>
-    <option value="120">House Cleaning - $120</option>
-    <option value="180">Office Cleaning - $180</option>
-    <option value="200">Deep Cleaning - $200</option>
-    <option value="250">Move In / Out Cleaning - $250</option>
+
+<p id="selectedDate">
+    Please select a date
+</p>
+
+
+
+<!-- ========================================================
+     SERVICE
+========================================================= -->
+
+<select
+    id="service"
+    class="input"
+    onchange="updatePrice()"
+>
+
+    <option value="">
+        Select Service
+    </option>
+
+    <option value="120">
+        House Cleaning - $120
+    </option>
+
+    <option value="180">
+        Office Cleaning - $180
+    </option>
+
+    <option value="200">
+        Deep Cleaning - $200
+    </option>
+
+    <option value="250">
+        Move In / Out Cleaning - $250
+    </option>
+
 </select>
 
-<select id="timeSlot" class="input">
-    <option value="">Select Time</option>
-    <option value="08:00-10:00">08:00 - 10:00</option>
-    <option value="10:00-12:00">10:00 - 12:00</option>
-    <option value="12:00-14:00">12:00 - 14:00</option>
-    <option value="14:00-16:00">14:00 - 16:00</option>
-    <option value="16:00-18:00">16:00 - 18:00</option>
+
+
+<!-- ========================================================
+     TIME
+========================================================= -->
+
+<select
+    id="timeSlot"
+    class="input"
+>
+
+    <option value="">
+        Select Time
+    </option>
+
+    <option value="08:00-10:00">
+        08:00 - 10:00
+    </option>
+
+    <option value="10:00-12:00">
+        10:00 - 12:00
+    </option>
+
+    <option value="12:00-14:00">
+        12:00 - 14:00
+    </option>
+
+    <option value="14:00-16:00">
+        14:00 - 16:00
+    </option>
+
+    <option value="16:00-18:00">
+        16:00 - 18:00
+    </option>
+
 </select>
 
-<input id="name" class="input" type="text" placeholder="Full Name">
-<input id="phone" class="input" type="tel" placeholder="Phone Number">
-<input id="email" class="input" type="email" placeholder="Email">
-<input id="address" class="input" type="text" placeholder="Address">
+
+
+<!-- ========================================================
+     CUSTOMER INFORMATION
+========================================================= -->
+
+<input
+    id="name"
+    class="input"
+    type="text"
+    placeholder="Full Name"
+    autocomplete="name"
+>
+
+
+<input
+    id="phone"
+    class="input"
+    type="tel"
+    placeholder="Phone Number"
+    autocomplete="tel"
+>
+
+
+<input
+    id="email"
+    class="input"
+    type="email"
+    placeholder="Email"
+    autocomplete="email"
+>
+
+
+<input
+    id="address"
+    class="input"
+    type="text"
+    placeholder="Address"
+    autocomplete="street-address"
+>
+
+
+
+<!-- ========================================================
+     PRICE
+========================================================= -->
 
 <div class="price-box">
-    <p>Total: <strong id="total">$0.00</strong></p>
-    <p>Deposit (25%): <strong id="deposit">$0.00</strong></p>
-    <p>Remaining: <strong id="remaining">$0.00</strong></p>
+
+    <p>
+        Total:
+        <strong id="total">
+            $0.00
+        </strong>
+    </p>
+
+    <p>
+        Deposit (25%):
+        <strong id="deposit">
+            $0.00
+        </strong>
+    </p>
+
+    <p>
+        Remaining:
+        <strong id="remaining">
+            $0.00
+        </strong>
+    </p>
+
 </div>
+
+
+
+<!-- ========================================================
+     BUTTONS
+========================================================= -->
 
 <div class="btn-group">
-    <button onclick="payNow()" class="btn pay">
-        💳 Pay Now<br>25% Deposit
+
+    <button
+        type="button"
+        onclick="payNow()"
+        class="btn pay"
+    >
+        💳 Pay Now
+        <br>
+        25% Deposit
     </button>
 
-    <button onclick="payLater()" class="btn later">
+
+    <button
+        type="button"
+        onclick="payLater()"
+        class="btn later"
+    >
         📌 Pay Later
     </button>
+
 </div>
 
+
+
+<!-- ========================================================
+     MESSAGE
+========================================================= -->
+
 <div id="msg"></div>
+```
 
 </section>
+
 </main>
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
 
 <script>
 
-const API = "https://dmv-cleaning-backend.onrender.com";
+
+// ============================================================
+// PRODUCTION BACKEND
+// ============================================================
+
+const API =
+    "https://mydmv-cleaning-backend-live.onrender.com";
+
+
+// ============================================================
+// SELECTED DATE
+// ============================================================
 
 let selectedDate = null;
 
-function toggleMenu(){
-    document.getElementById("navLinks").classList.toggle("active");
+
+// ============================================================
+// ELEMENT REFERENCES
+// ============================================================
+
+const nameInput =
+    document.getElementById("name");
+
+const phoneInput =
+    document.getElementById("phone");
+
+const emailInput =
+    document.getElementById("email");
+
+const addressInput =
+    document.getElementById("address");
+
+const serviceInput =
+    document.getElementById("service");
+
+const timeInput =
+    document.getElementById("timeSlot");
+
+const messageElement =
+    document.getElementById("msg");
+
+
+// ============================================================
+// HAMBURGER MENU
+// ============================================================
+
+function toggleMenu() {
+
+    const nav =
+        document.getElementById("navLinks");
+
+    if (nav) {
+
+        nav.classList.toggle("active");
+
+    }
+
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    const calendar = new FullCalendar.Calendar(
-        document.getElementById("calendar"),
-        {
-            initialView: "dayGridMonth",
-            dateClick: async function(info){
-                selectedDate = info.dateStr;
-                document.getElementById("selectedDate").innerText =
-                    "Selected Date: " + selectedDate;
-                await loadBookedSlots(selectedDate);
-            }
+
+// ============================================================
+// CALENDAR
+// ============================================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        const calendarElement =
+            document.getElementById("calendar");
+
+
+        if (!calendarElement) {
+
+            console.error(
+                "Calendar element not found."
+            );
+
+            return;
+
         }
-    );
-    calendar.render();
-});
 
-async function loadBookedSlots(date){
-    try{
-        const res = await fetch(`${API}/api/bookings-by-date/${date}`);
-        const booked = await res.json();
 
-        const select = document.getElementById("timeSlot");
+        const calendar =
+            new FullCalendar.Calendar(
+                calendarElement,
+                {
 
-        Array.from(select.options).forEach(o=>{
-            if(o.value){
-                o.disabled=false;
-                o.textContent=o.value;
-            }
-        });
+                    initialView:
+                        "dayGridMonth",
 
-        booked.forEach(slot=>{
-            const opt = Array.from(select.options).find(o=>o.value===slot);
-            if(opt){
-                opt.disabled=true;
-                opt.textContent = slot + " ❌ Booked";
-            }
-        });
+                    dateClick:
+                        async function(info) {
 
-    }catch(err){
-        console.error(err);
+                            selectedDate =
+                                info.dateStr;
+
+
+                            const selectedDateElement =
+                                document.getElementById(
+                                    "selectedDate"
+                                );
+
+
+                            if (
+                                selectedDateElement
+                            ) {
+
+                                selectedDateElement.innerText =
+                                    "Selected Date: " +
+                                    selectedDate;
+
+                            }
+
+
+                            await loadBookedSlots(
+                                selectedDate
+                            );
+
+                        }
+
+                }
+            );
+
+
+        calendar.render();
+
     }
-}
-
-function updatePrice(){
-    const price = Number(document.getElementById("service").value);
-    const deposit = price * 0.25;
-    const remaining = price - deposit;
-
-    document.getElementById("total").innerText = `$${price.toFixed(2)}`;
-    document.getElementById("deposit").innerText = `$${deposit.toFixed(2)}`;
-    document.getElementById("remaining").innerText = `$${remaining.toFixed(2)}`;
-}
-
-function collectForm(){
-
-    if(!selectedDate) throw new Error("Select date");
-
-    const service = document.getElementById("service");
-    const time = document.getElementById("timeSlot");
-
-    const data = {
-        name: name.value.trim(),
-        phone: phone.value.trim(),
-        email: email.value.trim(),
-        address: address.value.trim(),
-        service: service.options[service.selectedIndex].text,
-        price: Number(service.value),
-        date: selectedDate,
-        timeSlot: time.value
-    };
-
-    if(!data.name || !data.phone || !data.email || !data.address){
-        throw new Error("Fill all fields");
-    }
-
-    return data;
-}
-
-async function payNow(){
-    const data = collectForm();
-
-    const res = await fetch(`${API}/api/create-deposit-checkout`,{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify(data)
-    });
-
-    const result = await res.json();
-
-    if(result.url){
-        window.location.href = result.url;
-    }
-}
+);
 
 
+// ============================================================
+// LOAD BOOKED TIME SLOTS
+// ============================================================
 
-
-
-
-// ================= FIXED PAY LATER =================
-async function payLater() {
+async function loadBookedSlots(
+    date
+) {
 
     try {
 
-        const data = collectForm();
+        const response =
+            await fetch(
+                `${API}/api/bookings-by-date/${encodeURIComponent(date)}`
+            );
 
-        document.getElementById("msg").innerText =
-            "⏳ Saving your booking...";
 
-        const response = await fetch(
-            `${API}/api/book-pay-later`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
+        if (!response.ok) {
+
+            throw new Error(
+                "Could not load booked times."
+            );
+
+        }
+
+
+        const booked =
+            await response.json();
+
+
+        const select =
+            document.getElementById(
+                "timeSlot"
+            );
+
+
+        if (!select) {
+
+            return;
+
+        }
+
+
+        // Reset all time options
+
+        Array.from(
+            select.options
+        ).forEach(
+            option => {
+
+                if (option.value) {
+
+                    option.disabled =
+                        false;
+
+                    option.textContent =
+                        option.value;
+
+                }
+
             }
         );
 
-        const result = await response.json();
 
-        if (!response.ok) {
-            throw new Error(
-                result.error ||
-                "Booking could not be saved."
+        // Disable booked times
+
+        if (Array.isArray(booked)) {
+
+            booked.forEach(
+                slot => {
+
+                    const option =
+                        Array.from(
+                            select.options
+                        ).find(
+                            option =>
+                                option.value ===
+                                slot
+                        );
+
+
+                    if (option) {
+
+                        option.disabled =
+                            true;
+
+                        option.textContent =
+                            slot +
+                            " ❌ Booked";
+
+                    }
+
+                }
             );
+
         }
 
-        // ✅ FIX: redirect with booking_id
-        if (result.bookingId) {
-            window.location.href =
-                `success.html?booking_id=${result.bookingId}`;
-        } else {
-            throw new Error("Booking ID not returned from server.");
-        }
 
     }
 
     catch (error) {
 
-        document.getElementById("msg").innerText = "";
+        console.error(
+            "LOAD BOOKED SLOTS ERROR:",
+            error
+        );
 
-        alert(error.message);
+    }
 
-        console.error("PAY LATER ERROR:", error);
+}
+
+
+// ============================================================
+// UPDATE PRICE
+// ============================================================
+
+function updatePrice() {
+
+    const price =
+        Number(
+            serviceInput
+                ? serviceInput.value
+                : 0
+        ) || 0;
+
+
+    const deposit =
+        Math.round(
+            price * 0.25 * 100
+        ) / 100;
+
+
+    const remaining =
+        Math.round(
+            (price - deposit) * 100
+        ) / 100;
+
+
+    const totalElement =
+        document.getElementById(
+            "total"
+        );
+
+
+    const depositElement =
+        document.getElementById(
+            "deposit"
+        );
+
+
+    const remainingElement =
+        document.getElementById(
+            "remaining"
+        );
+
+
+    if (totalElement) {
+
+        totalElement.innerText =
+            `$${price.toFixed(2)}`;
+
+    }
+
+
+    if (depositElement) {
+
+        depositElement.innerText =
+            `$${deposit.toFixed(2)}`;
+
+    }
+
+
+    if (remainingElement) {
+
+        remainingElement.innerText =
+            `$${remaining.toFixed(2)}`;
+
+    }
+
+}
+
+
+// ============================================================
+// COLLECT FORM
+// ============================================================
+
+function collectForm() {
+
+
+    // --------------------------------------------------------
+    // DATE
+    // --------------------------------------------------------
+
+    if (!selectedDate) {
+
+        throw new Error(
+            "Please select a date."
+        );
+
+    }
+
+
+    // --------------------------------------------------------
+    // SERVICE
+    // --------------------------------------------------------
+
+    const serviceElement =
+        document.getElementById(
+            "service"
+        );
+
+
+    if (
+        !serviceElement ||
+        !serviceElement.value
+    ) {
+
+        throw new Error(
+            "Please select a cleaning service."
+        );
+
+    }
+
+
+    // --------------------------------------------------------
+    // TIME
+    // --------------------------------------------------------
+
+    const timeElement =
+        document.getElementById(
+            "timeSlot"
+        );
+
+
+    if (
+        !timeElement ||
+        !timeElement.value
+    ) {
+
+        throw new Error(
+            "Please select a time."
+        );
+
+    }
+
+
+    // --------------------------------------------------------
+    // SAFELY READ TEXT VALUES
+    // --------------------------------------------------------
+
+    const name =
+        String(
+            nameInput?.value || ""
+        ).trim();
+
+
+    const phone =
+        String(
+            phoneInput?.value || ""
+        ).trim();
+
+
+    const email =
+        String(
+            emailInput?.value || ""
+        ).trim();
+
+
+    const address =
+        String(
+            addressInput?.value || ""
+        ).trim();
+
+
+    // --------------------------------------------------------
+    // VALIDATION
+    // --------------------------------------------------------
+
+    if (!name) {
+
+        throw new Error(
+            "Please enter your full name."
+        );
+
+    }
+
+
+    if (!phone) {
+
+        throw new Error(
+            "Please enter your phone number."
+        );
+
+    }
+
+
+    if (!email) {
+
+        throw new Error(
+            "Please enter your email."
+        );
+
+    }
+
+
+    if (!address) {
+
+        throw new Error(
+            "Please enter your address."
+        );
+
+    }
+
+
+    // --------------------------------------------------------
+    // EMAIL BASIC VALIDATION
+    // --------------------------------------------------------
+
+    if (
+        !email.includes("@")
+    ) {
+
+        throw new Error(
+            "Please enter a valid email address."
+        );
+
+    }
+
+
+    // --------------------------------------------------------
+    // SERVICE DATA
+    // --------------------------------------------------------
+
+    const price =
+        Number(
+            serviceElement.value
+        );
+
+
+    if (
+        !Number.isFinite(price) ||
+        price <= 0
+    ) {
+
+        throw new Error(
+            "Please select a valid cleaning service."
+        );
+
+    }
+
+
+    const service =
+        serviceElement.options[
+            serviceElement.selectedIndex
+        ].text;
+
+
+    const timeSlot =
+        timeElement.value;
+
+
+    // --------------------------------------------------------
+    // FINAL DATA
+    // --------------------------------------------------------
+
+    return {
+
+        name,
+
+        phone,
+
+        email,
+
+        address,
+
+        service,
+
+        price,
+
+        date:
+            selectedDate,
+
+        timeSlot
+
+    };
+
+}
+
+
+// ============================================================
+// PAY NOW — 25% STRIPE DEPOSIT
+// ============================================================
+
+async function payNow() {
+
+    try {
+
+
+        const data =
+            collectForm();
+
+
+        messageElement.innerText =
+            "⏳ Creating your secure payment...";
+
+
+        const response =
+            await fetch(
+                `${API}/api/create-deposit-checkout`,
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify(data)
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                result.error ||
+                "Unable to create payment."
+            );
+
+        }
+
+
+        if (!result.url) {
+
+            throw new Error(
+                "Stripe payment URL was not returned."
+            );
+
+        }
+
+
+        // Redirect to Stripe
+
+        window.location.href =
+            result.url;
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "PAY NOW ERROR:",
+            error
+        );
+
+
+        messageElement.innerText =
+            "";
+
+
+        alert(
+            error.message ||
+            "Payment could not be started."
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// PAY LATER
+// ============================================================
+
+async function payLater() {
+
+    try {
+
+
+        const data =
+            collectForm();
+
+
+        messageElement.innerText =
+            "⏳ Saving your booking...";
+
+
+        const response =
+            await fetch(
+                `${API}/api/book-pay-later`,
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify(data)
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                result.error ||
+                "Booking could not be saved."
+            );
+
+        }
+
+
+        if (
+            !result.bookingId
+        ) {
+
+            throw new Error(
+                "Booking ID was not returned from the server."
+            );
+
+        }
+
+
+        // ----------------------------------------------------
+        // PAY LATER SUCCESS PAGE
+        // ----------------------------------------------------
+
+        window.location.href =
+            `success.html?booking_id=${encodeURIComponent(
+                result.bookingId
+            )}`;
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "PAY LATER ERROR:",
+            error
+        );
+
+
+        messageElement.innerText =
+            "";
+
+
+        alert(
+            error.message ||
+            "Booking could not be saved."
+        );
 
     }
 
@@ -249,4 +1002,5 @@ async function payLater() {
 </script>
 
 </body>
+
 </html>
