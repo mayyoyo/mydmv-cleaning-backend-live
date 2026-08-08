@@ -3640,11 +3640,10 @@ app.get(
             stripe:
                 Boolean(stripe),
 
-            email:
-                Boolean(
-                    process.env.EMAIL_USER &&
-                    process.env.EMAIL_PASS
-                ),
+           email:
+    Boolean(
+        process.env.RESEND_API_KEY
+    ),
 
             sqlite:
                 true,
@@ -3771,13 +3770,12 @@ PORT,
                 : "MISSING"
         );
 
-        console.log(
-            "📧 Email:",
-            process.env.EMAIL_USER &&
-            process.env.EMAIL_PASS
-                ? "CONFIGURED"
-                : "MISSING"
-        );
+       console.log(
+    "📧 Email:",
+    process.env.RESEND_API_KEY
+        ? "CONFIGURED"
+        : "MISSING"
+);
 
         console.log(
             "🗄️ SQLite: READY"
