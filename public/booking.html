@@ -321,12 +321,18 @@
 
     // ========================================================
     // API URL
+    //
+    // LOCAL:
+    // http://localhost:5000
+    //
+    // PRODUCTION:
+    // https://mydmv-cleaning-backend-live.onrender.com
     // ========================================================
 
     const API_URL =
         window.location.hostname === "localhost"
             ? "http://localhost:5000"
-            : "https://dmv-cleaning-backend.onrender.com";
+            : "https://mydmv-cleaning-backend-live.onrender.com";
 
 
     console.log(
@@ -371,6 +377,7 @@
 
         const service =
             document.getElementById("service");
+
 
         const price =
             Number(service.value) || 0;
@@ -519,7 +526,8 @@
 
             button.disabled = true;
 
-            button.innerText =
+
+            button.innerHTML =
                 "⏳ Processing...";
 
 
@@ -754,6 +762,7 @@
                 "✅ Redirecting to secure Stripe payment...";
 
 
+
             // =================================================
             // REDIRECT TO STRIPE
             // =================================================
@@ -816,6 +825,7 @@
 
 
             button.disabled = true;
+
 
             button.innerText =
                 "⏳ Saving...";
@@ -906,7 +916,7 @@
 
             if (
                 !bookingData.price ||
-                bookingData.price <= 0
+                Number(bookingData.price) <= 0
             ) {
 
                 throw new Error(
@@ -920,6 +930,12 @@
             // =================================================
             // SEND TO BACKEND
             // =================================================
+
+            console.log(
+                "📤 Sending booking request to:",
+                `${API_URL}/api/book-pay-later`
+            );
+
 
             const response =
                 await fetch(
@@ -954,7 +970,9 @@
                                     bookingData.service,
 
                                 price:
-                                    bookingData.price,
+                                    Number(
+                                        bookingData.price
+                                    ),
 
                                 date:
                                     bookingData.date,
@@ -1038,11 +1056,13 @@
                 "✅ Booking created successfully. Redirecting...";
 
 
+
+            // =================================================
+            // REDIRECT TO FRONTEND SUCCESS PAGE
+            // =================================================
+
             window.location.href =
-                `${API_URL === "http://localhost:5000"
-                    ? ""
-                    : ""
-                }/success.html?booking_id=` +
+                `/success.html?booking_id=` +
                 encodeURIComponent(
                     data.bookingId
                 );
@@ -1067,6 +1087,7 @@
 
 
             button.disabled = false;
+
 
             button.innerText =
                 "📌 Pay Later";
@@ -1136,11 +1157,54 @@
                                     info.dateStr;
 
 
+
+                                // =================================================
+                                // RESET TIME SLOTS FIRST
+                                // =================================================
+
+                                const timeSelect =
+                                    document.getElementById(
+                                        "timeSlot"
+                                    );
+
+
+                                const options =
+                                    Array.from(
+                                        timeSelect.options
+                                    );
+
+
+                                options.forEach(
+                                    function (option) {
+
+                                        if (!option.value) {
+
+                                            return;
+
+                                        }
+
+                                        option.disabled =
+                                            false;
+
+                                    }
+                                );
+
+
+                                timeSelect.value = "";
+
+
+
                                 // =================================================
                                 // LOAD BOOKED TIME SLOTS
                                 // =================================================
 
                                 try {
+
+                                    console.log(
+                                        "📅 Loading booked times for:",
+                                        info.dateStr
+                                    );
+
 
                                     const response =
                                         await fetch(
@@ -1150,10 +1214,16 @@
                                         );
 
 
+                                    console.log(
+                                        "BOOKED TIMES HTTP STATUS:",
+                                        response.status
+                                    );
+
+
                                     if (!response.ok) {
 
                                         console.error(
-                                            "Unable to load booked times."
+                                            "❌ Unable to load booked times."
                                         );
 
                                         return;
@@ -1166,22 +1236,15 @@
 
 
                                     console.log(
-                                        "BOOKED TIMES:",
+                                        "📌 BOOKED TIMES:",
                                         bookedTimes
                                     );
 
 
-                                    const timeSelect =
-                                        document.getElementById(
-                                            "timeSlot"
-                                        );
 
-
-                                    const options =
-                                        Array.from(
-                                            timeSelect.options
-                                        );
-
+                                    // =================================================
+                                    // DISABLE ALREADY BOOKED TIMES
+                                    // =================================================
 
                                     options.forEach(
                                         function (option) {
@@ -1194,24 +1257,16 @@
 
 
                                             option.disabled =
+                                                Array.isArray(
+                                                    bookedTimes
+                                                ) &&
                                                 bookedTimes.includes(
                                                     option.value
                                                 );
 
-
-                                            if (
-                                                option.disabled &&
-                                                timeSelect.value ===
-                                                    option.value
-                                            ) {
-
-                                                timeSelect.value =
-                                                    "";
-
-                                            }
-
                                         }
                                     );
+
 
 
                                 } catch (error) {
@@ -1238,7 +1293,14 @@
 
 </script>
 
+
+<!-- ========================================================
+     SITE NAVIGATION
+========================================================= -->
+
 <script src="/js/site-navigation.js"></script>
+```
+
 </body>
 
 </html>
