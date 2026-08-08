@@ -11,7 +11,7 @@ const PDFDocument = require("pdfkit");
 const jwt = require("jsonwebtoken");
 const Stripe = require("stripe");
 const Database = require("better-sqlite3");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
 require("dotenv").config();
 
@@ -163,40 +163,24 @@ if (process.env.STRIPE_SECRET_KEY) {
     );
 }
 
+
 // ============================================================
-// GMAIL / NODEMAILER
+// RESEND EMAIL
 // ============================================================
 
-const transporter = nodemailer.createTransport({
-    service: "gmail",
+const resend = new Resend(
+    process.env.RESEND_API_KEY
+);
 
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-});
-
-if (
-    !process.env.EMAIL_USER ||
-    !process.env.EMAIL_PASS
-) {
+if (!process.env.RESEND_API_KEY) {
     console.error(
-        "❌ EMAIL_USER or EMAIL_PASS is missing"
+        "❌ RESEND_API_KEY is missing"
+    );
+} else {
+    console.log(
+        "✅ Resend API configured"
     );
 }
-
-transporter.verify((error) => {
-    if (error) {
-        console.error(
-            "❌ GMAIL SMTP ERROR:",
-            error.message
-        );
-    } else {
-        console.log(
-            "✅ Gmail SMTP connection ready"
-        );
-    }
-});
 
 // ============================================================
 // DATABASE
@@ -576,7 +560,7 @@ function escapeHTML(value) {
 }
 
 // ============================================================
-// EMAIL FUNCTION
+// EMAIL FUNCTION - RESEND
 // ============================================================
 
 async function sendEmail({
@@ -592,27 +576,28 @@ async function sendEmail({
         );
     }
 
-    if (
-        !process.env.EMAIL_USER ||
-        !process.env.EMAIL_PASS
-    ) {
+    if (!process.env.RESEND_API_KEY) {
         throw new Error(
-            "EMAIL_USER or EMAIL_PASS is missing"
+            "RESEND_API_KEY is missing"
         );
     }
 
     console.log(
-        "📧 Sending email to:",
+        "📧 Sending email with Resend to:",
         recipient
     );
 
     try {
-        const info =
-            await transporter.sendMail({
+        const result =
+            await resend.emails.send({
                 from:
-                    `"My DMV Cleaning Services LLC" <${process.env.EMAIL_USER}>`,
+                    "My DMV Cleaning Services LLC <onboarding@resend.dev>",
 
                 to: recipient,
+
+                replyTo:
+                    process.env.EMAIL_USER ||
+                    "mydmvcleaningservice@gmail.com",
 
                 subject:
                     safeString(subject),
@@ -622,20 +607,20 @@ async function sendEmail({
 
         console.log(
             "✅ EMAIL SENT:",
-            info.messageId
+            result
         );
 
-        return info;
+        return result;
+
     } catch (error) {
         console.error(
-            "❌ EMAIL ERROR:",
+            "❌ RESEND EMAIL ERROR:",
             error.message
         );
 
         throw error;
     }
 }
-
 // ============================================================
 // ADMIN AUTH
 // ============================================================
