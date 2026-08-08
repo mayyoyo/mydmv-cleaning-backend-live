@@ -1912,29 +1912,20 @@ app.post(
 // ============================================================
 // CREATE CONTRACT PDF
 // ============================================================
+function createContractPDF(contract) {
+    return new Promise((resolve, reject) => {
+        try {
+            const folder = path.join(
+                __dirname,
+                "public",
+                "signed-contracts"
+            );
 
-function createContractPDF(
-    contract
-) {
-    return new Promise(
-        (resolve, reject) => {
-            try {
-                const folder =
-                    path.join(
-                        __dirname,
-                        "contracts"
-                    );
+            if (!fs.existsSync(folder)) {
+                fs.mkdirSync(folder, { recursive: true });
+            }
 
-                if (
-                    !fs.existsSync(folder)
-                ) {
-                    fs.mkdirSync(
-                        folder,
-                        {
-                            recursive: true
-                        }
-                    );
-                }
+
 
                 const filename =
                     "contract_" +
@@ -3568,7 +3559,7 @@ app.use(
     express.static(
         path.join(
             __dirname,
-            "contracts"
+            "public", "signed-contracts"
         )
     )
 );
