@@ -4,12 +4,12 @@
 
 <head>
 
-```
 <meta charset="UTF-8">
 
 <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+
 >
 
 <title>
@@ -20,7 +20,6 @@
     rel="stylesheet"
     href="../css/legal.css"
 >
-```
 
 </head>
 
@@ -33,43 +32,37 @@
 <header class="legal-nav">
 
 ```
-<div class="logo">
-    🧼 My DMV Cleaning Services
-</div>
+<a href="../index.html">
+    🏠 Home
+</a>
 
-<nav>
+<a href="../booking.html">
+    📅 Booking
+</a>
 
-    <a href="../index.html">
-        🏠 Home
-    </a>
-
-    <a href="../booking.html">
-        📅 Booking
-    </a>
-
-    <a href="../documents.html">
-        📄 Documents
-    </a>
-
-</nav>
+<a href="../documents.html">
+    📄 Documents
+</a>
 ```
 
 </header>
 
 <!-- ============================================================
-     MAIN CONTAINER
+     MAIN CONTENT
 ============================================================ -->
 
-<div class="container">
+<main class="container">
 
 ```
 <h1 class="fade">
     📝 Sign Your Document
 </h1>
 
+
 <p class="effective fade">
     Please complete the information below to sign your document.
 </p>
+
 
 
 <div class="sign-box">
@@ -131,6 +124,7 @@
     >
 
 
+
     <!-- ======================================================
          CONTRACT TYPE
     ======================================================= -->
@@ -163,6 +157,7 @@
     </select>
 
 
+
     <!-- ======================================================
          DOCUMENT INFORMATION
     ======================================================= -->
@@ -181,6 +176,7 @@
         ></div>
 
     </div>
+
 
 
     <!-- ======================================================
@@ -280,6 +276,7 @@
     </div>
 
 
+
     <!-- ======================================================
          CLIENT SERVICE SECTION
     ======================================================= -->
@@ -321,6 +318,7 @@
     </div>
 
 
+
     <!-- ======================================================
          JOB COMPLETION SECTION
     ======================================================= -->
@@ -359,6 +357,7 @@
         ></textarea>
 
     </div>
+
 
 
     <!-- ======================================================
@@ -410,6 +409,7 @@
 
         <button
             type="button"
+            id="submitButton"
             class="legal-btn"
             onclick="submitContract()"
         >
@@ -419,13 +419,17 @@
     </div>
 
 
-    <div id="msg"></div>
+    <div
+        id="msg"
+        role="alert"
+        aria-live="polite"
+    ></div>
 
 
 </div>
 ```
 
-</div>
+</main>
 
 <!-- ============================================================
      FOOTER
@@ -453,366 +457,118 @@
 
 </footer>
 
+<!-- ============================================================
+     CONTRACT + SIGNATURE JAVASCRIPT
+============================================================ -->
+
 <script>
 
 
-// ============================================================
-// API
-// ============================================================
+/* ============================================================
+   GLOBAL VARIABLES
+============================================================ */
 
-const API =
-    window.location.hostname === "localhost"
-        ? "http://localhost:5000"
-        : "https://dmv-cleaning-backend.onrender.com";
+var canvas = null;
 
+var ctx = null;
 
-// ============================================================
-// ELEMENTS
-// ============================================================
-
-const params =
-    new URLSearchParams(
-        window.location.search
-    );
+var drawing = false;
 
 
-const urlType =
-    params.get("type");
+
+/* ============================================================
+   PAGE LOAD
+============================================================ */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        canvas =
+            document.getElementById("canvas");
 
 
-const contractSelect =
-    document.getElementById(
-        "contractType"
-    );
+        if (!canvas) {
+
+            console.error(
+                "Signature canvas not found."
+            );
+
+            return;
+
+        }
 
 
-const contractorSection =
-    document.getElementById(
-        "contractorSection"
-    );
+        ctx =
+            canvas.getContext("2d");
 
 
-const clientSection =
-    document.getElementById(
-        "clientSection"
-    );
+        if (!ctx) {
+
+            console.error(
+                "Could not create canvas context."
+            );
+
+            return;
+
+        }
 
 
-const jobCompletionSection =
-    document.getElementById(
-        "jobCompletionSection"
-    );
+        ctx.lineWidth = 2;
+
+        ctx.lineCap = "round";
+
+        ctx.lineJoin = "round";
+
+        ctx.strokeStyle = "#000000";
 
 
-const documentDescription =
-    document.getElementById(
-        "documentDescription"
-    );
+        setupSignature();
 
+        setupContractType();
 
-// ============================================================
-// SAFE VALUE HELPER
-// ============================================================
-
-function getValue(id) {
-
-    const element =
-        document.getElementById(id);
-
-    if (!element) {
-
-        return "";
+        updateContractSections();
 
     }
-
-    return (
-        element.value ||
-        ""
-    ).trim();
-
-}
-
-
-// ============================================================
-// URL CONTRACT TYPE
-// ============================================================
-
-if (urlType) {
-
-    const matchingOption =
-        Array.from(
-            contractSelect.options
-        ).find(
-            option =>
-                option.value === urlType
-        );
-
-    if (matchingOption) {
-
-        contractSelect.value =
-            urlType;
-
-    }
-
-}
-
-
-// ============================================================
-// DOCUMENT DESCRIPTIONS
-// ============================================================
-
-function updateDocumentDescription() {
-
-    const type =
-        contractSelect.value;
-
-
-    if (
-        type ===
-        "Independent Contractor Agreement"
-    ) {
-
-        documentDescription.innerHTML = `
-
-            <strong>
-                👷 Independent Contractor Agreement
-            </strong>
-
-            <br><br>
-
-            This agreement is for independent contractors
-            who provide cleaning services through
-            My DMV Cleaning Services LLC.
-
-            It records contractor information,
-            services offered, availability,
-            qualifications, and the contractor's
-            acknowledgment of the independent
-            contractor relationship.
-
-        `;
-
-
-    } else if (
-        type ===
-        "Client Service Agreement"
-    ) {
-
-        documentDescription.innerHTML = `
-
-            <strong>
-                🧹 Client Service Agreement
-            </strong>
-
-            <br><br>
-
-            This agreement documents the service
-            relationship between My DMV Cleaning
-            Services LLC and the client.
-
-            It records the client's information,
-            service address, requested cleaning
-            services, and applicable service terms.
-
-        `;
-
-
-    } else if (
-        type ===
-        "Non-Binding Agreement"
-    ) {
-
-        documentDescription.innerHTML = `
-
-            <strong>
-                📄 Non-Binding Agreement
-            </strong>
-
-            <br><br>
-
-            This document records the parties'
-            current understanding or intentions
-            regarding a potential cleaning service
-            relationship.
-
-            It is intended as a non-binding document
-            unless a separate written agreement
-            states otherwise.
-
-        `;
-
-
-    } else if (
-        type ===
-        "Job Completion Form"
-    ) {
-
-        documentDescription.innerHTML = `
-
-            <strong>
-                ✅ Job Completion Form
-            </strong>
-
-            <br><br>
-
-            This form documents that cleaning work
-            was completed.
-
-            It provides space to describe the work
-            performed, completion notes, and the
-            signed acknowledgment.
-
-        `;
-
-    }
-
-}
-
-
-// ============================================================
-// SHOW / HIDE SECTIONS
-// ============================================================
-
-function toggleContractFields() {
-
-    const type =
-        contractSelect.value;
-
-
-    // Hide everything first
-
-    contractorSection.style.display =
-        "none";
-
-    clientSection.style.display =
-        "none";
-
-    jobCompletionSection.style.display =
-        "none";
-
-
-    // Contractor
-
-    if (
-        type ===
-        "Independent Contractor Agreement"
-    ) {
-
-        contractorSection.style.display =
-            "block";
-
-    }
-
-
-    // Client
-
-    if (
-        type ===
-        "Client Service Agreement"
-    ) {
-
-        clientSection.style.display =
-            "block";
-
-    }
-
-
-    // Job Completion
-
-    if (
-        type ===
-        "Job Completion Form"
-    ) {
-
-        jobCompletionSection.style.display =
-            "block";
-
-    }
-
-
-    updateDocumentDescription();
-
-}
-
-
-// ============================================================
-// CONTRACT TYPE CHANGE
-// ============================================================
-
-contractSelect.addEventListener(
-    "change",
-    toggleContractFields
 );
 
 
-// ============================================================
-// INITIAL PAGE LOAD
-// ============================================================
 
-toggleContractFields();
+/* ============================================================
+   GET CANVAS POSITION
+============================================================ */
 
+function getPosition(event) {
 
-// ============================================================
-// CANVAS
-// ============================================================
-
-const canvas =
-    document.getElementById(
-        "canvas"
-    );
-
-
-const ctx =
-    canvas.getContext(
-        "2d"
-    );
-
-
-let drawing = false;
-
-
-ctx.lineWidth = 2;
-
-ctx.lineCap = "round";
-
-ctx.lineJoin = "round";
-
-
-// ============================================================
-// CANVAS POSITION
-// ============================================================
-
-function getPosition(e) {
-
-    const rect =
+    var rect =
         canvas.getBoundingClientRect();
 
 
-    if (e.touches) {
+    var clientX;
 
-        return {
+    var clientY;
 
-            x:
-                (
-                    e.touches[0].clientX -
-                    rect.left
-                ) *
-                (
-                    canvas.width /
-                    rect.width
-                ),
 
-            y:
-                (
-                    e.touches[0].clientY -
-                    rect.top
-                ) *
-                (
-                    canvas.height /
-                    rect.height
-                )
+    if (
+        event.touches &&
+        event.touches.length > 0
+    ) {
 
-        };
+        clientX =
+            event.touches[0].clientX;
+
+        clientY =
+            event.touches[0].clientY;
+
+    }
+
+    else {
+
+        clientX =
+            event.clientX;
+
+        clientY =
+            event.clientY;
 
     }
 
@@ -820,59 +576,54 @@ function getPosition(e) {
     return {
 
         x:
-            (
-                e.clientX -
-                rect.left
-            ) *
-            (
-                canvas.width /
-                rect.width
-            ),
+            (clientX - rect.left)
+            *
+            (canvas.width / rect.width),
 
         y:
-            (
-                e.clientY -
-                rect.top
-            ) *
-            (
-                canvas.height /
-                rect.height
-            )
+            (clientY - rect.top)
+            *
+            (canvas.height / rect.height)
 
     };
 
 }
 
 
-// ============================================================
-// START DRAWING
-// ============================================================
 
-function startDrawing(e) {
+/* ============================================================
+   START DRAWING
+============================================================ */
+
+function startDrawing(event) {
+
+    event.preventDefault();
+
 
     drawing = true;
 
 
-    const pos =
-        getPosition(e);
+    var position =
+        getPosition(event);
 
 
     ctx.beginPath();
 
 
     ctx.moveTo(
-        pos.x,
-        pos.y
+        position.x,
+        position.y
     );
 
 }
 
 
-// ============================================================
-// DRAW
-// ============================================================
 
-function draw(e) {
+/* ============================================================
+   DRAW
+============================================================ */
+
+function draw(event) {
 
     if (!drawing) {
 
@@ -881,16 +632,16 @@ function draw(e) {
     }
 
 
-    e.preventDefault();
+    event.preventDefault();
 
 
-    const pos =
-        getPosition(e);
+    var position =
+        getPosition(event);
 
 
     ctx.lineTo(
-        pos.x,
-        pos.y
+        position.x,
+        position.y
     );
 
 
@@ -899,80 +650,124 @@ function draw(e) {
 }
 
 
-// ============================================================
-// STOP DRAWING
-// ============================================================
 
-function stopDrawing() {
+/* ============================================================
+   STOP DRAWING
+============================================================ */
+
+function stopDrawing(event) {
+
+    if (event) {
+
+        event.preventDefault();
+
+    }
+
 
     drawing = false;
 
-    ctx.beginPath();
+
+    if (ctx) {
+
+        ctx.beginPath();
+
+    }
 
 }
 
 
-// ============================================================
-// MOUSE EVENTS
-// ============================================================
 
-canvas.addEventListener(
-    "mousedown",
-    startDrawing
-);
+/* ============================================================
+   SIGNATURE SETUP
+============================================================ */
+
+function setupSignature() {
 
 
-canvas.addEventListener(
-    "mousemove",
-    draw
-);
+    /* --------------------------------------------------------
+       MOUSE
+    -------------------------------------------------------- */
+
+    canvas.addEventListener(
+        "mousedown",
+        startDrawing
+    );
 
 
-canvas.addEventListener(
-    "mouseup",
-    stopDrawing
-);
+    canvas.addEventListener(
+        "mousemove",
+        draw
+    );
 
 
-canvas.addEventListener(
-    "mouseleave",
-    stopDrawing
-);
+    canvas.addEventListener(
+        "mouseup",
+        stopDrawing
+    );
 
 
-// ============================================================
-// TOUCH EVENTS
-// ============================================================
-
-canvas.addEventListener(
-    "touchstart",
-    startDrawing,
-    {
-        passive: false
-    }
-);
+    canvas.addEventListener(
+        "mouseleave",
+        stopDrawing
+    );
 
 
-canvas.addEventListener(
-    "touchmove",
-    draw,
-    {
-        passive: false
-    }
-);
+
+    /* --------------------------------------------------------
+       TOUCH
+    -------------------------------------------------------- */
+
+    canvas.addEventListener(
+        "touchstart",
+        startDrawing,
+        {
+            passive:false
+        }
+    );
 
 
-canvas.addEventListener(
-    "touchend",
-    stopDrawing
-);
+    canvas.addEventListener(
+        "touchmove",
+        draw,
+        {
+            passive:false
+        }
+    );
 
 
-// ============================================================
-// CLEAR SIGNATURE
-// ============================================================
+    canvas.addEventListener(
+        "touchend",
+        stopDrawing,
+        {
+            passive:false
+        }
+    );
+
+
+    canvas.addEventListener(
+        "touchcancel",
+        stopDrawing,
+        {
+            passive:false
+        }
+    );
+
+}
+
+
+
+/* ============================================================
+   CLEAR CANVAS
+============================================================ */
 
 function clearCanvas() {
+
+    if (!canvas || !ctx) {
+
+        return;
+
+    }
+
 
     ctx.clearRect(
         0,
@@ -984,283 +779,641 @@ function clearCanvas() {
 }
 
 
-// ============================================================
-// SUBMIT CONTRACT
-// ============================================================
+
+/* ============================================================
+   CHECK SIGNATURE
+============================================================ */
+
+function hasSignature() {
+
+    if (!canvas) {
+
+        return false;
+
+    }
+
+
+    var blankCanvas =
+        document.createElement(
+            "canvas"
+        );
+
+
+    blankCanvas.width =
+        canvas.width;
+
+
+    blankCanvas.height =
+        canvas.height;
+
+
+    return (
+        canvas.toDataURL("image/png") !==
+        blankCanvas.toDataURL("image/png")
+    );
+
+}
+
+
+
+/* ============================================================
+   CONTRACT TYPE
+============================================================ */
+
+function setupContractType() {
+
+    var contractType =
+        document.getElementById(
+            "contractType"
+        );
+
+
+    if (!contractType) {
+
+        return;
+
+    }
+
+
+    contractType.addEventListener(
+        "change",
+        updateContractSections
+    );
+
+}
+
+
+
+/* ============================================================
+   UPDATE CONTRACT SECTIONS
+============================================================ */
+
+function updateContractSections() {
+
+    var contractType =
+        document.getElementById(
+            "contractType"
+        );
+
+
+    var contractorSection =
+        document.getElementById(
+            "contractorSection"
+        );
+
+
+    var clientSection =
+        document.getElementById(
+            "clientSection"
+        );
+
+
+    var jobCompletionSection =
+        document.getElementById(
+            "jobCompletionSection"
+        );
+
+
+    var documentDescription =
+        document.getElementById(
+            "documentDescription"
+        );
+
+
+    if (
+        !contractType ||
+        !contractorSection ||
+        !clientSection ||
+        !jobCompletionSection ||
+        !documentDescription
+    ) {
+
+        return;
+
+    }
+
+
+    contractorSection.style.display =
+        "none";
+
+
+    clientSection.style.display =
+        "none";
+
+
+    jobCompletionSection.style.display =
+        "none";
+
+
+
+    /* ========================================================
+       INDEPENDENT CONTRACTOR
+    ======================================================== */
+
+    if (
+        contractType.value ===
+        "Independent Contractor Agreement"
+    ) {
+
+        contractorSection.style.display =
+            "block";
+
+
+        documentDescription.innerHTML =
+            "<strong>" +
+            "Independent Contractor Agreement" +
+            "</strong>" +
+            "<br><br>" +
+            "Please provide your contractor information " +
+            "before signing this document.";
+
+    }
+
+
+
+    /* ========================================================
+       CLIENT SERVICE
+    ======================================================== */
+
+    else if (
+        contractType.value ===
+        "Client Service Agreement"
+    ) {
+
+        clientSection.style.display =
+            "block";
+
+
+        documentDescription.innerHTML =
+            "<strong>" +
+            "Client Service Agreement" +
+            "</strong>" +
+            "<br><br>" +
+            "Please provide the service information " +
+            "before signing this document.";
+
+    }
+
+
+
+    /* ========================================================
+       NON-BINDING
+    ======================================================== */
+
+    else if (
+        contractType.value ===
+        "Non-Binding Agreement"
+    ) {
+
+        documentDescription.innerHTML =
+            "<strong>" +
+            "Non-Binding Agreement" +
+            "</strong>" +
+            "<br><br>" +
+            "This document records the parties' " +
+            "understanding without creating a " +
+            "binding contractual obligation.";
+
+    }
+
+
+
+    /* ========================================================
+       JOB COMPLETION
+    ======================================================== */
+
+    else if (
+        contractType.value ===
+        "Job Completion Form"
+    ) {
+
+        jobCompletionSection.style.display =
+            "block";
+
+
+        documentDescription.innerHTML =
+            "<strong>" +
+            "Job Completion Form" +
+            "</strong>" +
+            "<br><br>" +
+            "Please provide information about " +
+            "the cleaning work that was completed.";
+
+    }
+
+}
+
+
+
+/* ============================================================
+   SUBMIT CONTRACT
+============================================================ */
 
 async function submitContract() {
 
+    var msg =
+        document.getElementById("msg");
 
-    // ========================================================
-    // SERVICES
-    // ========================================================
 
-    const servicesElement =
+    var submitButton =
+        document.getElementById(
+            "submitButton"
+        );
+
+
+
+    /* ========================================================
+       BASIC INFORMATION
+    ======================================================== */
+
+    var name =
+        document
+            .getElementById("name")
+            .value
+            .trim();
+
+
+    var businessName =
+        document
+            .getElementById("businessName")
+            .value
+            .trim();
+
+
+    var email =
+        document
+            .getElementById("email")
+            .value
+            .trim();
+
+
+    var phone =
+        document
+            .getElementById("phone")
+            .value
+            .trim();
+
+
+
+    /* ========================================================
+       CONTRACT INFORMATION
+    ======================================================== */
+
+    var contractType =
+        document
+            .getElementById("contractType")
+            .value;
+
+
+    var typedName =
+        document
+            .getElementById("typedName")
+            .value
+            .trim();
+
+
+
+    /* ========================================================
+       REQUIRED FIELD VALIDATION
+    ======================================================== */
+
+    if (
+        !name ||
+        !email ||
+        !typedName
+    ) {
+
+        msg.innerHTML =
+            "⚠️ Please complete all required fields.";
+
+        msg.style.color =
+            "#ef4444";
+
+        return;
+
+    }
+
+
+
+    /* ========================================================
+       EMAIL VALIDATION
+    ======================================================== */
+
+    var emailPattern =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+    if (
+        !emailPattern.test(email)
+    ) {
+
+        msg.innerHTML =
+            "⚠️ Please enter a valid email address.";
+
+        msg.style.color =
+            "#ef4444";
+
+        return;
+
+    }
+
+
+
+    /* ========================================================
+       SIGNATURE VALIDATION
+    ======================================================== */
+
+    if (!hasSignature()) {
+
+        msg.innerHTML =
+            "⚠️ Please draw your signature before submitting.";
+
+        msg.style.color =
+            "#ef4444";
+
+        return;
+
+    }
+
+
+
+    /* ========================================================
+       SIGNATURE IMAGE
+    ======================================================== */
+
+    var signature =
+        canvas.toDataURL(
+            "image/png"
+        );
+
+
+
+    /* ========================================================
+       CONTRACTOR INFORMATION
+    ======================================================== */
+
+    var experienceElement =
+        document.getElementById(
+            "experience"
+        );
+
+
+    var servicesElement =
         document.getElementById(
             "services"
         );
 
 
-    const services =
-        servicesElement
-            ? Array.from(
+    var availabilityElement =
+        document.getElementById(
+            "availability"
+        );
+
+
+    var licenseElement =
+        document.getElementById(
+            "license"
+        );
+
+
+    var insuranceElement =
+        document.getElementById(
+            "insurance"
+        );
+
+
+    var experience = "";
+
+    var services = [];
+
+    var availability = "";
+
+    var license = "";
+
+    var insurance = "";
+
+
+    if (experienceElement) {
+
+        experience =
+            experienceElement.value.trim();
+
+    }
+
+
+    if (servicesElement) {
+
+        services =
+            Array.from(
                 servicesElement.selectedOptions
             ).map(
-                option =>
-                    option.value
-            )
-            : [];
+                function (option) {
+
+                    return option.value;
+
+                }
+            );
+
+    }
 
 
-    // ========================================================
-    // COLLECT FORM DATA
-    // ========================================================
+    if (availabilityElement) {
 
-    const data = {
+        availability =
+            availabilityElement.value.trim();
 
-
-        // BASIC INFORMATION
-
-        name:
-            getValue("name"),
+    }
 
 
-        businessName:
-            getValue("businessName"),
+    if (licenseElement) {
+
+        license =
+            licenseElement.value.trim();
+
+    }
 
 
-        email:
-            getValue("email"),
+    if (insuranceElement) {
+
+        insurance =
+            insuranceElement.value.trim();
+
+    }
 
 
-        phone:
-            getValue("phone"),
+
+    /* ========================================================
+       CLIENT INFORMATION
+    ======================================================== */
+
+    var addressElement =
+        document.getElementById(
+            "address"
+        );
 
 
-        address:
-            getValue("address"),
+    var serviceDescriptionElement =
+        document.getElementById(
+            "serviceDescription"
+        );
 
 
-        // CONTRACT TYPE
+    var address = "";
 
-        contractType:
-            contractSelect.value,
-
-
-        // CONTRACTOR INFORMATION
-
-        experience:
-            getValue("experience"),
+    var serviceDescription = "";
 
 
-        services:
-            services,
+    if (addressElement) {
+
+        address =
+            addressElement.value.trim();
+
+    }
 
 
-        availability:
-            getValue("availability"),
+    if (serviceDescriptionElement) {
+
+        serviceDescription =
+            serviceDescriptionElement.value.trim();
+
+    }
 
 
-        license:
-            getValue("license"),
+
+    /* ========================================================
+       JOB COMPLETION INFORMATION
+    ======================================================== */
+
+    var jobDescriptionElement =
+        document.getElementById(
+            "jobDescription"
+        );
 
 
-        insurance:
-            getValue("insurance"),
+    var completionNotesElement =
+        document.getElementById(
+            "completionNotes"
+        );
 
 
-        // ====================================================
-        // CLIENT SERVICE INFORMATION
-        // ====================================================
+    var jobDescription = "";
+
+    var completionNotes = "";
+
+
+    if (jobDescriptionElement) {
+
+        jobDescription =
+            jobDescriptionElement.value.trim();
+
+    }
+
+
+    if (completionNotesElement) {
+
+        completionNotes =
+            completionNotesElement.value.trim();
+
+    }
+
+
+
+    /* ========================================================
+       DATA TO SEND
+    ======================================================== */
+
+    var data = {
+
+        name: name,
+
+        businessName: businessName,
+
+        email: email,
+
+        phone: phone,
+
+        contractType: contractType,
+
+        experience: experience,
+
+        services: services,
+
+        availability: availability,
+
+        license: license,
+
+        insurance: insurance,
+
+        address: address,
 
         serviceDescription:
-            getValue(
-                "serviceDescription"
-            ),
-
-
-        // ====================================================
-        // JOB COMPLETION INFORMATION
-        // ====================================================
+            serviceDescription,
 
         jobDescription:
-            getValue(
-                "jobDescription"
-            ),
-
+            jobDescription,
 
         completionNotes:
-            getValue(
-                "completionNotes"
-            ),
+            completionNotes,
 
+        typedName: typedName,
 
-        // ====================================================
-        // SIGNATURE
-        // ====================================================
-
-        typedName:
-            getValue(
-                "typedName"
-            ),
-
-
-        signature:
-            canvas.toDataURL(
-                "image/png"
-            )
+        signature: signature
 
     };
 
 
-    // ========================================================
-    // VALIDATION
-    // ========================================================
 
-    if (
-        !data.name ||
-        !data.email ||
-        !data.typedName
-    ) {
+    /* ========================================================
+       SUBMITTING MESSAGE
+    ======================================================== */
 
-        document.getElementById(
-            "msg"
-        ).innerHTML = `
+    msg.innerHTML =
+        "⏳ Submitting your signed document...";
 
-            <p style="color:red;">
-                ❌ Please complete all required fields.
-            </p>
+    msg.style.color =
+        "#38bdf8";
 
-        `;
 
-        return;
+    if (submitButton) {
+
+        submitButton.disabled =
+            true;
+
+        submitButton.innerHTML =
+            "⏳ Submitting...";
 
     }
 
 
-    // ========================================================
-    // EMAIL VALIDATION
-    // ========================================================
 
-    const emailPattern =
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    /* ========================================================
+       SEND DATA TO SERVER
 
+       LOCAL:
+       http://localhost:5000
 
-    if (
-        !emailPattern.test(
-            data.email
-        )
-    ) {
+       PRODUCTION:
+       https://mydmv-cleaning-backend-live.onrender.com
 
-        document.getElementById(
-            "msg"
-        ).innerHTML = `
+       MATCHES SERVER:
 
-            <p style="color:red;">
-                ❌ Please enter a valid email address.
-            </p>
-
-        `;
-
-        return;
-
-    }
-
-
-    // ========================================================
-    // DOCUMENT-SPECIFIC VALIDATION
-    // ========================================================
-
-    if (
-        data.contractType ===
-        "Client Service Agreement"
-    ) {
-
-        if (!data.address) {
-
-            document.getElementById(
-                "msg"
-            ).innerHTML = `
-
-                <p style="color:red;">
-                    ❌ Please enter the service address.
-                </p>
-
-            `;
-
-            return;
-
-        }
-
-
-        if (!data.serviceDescription) {
-
-            document.getElementById(
-                "msg"
-            ).innerHTML = `
-
-                <p style="color:red;">
-                    ❌ Please describe the requested services.
-                </p>
-
-            `;
-
-            return;
-
-        }
-
-    }
-
-
-    if (
-        data.contractType ===
-        "Job Completion Form"
-    ) {
-
-        if (!data.jobDescription) {
-
-            document.getElementById(
-                "msg"
-            ).innerHTML = `
-
-                <p style="color:red;">
-                    ❌ Please describe the work completed.
-                </p>
-
-            `;
-
-            return;
-
-        }
-
-    }
-
-
-    // ========================================================
-    // SHOW LOADING
-    // ========================================================
-
-    document.getElementById(
-        "msg"
-    ).innerHTML = `
-
-        <p>
-            ⏳ Creating your document PDF...
-        </p>
-
-    `;
-
-
-    // ========================================================
-    // SEND TO SERVER
-    // ========================================================
+       app.post("/api/contracts", ...)
+    ======================================================== */
 
     try {
 
+        const API =
+            (
+                window.location.hostname === "localhost" ||
+                window.location.hostname === "127.0.0.1"
+            )
+                ? "http://localhost:5000"
+                : "https://mydmv-cleaning-backend-live.onrender.com";
 
-        const res =
+
+        var response =
             await fetch(
-                `${API}/api/sign-contract`,
+                API + "/api/contracts",
                 {
 
                     method:
@@ -1274,185 +1427,154 @@ async function submitContract() {
                     },
 
                     body:
-                        JSON.stringify(
-                            data
-                        )
+                        JSON.stringify(data)
 
                 }
             );
 
 
-        // ====================================================
-        // CHECK HTTP RESPONSE
-        // ====================================================
 
-        if (!res.ok) {
+        /* ====================================================
+           SERVER RESPONSE
+        ==================================================== */
 
-            let errorMessage =
-                "Document submission failed.";
+        var result =
+            await response.json();
 
-            try {
 
-                const errorResult =
-                    await res.json();
 
-                errorMessage =
-                    errorResult.error ||
-                    errorMessage;
+        /* ====================================================
+           SERVER ERROR
+        ==================================================== */
 
-            } catch (jsonError) {
-
-                console.error(
-                    "Unable to read server error:",
-                    jsonError
-                );
-
-            }
-
+        if (!response.ok) {
 
             throw new Error(
-                errorMessage
-            );
-
-        }
-
-
-        // ====================================================
-        // READ RESULT
-        // ====================================================
-
-        const result =
-            await res.json();
-
-
-        // ====================================================
-        // SUCCESS
-        // ====================================================
-
-        if (
-            result.success
-        ) {
-
-
-            let pdfURL =
-                result.pdf ||
-                result.pdfUrl;
-
-
-            // Convert relative PDF URL
-            // into full backend URL
-
-            if (
-                pdfURL &&
-                !pdfURL.startsWith(
-                    "http"
-                )
-            ) {
-
-                pdfURL =
-                    API +
-                    pdfURL;
-
-            }
-
-
-            document.getElementById(
-                "msg"
-            ).innerHTML = `
-
-                <div
-                    style="
-                        margin-top:25px;
-                        padding:20px;
-                        border-radius:12px;
-                        background:rgba(34,197,94,0.10);
-                    "
-                >
-
-                    <h3 style="color:green;">
-
-                        ✅ ${data.contractType}
-                        completed successfully!
-
-                    </h3>
-
-
-                    <p>
-
-                        Your signed document has been
-                        created successfully.
-
-                    </p>
-
-
-                    ${
-                        pdfURL
-                            ? `
-
-                                <a
-                                    href="${pdfURL}"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style="
-                                        display:inline-block;
-                                        margin-top:15px;
-                                        padding:12px 20px;
-                                        background:#007bff;
-                                        color:white;
-                                        border-radius:8px;
-                                        text-decoration:none;
-                                        font-size:18px;
-                                    "
-                                >
-
-                                    📄 Open Signed PDF
-
-                                </a>
-
-                            `
-                            : ""
-                    }
-
-
-                </div>
-
-            `;
-
-
-        } else {
-
-
-            throw new Error(
+                result.message ||
                 result.error ||
-                "Document submission failed"
+                "Failed to submit contract."
             );
 
         }
 
 
-    } catch (err) {
 
+        /* ====================================================
+           SUCCESS
+        ==================================================== */
+
+        msg.innerHTML =
+            "✅ Document signed and submitted successfully." +
+            "<br><br>" +
+            "Your signed document has been saved.";
+
+        msg.style.color =
+            "#22c55e";
+
+
+
+        /* ====================================================
+           VIEW SIGNED DOCUMENT
+        ==================================================== */
+
+        if (result.file) {
+
+            const pdfURL =
+                result.file.startsWith("http")
+                    ? result.file
+                    : API + result.file;
+
+
+            msg.innerHTML +=
+                "<br><br>" +
+
+                "<a " +
+                "href=\"" +
+                pdfURL +
+                "\" " +
+                "target=\"_blank\" " +
+                "rel=\"noopener noreferrer\" " +
+                "style=\"" +
+                "display:inline-block;" +
+                "padding:10px 16px;" +
+                "border-radius:8px;" +
+                "text-decoration:none;" +
+                "\"" +
+                ">" +
+
+                "📄 View Signed Document" +
+
+                "</a>";
+
+        }
+
+
+
+        /* ====================================================
+           CLEAR FORM
+        ==================================================== */
+
+        document
+            .getElementById("name")
+            .value = "";
+
+
+        document
+            .getElementById("businessName")
+            .value = "";
+
+
+        document
+            .getElementById("email")
+            .value = "";
+
+
+        document
+            .getElementById("phone")
+            .value = "";
+
+
+        document
+            .getElementById("typedName")
+            .value = "";
+
+
+        clearCanvas();
+
+
+
+    } catch (error) {
 
         console.error(
             "Contract submission error:",
-            err
+            error
         );
 
 
-        document.getElementById(
-            "msg"
-        ).innerHTML = `
+        msg.innerHTML =
+            "❌ " +
+            (
+                error.message ||
+                "Unable to submit the document. Please try again."
+            );
 
-            <p style="color:red;">
 
-                ❌ ${
-                    err.message ||
-                    "Unable to submit document."
-                }
+        msg.style.color =
+            "#ef4444";
 
-            </p>
 
-        `;
+
+    } finally {
+
+        if (submitButton) {
+
+            submitButton.disabled =
+                false;
+
+            submitButton.innerHTML =
+                "✅ Sign & Submit";
+
+        }
 
     }
 
