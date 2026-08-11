@@ -505,10 +505,7 @@ res.json({
 
 success:true,
 
-bookedSlots:
-rows.map(
-item=>item.timeSlot
-)
+bookedSlots: rows.flatMap(item => { const slot = String(item.timeSlot || "").trim(); const match = slot.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i); if (!match) return [slot]; let hour = parseInt(match[1], 10); const minutes = match[2]; const period = match[3].toUpperCase(); if (period === "PM" && hour !== 12) hour += 12; if (period === "AM" && hour === 12) hour = 0; const endHour = hour + 2; if (endHour > 23) return [slot]; const start = String(hour).padStart(2, "0") + ":" + minutes; const end = String(endHour).padStart(2, "0") + ":" + minutes; return [slot, start + " - " + end]; })
 
 });
 
