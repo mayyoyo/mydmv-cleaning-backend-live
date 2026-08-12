@@ -664,7 +664,7 @@ SELECT *
 
 FROM contacts
 
-ORDER BY createdAt DESC
+ORDER BY id DESC
 
 `).all();
 
@@ -696,6 +696,158 @@ success:false
 
 });
 // ============================================================
+// ADMIN DELETE CONTACT
+// ============================================================
+
+app.delete(
+    "/api/admin/contacts/:id",
+    verifyAdmin,
+    (req, res) => {
+
+        try {
+
+            const id = Number(req.params.id);
+
+            if (!Number.isInteger(id)) {
+
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid contact ID"
+                });
+
+            }
+
+            const result = db.prepare(
+                "DELETE FROM contacts WHERE id = ?"
+            ).run(id);
+
+            if (result.changes === 0) {
+
+                return res.status(404).json({
+                    success: false,
+                    message: "Contact message not found"
+                });
+
+            }
+
+            res.json({
+                success: true,
+                message: "Contact message deleted"
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Delete contact error:",
+                error.message
+            );
+
+            res.status(500).json({
+                success: false,
+                message: "Could not delete contact message"
+            });
+
+        }
+
+    }
+);
+
+
+// ============================================================
+
+// ============================================================
+// ============================================================
+ // ADMIN EDIT CONTACT
+// ============================================================
+
+app.put(
+    "/api/admin/contacts/:id",
+    verifyAdmin,
+    (req, res) => {
+
+        try {
+
+            const id = Number(req.params.id);
+
+            if (!Number.isInteger(id)) {
+
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid contact ID"
+                });
+
+            }
+
+            const message =
+                String(req.body.message || "").trim();
+
+            const status =
+                String(req.body.status || "new").trim();
+
+            if (!message) {
+
+                return res.status(400).json({
+                    success: false,
+                    message: "Message cannot be empty"
+                });
+
+            }
+
+            const allowedStatuses = [
+                "new",
+                "read",
+                "replied"
+            ];
+
+            if (!allowedStatuses.includes(status)) {
+
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid contact status"
+                });
+
+            }
+
+            const result = db.prepare(
+                "UPDATE contacts SET message = ?, status = ? WHERE id = ?"
+            ).run(
+                message,
+                status,
+                id
+            );
+
+            if (result.changes === 0) {
+
+                return res.status(404).json({
+                    success: false,
+                    message: "Contact message not found"
+                });
+
+            }
+
+            res.json({
+                success: true,
+                message: "Contact message updated"
+            });
+
+        } catch (error) {
+
+            console.error(
+                "CONTACT UPDATE ERROR:",
+                error
+            );
+
+            res.status(500).json({
+                success: false,
+                message: "Could not update contact message"
+            });
+
+        }
+
+    }
+);
+
+
 // CREATE BOOKING - PAY LATER
 // ============================================================
 
@@ -1366,53 +1518,34 @@ app.get(
 verifyAdmin,
 (req,res)=>{
 
+console.log("=== ADMIN BOOKINGS ROUTE REACHED ===");
 
 try{
 
+const bookings=db.prepare("SELECT * FROM bookings ORDER BY id DESC").all();
 
-const bookings =
-db.prepare(`
-
-SELECT *
-
-FROM bookings
-
-ORDER BY createdAt DESC
-
-`).all();
-
-
+console.log("=== ADMIN BOOKINGS SUCCESS ===",bookings.length);
 
 res.json({
-
 success:true,
-
-bookings
-
+bookings:bookings
 });
-
-
 
 }catch(error){
 
+console.error("=== ADMIN BOOKINGS SQL ERROR ===");
+console.error(error);
+console.error(error.message);
 
 res.status(500).json({
-
 success:false,
-
-message:
-"Could not load bookings"
-
+message:"Could not load bookings",
+error:error.message
 });
-
 
 }
 
-
 });
-
-
-
 
 
 // ============================================================
@@ -2408,7 +2541,7 @@ app.post(
                         bookingId,
                         name,
                         email,
-                        file
+                        pdfUrl
                     )
                     VALUES (?, ?, ?, ?)
                 `).run(
@@ -2485,7 +2618,7 @@ app.get(
             const contracts = db.prepare(`
                 SELECT *
                 FROM contracts
-                ORDER BY createdAt DESC
+                ORDER BY id DESC
             `).all();
 
             res.json({

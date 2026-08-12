@@ -1,17 +1,31 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
 
 <title>
-Contact Us | My DMV Cleaning Services LLC
+    Contact Us | My DMV Cleaning Services LLC
 </title>
 
+
 <!-- <link rel="stylesheet" href="./css/style.css"> -->
-<link rel="stylesheet" href="./css/contract.css">
+
+<link
+    rel="stylesheet"
+    href="./css/contract.css"
+>
+
 
 </head>
 
@@ -23,414 +37,427 @@ Contact Us | My DMV Cleaning Services LLC
 
 
 <h1>
-📞 Contact My DMV Cleaning Services LLC
+    📞 Contact My DMV Cleaning Services LLC
 </h1>
 
 
 <p>
-Have questions? Send us a message and we will get back to you.
+    Have questions? Send us a message and we will get back to you.
 </p>
-
-
-
 
 
 <form id="contactForm">
 
 
 <label>
-Name
+    Name
 </label>
 
 
 <input
-type="text"
-id="name"
-required
-placeholder="Your name">
-
-
-
-
+    type="text"
+    id="name"
+    required
+    placeholder="Your name"
+>
 
 
 <label>
-Email
+    Email
 </label>
 
 
 <input
-type="email"
-id="email"
-required
-placeholder="Your email">
-
-
-
-
+    type="email"
+    id="email"
+    required
+    placeholder="Your email"
+>
 
 
 <label>
-Phone
+    Phone
 </label>
 
 
 <input
-type="text"
-id="phone"
-placeholder="Your phone number">
-
-
-
-
+    type="text"
+    id="phone"
+    placeholder="Your phone number"
+>
 
 
 <label>
-Message
+    Message
 </label>
-
 
 
 <textarea
-id="message"
-rows="5"
-required
-placeholder="Write your message">
-</textarea>
-
-
-
-
+    id="message"
+    rows="5"
+    required
+    placeholder="Write your message"
+></textarea>
 
 
 <button type="submit">
 
-📩 Send Message
+    📩 Send Message
 
 </button>
-
 
 
 <p id="result"></p>
 
 
-
 </form>
-
 
 
 </div>
 
 
-
-
-
-
-
-
 <script>
 
 
-// ================= API =================
-
+// ============================================================
+// API
+// ============================================================
 
 const API =
+
 (
-window.location.hostname === "localhost" ||
-window.location.hostname === "127.0.0.1"
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
 )
+
 ?
+
 "http://localhost:5000"
+
 :
+
 "https://dmv-cleaning-backend.onrender.com";
 
 
 
-
-
-
-
-
-// ================= CONTACT FORM =================
-
+// ============================================================
+// CONTACT FORM
+// ============================================================
 
 document
-.getElementById("contactForm")
-.addEventListener(
-"submit",
-async function(e){
+    .getElementById("contactForm")
+    .addEventListener(
+        "submit",
+        async function(e) {
+
+            e.preventDefault();
 
 
-e.preventDefault();
+            const result =
+                document.getElementById("result");
+
+
+            const data = {
+
+                name:
+                    document
+                        .getElementById("name")
+                        .value
+                        .trim(),
+
+                email:
+                    document
+                        .getElementById("email")
+                        .value
+                        .trim(),
+
+                phone:
+                    document
+                        .getElementById("phone")
+                        .value
+                        .trim(),
+
+                message:
+                    document
+                        .getElementById("message")
+                        .value
+                        .trim()
+
+            };
+
+
+            // ====================================================
+            // VALIDATION
+            // ====================================================
+
+            if (
+                !data.name ||
+                !data.email ||
+                !data.email.includes("@") ||
+                !data.message
+            ) {
+
+                result.innerHTML =
+                    "❌ Please enter a valid name, email, and message.";
+
+                return;
+
+            }
+
+
+            result.innerHTML =
+                "⏳ Sending message...";
+
+
+            try {
+
+                const res =
+                    await fetch(
+                        `${API}/api/contact`,
+                        {
+
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json"
+
+                            },
+
+                            body:
+                                JSON.stringify(data)
+
+                        }
+                    );
+
+
+                // =================================================
+                // SAFE JSON RESPONSE
+                // =================================================
+
+                let response;
+
+
+                try {
+
+                    response =
+                        await res.json();
+
+                }
+
+                catch(error) {
+
+                    throw new Error(
+                        "Invalid server response"
+                    );
+
+                }
+
+
+                console.log(
+                    "STATUS:",
+                    res.status
+                );
+
+
+                console.log(
+                    "RESPONSE:",
+                    response
+                );
+
+
+                if (
+                    res.ok &&
+                    response.success
+                ) {
+
+                    result.innerHTML =
+                        "✅ Message sent successfully! We will contact you soon.";
+
+
+                    document
+                        .getElementById("contactForm")
+                        .reset();
+
+                }
+
+                else {
+
+                    result.innerHTML =
+                        "❌ " +
+                        (
+                            response.error ||
+                            response.message ||
+                            "Message failed"
+                        );
+
+                }
+
+            }
+
+
+            catch(error) {
+
+                console.error(
+                    "CONTACT ERROR:",
+                    error
+                );
+
+
+                result.innerHTML =
+                    "❌ Server connection failed. Try again.";
+
+            }
+
+        }
+    );
 
 
 
+// ============================================================
+// CONTRACT SUBMISSION
+// ============================================================
 
-const result =
-document.getElementById("result");
-
-
-
-
-
-const data = {
+async function submitContract() {
 
 
-name:
-document.getElementById("name")
-.value
-.trim(),
+    const name =
+        document
+            .getElementById("name")
+            .value
+            .trim();
 
 
-
-email:
-document.getElementById("email")
-.value
-.trim(),
-
-
-
-phone:
-document.getElementById("phone")
-.value
-.trim(),
+    const email =
+        document
+            .getElementById("email")
+            .value
+            .trim();
 
 
-
-message:
-document.getElementById("message")
-.value
-.trim()
-
+    const contractType =
+        document
+            .getElementById("contractType")
+            .value;
 
 
-};
+    const typedName =
+        document
+            .getElementById("typedName")
+            .value
+            .trim();
 
 
+    const msg =
+        document
+            .getElementById("msg");
 
 
+    if (
+        !name ||
+        !email ||
+        !typedName
+    ) {
+
+        msg.innerHTML =
+            "❌ Please complete all required fields.";
+
+        return;
+
+    }
 
 
-// ================= VALIDATION =================
+    try {
 
 
-if(
+        const response =
+            await fetch(
+                "/api/contracts",
+                {
 
-!data.name ||
+                    method: "POST",
 
-!data.email ||
+                    headers: {
 
-!data.email.includes("@") ||
+                        "Content-Type":
+                            "application/json"
 
-!data.message
+                    },
 
-){
+                    body:
+                        JSON.stringify({
+
+                            name:
+                                name,
+
+                            email:
+                                email,
+
+                            contractType:
+                                contractType,
+
+                            typedName:
+                                typedName
+
+                        })
+
+                }
+            );
 
 
-result.innerHTML =
-"❌ Please enter a valid name, email, and message.";
+        const data =
+            await response.json();
 
 
-return;
+        if (
+            !response.ok ||
+            !data.success
+        ) {
 
+            throw new Error(
+
+                data.message ||
+                "Unable to submit the document."
+
+            );
+
+        }
+
+
+        msg.innerHTML =
+            "✅ Document signed successfully!";
+
+
+        console.log(
+            "Contract saved:",
+            data
+        );
+
+
+    }
+
+    catch(error) {
+
+
+        console.error(
+            "Contract submission error:",
+            error
+        );
+
+
+        msg.innerHTML =
+            "❌ Unable to submit the document. Please try again.";
+
+    }
 
 }
-
-
-
-
-
-
-result.innerHTML =
-"⏳ Sending message...";
-
-
-
-
-
-
-
-try{
-
-
-
-const res =
-await fetch(
-
-`${API}/api/contact`,
-
-{
-
-
-method:"POST",
-
-
-
-headers:{
-
-
-"Content-Type":"application/json"
-
-
-},
-
-
-
-body:
-
-JSON.stringify(data)
-
-
-
-}
-
-);
-
-
-
-
-
-
-
-// ================= SAFE JSON RESPONSE =================
-
-
-let response;
-
-
-try{
-
-
-response =
-await res.json();
-
-
-}
-
-
-catch(error){
-
-
-throw new Error(
-"Invalid server response"
-);
-
-
-}
-
-
-
-
-
-
-
-
-console.log(
-"STATUS:",
-res.status
-);
-
-
-
-console.log(
-"RESPONSE:",
-response
-);
-
-
-
-
-
-
-
-
-
-if(
-
-res.ok &&
-
-response.success
-
-){
-
-
-
-result.innerHTML =
-
-"✅ Message sent successfully! We will contact you soon.";
-
-
-
-
-document
-.getElementById("contactForm")
-.reset();
-
-
-
-
-}
-
-else{
-
-
-
-result.innerHTML =
-
-"❌ " +
-
-(
-response.error ||
-
-"Message failed"
-
-);
-
-
-
-}
-
-
-
-
-
-}
-
-catch(error){
-
-
-
-console.error(
-
-"CONTACT ERROR:",
-
-error
-
-);
-
-
-
-
-result.innerHTML =
-
-"❌ Server connection failed. Try again.";
-
-
-
-
-
-}
-
-
-
-});
-
 
 
 </script>
 
 
-
 </body>
+
 
 </html>

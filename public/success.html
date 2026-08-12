@@ -1,320 +1,199 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+>
 
-    <title>
-        Booking Confirmed | My DMV Cleaning Services LLC
-    </title>
+<title>
+Booking Confirmed | My DMV Cleaning Services LLC
+</title>
 
 
-    <style>
+<style>
 
-        /* =====================================================
-           RESET
-        ===================================================== */
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
 
+body{
 
-        /* =====================================================
-           BACKGROUND
-        ===================================================== */
+background:
+linear-gradient(
+135deg,
+#0f2027,
+#203a43,
+#2c5364
+);
 
-        body {
+min-height:100vh;
 
-            background:
-                linear-gradient(
-                    135deg,
-                    #0f2027,
-                    #203a43,
-                    #2c5364
-                );
+display:flex;
 
-            min-height: 100vh;
+justify-content:center;
 
-            display: flex;
+align-items:center;
 
-            justify-content: center;
+padding:20px;
 
-            align-items: center;
+}
 
-            padding: 20px;
 
-        }
 
+.card{
 
-        /* =====================================================
-           CONTAINER
-        ===================================================== */
+background:white;
 
-        .success-container {
+max-width:520px;
 
-            width: 100%;
+width:100%;
 
-            padding: 20px;
+padding:30px;
 
-        }
+border-radius:15px;
 
+box-shadow:
+0 10px 30px rgba(0,0,0,.25);
 
-        /* =====================================================
-           CARD
-        ===================================================== */
+}
 
-        .card {
 
-            background: white;
 
-            max-width: 500px;
+.icon{
 
-            margin: auto;
+font-size:60px;
 
-            padding: 30px;
+text-align:center;
 
-            border-radius: 15px;
+}
 
-            text-align: center;
 
-            box-shadow:
-                0 10px 30px
-                rgba(0, 0, 0, 0.2);
 
-            animation:
-                fadeIn 0.6s ease;
+h1{
 
-        }
+text-align:center;
 
+color:#2c5364;
 
-        /* =====================================================
-           ICON
-        ===================================================== */
+margin:15px 0;
 
-        .icon {
+}
 
-            font-size: 60px;
 
-            margin-bottom: 10px;
 
-        }
+.sub{
 
+text-align:center;
 
-        /* =====================================================
-           TITLE
-        ===================================================== */
+color:#666;
 
-        h1 {
+}
 
-            color: #2c5364;
 
-            margin-bottom: 10px;
 
-        }
+#loading{
 
+text-align:center;
 
-        /* =====================================================
-           SUBTEXT
-        ===================================================== */
+margin-top:20px;
 
-        .sub {
+color:#666;
 
-            color: #666;
+}
 
-            margin-bottom: 20px;
 
-        }
 
+#error{
 
-        /* =====================================================
-           DETAILS
-        ===================================================== */
+display:none;
 
-        .details {
+background:#fee2e2;
 
-            text-align: left;
+color:#dc2626;
 
-            margin: 20px 0;
+padding:15px;
 
-        }
+margin-top:20px;
 
+border-radius:8px;
 
-        .details h3 {
+}
 
-            color: #2c5364;
 
-            margin-top: 20px;
 
-            margin-bottom: 5px;
+.details{
 
-        }
+margin-top:20px;
 
+}
 
-        .details div {
 
-            padding: 10px;
 
-            border-bottom:
-                1px solid #eee;
+.details h3{
 
-            font-size: 15px;
+color:#2c5364;
 
-        }
+margin-top:20px;
 
+}
 
-        .details strong {
 
-            color: #333;
 
-        }
+.details div{
 
+padding:8px 0;
 
-        /* =====================================================
-           BOOKING ID
-        ===================================================== */
+border-bottom:1px solid #eee;
 
-        .booking-id {
+}
 
-            background: #f1f5f9;
 
-            padding: 12px;
 
-            border-radius: 8px;
+.booking-id{
 
-            margin-top: 15px;
+background:#f1f5f9;
 
-            font-weight: bold;
+padding:12px;
 
-            color: #2c5364;
+border-radius:8px;
 
-        }
+margin-top:20px;
 
+}
 
-        /* =====================================================
-           BUTTON
-        ===================================================== */
 
-        .btn {
 
-            display: inline-block;
+.btn{
 
-            margin-top: 20px;
+display:block;
 
-            background: #2c5364;
+width:max-content;
 
-            color: white;
+margin:25px auto 0;
 
-            padding: 12px 25px;
+background:#2c5364;
 
-            border-radius: 8px;
+color:white;
 
-            text-decoration: none;
+padding:12px 25px;
 
-            transition: 0.3s;
+border-radius:8px;
 
-        }
+text-decoration:none;
 
+}
 
-        .btn:hover {
+</style>
 
-            background: #203a43;
-
-        }
-
-
-        /* =====================================================
-           LOADING
-        ===================================================== */
-
-        #loading {
-
-            color: #666;
-
-            margin-top: 20px;
-
-        }
-
-
-        /* =====================================================
-           ERROR
-        ===================================================== */
-
-        #error {
-
-            display: none;
-
-            color: #dc2626;
-
-            background: #fee2e2;
-
-            padding: 12px;
-
-            border-radius: 8px;
-
-            margin-top: 15px;
-
-        }
-
-
-        /* =====================================================
-           ANIMATION
-        ===================================================== */
-
-        @keyframes fadeIn {
-
-            from {
-
-                opacity: 0;
-
-                transform:
-                    translateY(20px);
-
-            }
-
-            to {
-
-                opacity: 1;
-
-                transform:
-                    translateY(0);
-
-            }
-
-        }
-
-
-        /* =====================================================
-           MOBILE
-        ===================================================== */
-
-        @media (max-width: 600px) {
-
-            .card {
-
-                padding: 20px;
-
-            }
-
-            h1 {
-
-                font-size: 25px;
-
-            }
-
-        }
-
-    </style>
 
 </head>
 
@@ -322,756 +201,598 @@
 <body>
 
 
-    <div class="success-container">
+<div class="card">
 
 
-        <div class="card">
+<div class="icon">
+🧼
+</div>
 
 
-            <div class="icon">
-                🧼
-            </div>
 
+<h1>
+Booking Confirmed!
+</h1>
 
-            <h1>
-                Booking Confirmed!
-            </h1>
 
 
-            <p class="sub">
-                Your cleaning service has been
-                successfully scheduled.
-            </p>
+<p class="sub">
 
+Your cleaning service has been successfully scheduled.
 
-            <!-- =================================================
-                 LOADING
-            ================================================== -->
+</p>
 
-            <div id="loading">
-                ⏳ Loading your booking information...
-            </div>
 
 
-            <!-- =================================================
-                 ERROR
-            ================================================== -->
 
-            <div id="error"></div>
+<div id="loading">
 
+⏳ Loading booking information...
 
-            <!-- =================================================
-                 BOOKING INFORMATION
-            ================================================== -->
+</div>
 
-            <div
-                id="bookingDetails"
-                class="details"
-                style="display:none;"
-            >
 
 
-                <div class="booking-id">
 
-                    Booking ID:
+<div id="error"></div>
 
-                    <span id="bookingId">
-                        —
-                    </span>
 
-                </div>
 
 
-                <!-- CUSTOMER -->
 
-                <h3>
-                    👤 Customer Information
-                </h3>
+<div
+id="bookingDetails"
+class="details"
+style="display:none;"
+>
 
 
-                <div>
 
-                    <strong>Name:</strong>
+<div class="booking-id">
 
-                    <span id="customerName">
-                        —
-                    </span>
+Booking ID:
 
-                </div>
+<span id="bookingId">
+-
+</span>
 
 
-                <div>
+</div>
 
-                    <strong>Email:</strong>
 
-                    <span id="customerEmail">
-                        —
-                    </span>
 
-                </div>
 
 
-                <div>
+<h3>
+👤 Customer Information
+</h3>
 
-                    <strong>Phone:</strong>
 
-                    <span id="customerPhone">
-                        —
-                    </span>
+<div>
+<strong>Name:</strong>
+<span id="name">-</span>
+</div>
 
-                </div>
 
+<div>
+<strong>Email:</strong>
+<span id="email">-</span>
+</div>
 
-                <div>
 
-                    <strong>Address:</strong>
+<div>
+<strong>Phone:</strong>
+<span id="phone">-</span>
+</div>
 
-                    <span id="customerAddress">
-                        —
-                    </span>
 
-                </div>
+<div>
+<strong>Address:</strong>
+<span id="address">-</span>
+</div>
 
 
-                <!-- CLEANING -->
 
-                <h3>
-                    🧹 Cleaning Appointment
-                </h3>
 
 
-                <div>
+<h3>
+🧹 Cleaning Appointment
+</h3>
 
-                    <strong>Service:</strong>
 
-                    <span id="service">
-                        —
-                    </span>
+<div>
+<strong>Service:</strong>
+<span id="service">-</span>
+</div>
 
-                </div>
 
+<div>
+<strong>Date:</strong>
+<span id="date">-</span>
+</div>
 
-                <div>
 
-                    <strong>Date:</strong>
+<div>
+<strong>Time:</strong>
+<span id="time">-</span>
+</div>
 
-                    <span id="date">
-                        —
-                    </span>
 
-                </div>
 
 
-                <div>
 
-                    <strong>Time:</strong>
+<h3>
+💳 Payment
+</h3>
 
-                    <span id="time">
-                        —
-                    </span>
 
-                </div>
 
+<div>
+<strong>Total:</strong>
+$<span id="price">0</span>
+</div>
 
-                <!-- PAYMENT -->
 
-                <h3>
-                    💳 Payment Details
-                </h3>
 
 
-                <div>
+<div>
+<strong>Deposit:</strong>
+$<span id="deposit">0</span>
+</div>
 
-                    <strong>
-                        Total Service Price:
-                    </strong>
 
-                    $<span id="total">
-                        0.00
-                    </span>
 
-                </div>
+<div>
+<strong>Remaining:</strong>
+$<span id="remaining">0</span>
+</div>
 
 
-                <div>
 
-                    <strong>
-                        Deposit Required (25%):
-                    </strong>
+<div>
+<strong>Status:</strong>
+<span id="status">-</span>
+</div>
 
-                    $<span id="depositRequired">
-                        0.00
-                    </span>
 
-                </div>
 
+</div>
 
-                <div>
 
-                    <strong>
-                        Deposit Paid:
-                    </strong>
 
-                    <span id="depositPaid">
-                        Not Paid
-                    </span>
 
-                </div>
 
+<p
+id="thankYou"
+style="
+display:none;
+text-align:center;
+margin-top:20px;
+"
+>
 
-                <div>
+Thank you for choosing
 
-                    <strong>
-                        Remaining Balance:
-                    </strong>
+<br>
 
-                    $<span id="remaining">
-                        0.00
-                    </span>
+My DMV Cleaning Services LLC.
 
-                </div>
+</p>
 
 
-                <div>
 
-                    <strong>
-                        Payment Status:
-                    </strong>
 
-                    <span id="paymentStatus">
-                        —
-                    </span>
 
-                </div>
+<a
+href="index.html"
+class="btn"
+>
 
+🏠 Back to Home
 
-            </div>
+</a>
 
 
-            <p
-                id="thankYou"
-                style="
-                    display:none;
-                    margin-top:20px;
-                "
-            >
 
-                Thank you for choosing
-                My DMV Cleaning Services LLC.
 
-                <br><br>
+</div>
 
-                Your appointment details
-                have been saved.
 
-            </p>
 
 
-            <a
-                href="index.html"
-                class="btn"
-            >
 
-                🏠 Back to Home
 
-            </a>
+<script>
 
 
-        </div>
+// =================================================
+// API
+// =================================================
 
-    </div>
 
+const API =
 
-    <!-- =====================================================
-         JAVASCRIPT
-    ===================================================== -->
+(
+window.location.hostname === "localhost" ||
+window.location.hostname === "127.0.0.1"
+)
 
-    <script>
+?
 
+"http://localhost:5000"
 
-        document.addEventListener(
-            "DOMContentLoaded",
-            loadBooking
-        );
+:
 
+"https://mydmv-cleaning-backend-live.onrender.com";
 
-        async function loadBooking() {
 
 
-            const loading =
-                document.getElementById(
-                    "loading"
-                );
 
 
-            const errorBox =
-                document.getElementById(
-                    "error"
-                );
 
+// =================================================
+// LOAD BOOKING
+// =================================================
 
-            const details =
-                document.getElementById(
-                    "bookingDetails"
-                );
 
+async function loadBooking(){
 
-            const thankYou =
-                document.getElementById(
-                    "thankYou"
-                );
 
+const loading =
+document.getElementById(
+"loading"
+);
 
-            try {
 
+const error =
+document.getElementById(
+"error"
+);
 
-                /* =================================================
-                   GET BOOKING ID
-                ================================================== */
 
-                const params =
-                    new URLSearchParams(
-                        window.location.search
-                    );
 
+try{
 
-                const bookingId =
-                    params.get("booking_id");
 
+const params =
+new URLSearchParams(
+window.location.search
+);
 
-                console.log(
-                    "SUCCESS PAGE BOOKING ID:",
-                    bookingId
-                );
 
 
-                if (!bookingId) {
+// PAY LATER
 
-                    throw new Error(
-                        "No booking ID was provided."
-                    );
+const bookingId =
+params.get(
+"booking_id"
+);
 
-                }
 
 
-                /* =================================================
-                   GET BOOKING
+// PAY NOW STRIPE
 
-                   IMPORTANT:
-                   The correct route is:
+const sessionId =
+params.get(
+"session_id"
+);
 
-                   /api/booking/:id
 
-                   NOT:
 
-                   /api/bookings/:id
-                ================================================== */
+let response;
 
-                const response =
-                    await fetch(
-                        "https://mydmv-cleaning-backend-live.onrender.com/api/booking/" +
-                        encodeURIComponent(
-                            bookingId
-                        ),
-                        {
-                            method: "GET",
-                            headers: {
-                                "Accept":
-                                    "application/json"
-                            }
-                        }
-                    );
 
 
-                console.log(
-                    "BOOKING API STATUS:",
-                    response.status
-                );
 
+if(bookingId){
 
-                const rawText =
-                    await response.text();
 
+console.log(
+"PAY LATER BOOKING ID:",
+bookingId
+);
 
-                console.log(
-                    "BOOKING API RESPONSE:",
-                    rawText
-                );
 
 
-                let data;
+response =
+await fetch(
 
+API +
 
-                try {
+"/api/booking/" +
 
-                    data =
-                        JSON.parse(
-                            rawText
-                        );
+encodeURIComponent(
+bookingId
+)
 
-                } catch (jsonError) {
+);
 
-                    throw new Error(
-                        "The booking server returned an invalid response."
-                    );
 
-                }
+}
 
 
-                if (!response.ok) {
 
-                    throw new Error(
-                        data.message ||
-                        data.error ||
-                        "Unable to load booking information."
-                    );
 
-                }
+else if(sessionId){
 
 
-                /* =================================================
-                   SUPPORT BOTH RESPONSE FORMATS
+console.log(
+"STRIPE SESSION:",
+sessionId
+);
 
-                   Format 1:
 
-                   {
-                       success: true,
-                       booking: {...}
-                   }
 
-                   Format 2:
+response =
+await fetch(
 
-                   {
-                       id: 40,
-                       name: "...",
-                       ...
-                   }
-                ================================================== */
+API +
 
-                const booking =
-                    data.booking ||
-                    data;
+"/api/booking-session/" +
 
+encodeURIComponent(
+sessionId
+)
 
-                console.log(
-                    "BOOKING:",
-                    booking
-                );
+);
 
 
-                if (!booking.id && !bookingId) {
+}
 
-                    throw new Error(
-                        "Booking information was not returned."
-                    );
 
-                }
 
+else{
 
-                /* =================================================
-                   CUSTOMER INFORMATION
-                ================================================== */
 
-                document.getElementById(
-                    "bookingId"
-                ).innerText =
-                    booking.id ||
-                    bookingId;
+throw new Error(
 
+"No booking information found"
 
-                document.getElementById(
-                    "customerName"
-                ).innerText =
-                    booking.name ||
-                    "—";
+);
 
 
-                document.getElementById(
-                    "customerEmail"
-                ).innerText =
-                    booking.email ||
-                    "—";
+}
 
 
-                document.getElementById(
-                    "customerPhone"
-                ).innerText =
-                    booking.phone ||
-                    "—";
 
 
-                document.getElementById(
-                    "customerAddress"
-                ).innerText =
-                    booking.address ||
-                    "—";
 
+const data =
+await response.json();
 
-                /* =================================================
-                   CLEANING APPOINTMENT
-                ================================================== */
 
-                document.getElementById(
-                    "service"
-                ).innerText =
-                    booking.service ||
-                    "—";
 
 
-                document.getElementById(
-                    "date"
-                ).innerText =
-                    booking.date ||
-                    "—";
+console.log(
+"SUCCESS RESPONSE:",
+data
+);
 
 
-                document.getElementById(
-                    "time"
-                ).innerText =
-                    booking.timeSlot ||
-                    booking.time ||
-                    "—";
 
 
-                /* =================================================
-                   PAYMENT
-                ================================================== */
 
-                const total =
-                    Number(
-                        booking.price
-                    ) || 0;
+if(!response.ok){
 
 
-                const depositRequired =
-                    total * 0.25;
+throw new Error(
 
+data.message ||
 
-                /*
-                 * PAY LATER
-                 *
-                 * No deposit has been paid.
-                 */
+data.error ||
 
-                const paymentType =
-                    String(
-                        booking.paymentType ||
-                        ""
-                    ).toLowerCase();
+"Booking not found"
 
+);
 
-                const isPayLater =
-                    paymentType ===
-                        "pay_later" ||
 
-                    paymentType ===
-                        "pay later" ||
+}
 
-                    paymentType ===
-                        "pay-later";
 
 
-                let depositPaid;
 
+const booking =
+data.booking ||
 
-                if (isPayLater) {
+data;
 
-                    depositPaid = 0;
 
-                } else {
 
-                    depositPaid =
-                        Number(
-                            booking.deposit
-                        ) || 0;
 
-                }
 
+document.getElementById(
+"bookingId"
+).innerText =
 
-                /*
-                 * For Pay Later the entire
-                 * service price remains due.
-                 */
+booking.id ||
 
-                let remaining;
+bookingId ||
 
+"-";
 
-                if (isPayLater) {
 
-                    remaining =
-                        total;
 
-                } else {
+document.getElementById(
+"name"
+).innerText =
 
-                    remaining =
-                        Number(
-                            booking.remaining
-                        );
+booking.name || "-";
 
-                    if (
-                        !Number.isFinite(
-                            remaining
-                        )
-                    ) {
 
-                        remaining =
-                            total -
-                            depositPaid;
 
-                    }
+document.getElementById(
+"email"
+).innerText =
 
-                }
+booking.email || "-";
 
 
-                document.getElementById(
-                    "total"
-                ).innerText =
-                    total.toFixed(2);
 
+document.getElementById(
+"phone"
+).innerText =
 
-                document.getElementById(
-                    "depositRequired"
-                ).innerText =
-                    depositRequired.toFixed(2);
+booking.phone || "-";
 
 
-                /*
-                 * Show "Not Paid" for
-                 * Pay Later.
-                 */
 
-                if (isPayLater) {
+document.getElementById(
+"address"
+).innerText =
 
-                    document.getElementById(
-                        "depositPaid"
-                    ).innerText =
-                        "Not Paid";
+booking.address || "-";
 
-                } else {
 
-                    document.getElementById(
-                        "depositPaid"
-                    ).innerText =
-                        "$" +
-                        depositPaid.toFixed(2);
 
-                }
+document.getElementById(
+"service"
+).innerText =
 
+booking.service || "-";
 
-                document.getElementById(
-                    "remaining"
-                ).innerText =
-                    remaining.toFixed(2);
 
 
-                /* =================================================
-                   PAYMENT STATUS
-                ================================================== */
+document.getElementById(
+"date"
+).innerText =
 
-                let paymentStatus;
+booking.date || "-";
 
 
-                if (isPayLater) {
 
-                    paymentStatus =
-                        "Pay Later";
+document.getElementById(
+"time"
+).innerText =
 
-                } else if (
-                    booking.status ===
-                    "paid"
-                ) {
+booking.timeSlot ||
 
-                    paymentStatus =
-                        "Paid";
+booking.time ||
 
-                } else if (
-                    booking.paymentType
-                ) {
+"-";
 
-                    paymentStatus =
-                        booking.paymentType;
 
-                } else {
 
-                    paymentStatus =
-                        "Pending";
 
-                }
+document.getElementById(
+"price"
+).innerText =
 
+Number(
+booking.price || 0
+).toFixed(2);
 
-                document.getElementById(
-                    "paymentStatus"
-                ).innerText =
-                    paymentStatus;
 
 
-                /* =================================================
-                   SHOW BOOKING
-                ================================================== */
 
-                loading.style.display =
-                    "none";
+document.getElementById(
+"deposit"
+).innerText =
 
+Number(
+booking.deposit || 0
+).toFixed(2);
 
-                errorBox.style.display =
-                    "none";
 
 
-                details.style.display =
-                    "block";
 
+document.getElementById(
+"remaining"
+).innerText =
 
-                thankYou.style.display =
-                    "block";
+Number(
+booking.remaining || 0
+).toFixed(2);
 
 
-                console.log(
-                    "SUCCESS PAGE LOADED:",
-                    booking
-                );
 
-            }
 
+document.getElementById(
+"status"
+).innerText =
 
-            catch (error) {
+booking.status ||
 
+"Pending";
 
-                console.error(
-                    "SUCCESS PAGE ERROR:",
-                    error
-                );
 
 
-                loading.style.display =
-                    "none";
 
 
-                details.style.display =
-                    "none";
+loading.style.display =
+"none";
 
 
-                thankYou.style.display =
-                    "none";
 
+document.getElementById(
+"bookingDetails"
+).style.display =
+"block";
 
-                errorBox.style.display =
-                    "block";
 
 
-                errorBox.innerText =
-                    "⚠️ " +
-                    error.message +
-                    " Please contact us at 703-967-0674 if you need assistance.";
+document.getElementById(
+"thankYou"
+).style.display =
+"block";
 
-            }
 
-        }
 
 
-    </script>
+
+}
+
+
+
+catch(err){
+
+
+
+console.log(
+"SUCCESS ERROR:",
+err
+);
+
+
+
+loading.style.display =
+"none";
+
+
+
+error.style.display =
+"block";
+
+
+
+error.innerHTML =
+
+"⚠️ " +
+
+err.message +
+
+"<br><br>Please contact us at 703-967-0674";
+
+
+
+}
+
+
+
+}
+
+
+
+
+
+window.onload =
+loadBooking;
+
+
+
+</script>
+
 
 
 </body>
-<script src="/js/site-navigation.js"></script>
+
 </html>
-```
