@@ -58,7 +58,8 @@ async function loadContracts(){
       }
     });
 
-    const contracts = await res.json();
+    const data = await res.json();
+    const contracts = data.contracts || [];
 
     const container = document.getElementById("contracts");
     container.innerHTML = "";
