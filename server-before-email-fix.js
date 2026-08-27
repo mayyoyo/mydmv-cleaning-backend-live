@@ -197,29 +197,7 @@ name TEXT,
 
 email TEXT,
 
-phone TEXT,
-
-contractType TEXT,
-
-typedName TEXT,
-
-signature TEXT,
-
-pdfUrl TEXT,
-
-businessName TEXT,
-
-address TEXT,
-
-experience TEXT,
-
-services TEXT,
-
-availability TEXT,
-
-license TEXT,
-
-insurance TEXT,
+file TEXT,
 
 createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
 
@@ -280,20 +258,17 @@ console.log(
 
 
 const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
 
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
+    service:"gmail",
 
-    family: 4,
+    auth:{
 
-    connectionTimeout: 15000,
-    greetingTimeout: 15000,
-    socketTimeout: 20000
+        user:process.env.EMAIL_USER,
+
+        pass:process.env.EMAIL_PASS
+
+    }
+
 });
 
 
@@ -527,7 +502,10 @@ res.json({
 
 success:true,
 
-bookedSlots: rows.flatMap(item => { const slot = String(item.timeSlot || "").trim(); const match = slot.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i); if (!match) return [slot]; let hour = parseInt(match[1], 10); const minutes = match[2]; const period = match[3].toUpperCase(); if (period === "PM" && hour !== 12) hour += 12; if (period === "AM" && hour === 12) hour = 0; const endHour = hour + 2; if (endHour > 23) return [slot]; const start = String(hour).padStart(2, "0") + ":" + minutes; const end = String(endHour).padStart(2, "0") + ":" + minutes; return [slot, start + " - " + end]; })
+bookedSlots:
+rows.map(
+item=>item.timeSlot
+)
 
 });
 
@@ -686,7 +664,7 @@ SELECT *
 
 FROM contacts
 
-ORDER BY id DESC
+ORDER BY createdAt DESC
 
 `).all();
 
@@ -718,158 +696,6 @@ success:false
 
 });
 // ============================================================
-// ADMIN DELETE CONTACT
-// ============================================================
-
-app.delete(
-    "/api/admin/contacts/:id",
-    verifyAdmin,
-    (req, res) => {
-
-        try {
-
-            const id = Number(req.params.id);
-
-            if (!Number.isInteger(id)) {
-
-                return res.status(400).json({
-                    success: false,
-                    message: "Invalid contact ID"
-                });
-
-            }
-
-            const result = db.prepare(
-                "DELETE FROM contacts WHERE id = ?"
-            ).run(id);
-
-            if (result.changes === 0) {
-
-                return res.status(404).json({
-                    success: false,
-                    message: "Contact message not found"
-                });
-
-            }
-
-            res.json({
-                success: true,
-                message: "Contact message deleted"
-            });
-
-        } catch (error) {
-
-            console.error(
-                "Delete contact error:",
-                error.message
-            );
-
-            res.status(500).json({
-                success: false,
-                message: "Could not delete contact message"
-            });
-
-        }
-
-    }
-);
-
-
-// ============================================================
-
-// ============================================================
-// ============================================================
- // ADMIN EDIT CONTACT
-// ============================================================
-
-app.put(
-    "/api/admin/contacts/:id",
-    verifyAdmin,
-    (req, res) => {
-
-        try {
-
-            const id = Number(req.params.id);
-
-            if (!Number.isInteger(id)) {
-
-                return res.status(400).json({
-                    success: false,
-                    message: "Invalid contact ID"
-                });
-
-            }
-
-            const message =
-                String(req.body.message || "").trim();
-
-            const status =
-                String(req.body.status || "new").trim();
-
-            if (!message) {
-
-                return res.status(400).json({
-                    success: false,
-                    message: "Message cannot be empty"
-                });
-
-            }
-
-            const allowedStatuses = [
-                "new",
-                "read",
-                "replied"
-            ];
-
-            if (!allowedStatuses.includes(status)) {
-
-                return res.status(400).json({
-                    success: false,
-                    message: "Invalid contact status"
-                });
-
-            }
-
-            const result = db.prepare(
-                "UPDATE contacts SET message = ?, status = ? WHERE id = ?"
-            ).run(
-                message,
-                status,
-                id
-            );
-
-            if (result.changes === 0) {
-
-                return res.status(404).json({
-                    success: false,
-                    message: "Contact message not found"
-                });
-
-            }
-
-            res.json({
-                success: true,
-                message: "Contact message updated"
-            });
-
-        } catch (error) {
-
-            console.error(
-                "CONTACT UPDATE ERROR:",
-                error
-            );
-
-            res.status(500).json({
-                success: false,
-                message: "Could not update contact message"
-            });
-
-        }
-
-    }
-);
-
-
 // CREATE BOOKING - PAY LATER
 // ============================================================
 
@@ -1540,34 +1366,53 @@ app.get(
 verifyAdmin,
 (req,res)=>{
 
-console.log("=== ADMIN BOOKINGS ROUTE REACHED ===");
 
 try{
 
-const bookings=db.prepare("SELECT * FROM bookings ORDER BY id DESC").all();
 
-console.log("=== ADMIN BOOKINGS SUCCESS ===",bookings.length);
+const bookings =
+db.prepare(`
+
+SELECT *
+
+FROM bookings
+
+ORDER BY createdAt DESC
+
+`).all();
+
+
 
 res.json({
+
 success:true,
-bookings:bookings
+
+bookings
+
 });
+
+
 
 }catch(error){
 
-console.error("=== ADMIN BOOKINGS SQL ERROR ===");
-console.error(error);
-console.error(error.message);
 
 res.status(500).json({
+
 success:false,
-message:"Could not load bookings",
-error:error.message
+
+message:
+"Could not load bookings"
+
 });
+
 
 }
 
+
 });
+
+
+
 
 
 // ============================================================
@@ -2563,39 +2408,18 @@ app.post(
                         bookingId,
                         name,
                         email,
-                        phone,
-                        contractType,
-                        typedName,
-                        signature,
-                        pdfUrl,
-                        businessName,
-                        address,
-                        experience,
-                        services,
-                        availability,
-                        license,
-                        insurance
+                        file
                     )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?)
                 `).run(
 
                     null,
+
                     name,
+
                     email,
-                    phone || null,
-                    contractType || null,
-                    typedName || null,
-                    signature || null,
-                    fileUrl,
-                    businessName || null,
-                    address || null,
-                    experience || null,
-                    Array.isArray(services)
-                        ? JSON.stringify(services)
-                        : services || null,
-                    availability || null,
-                    license || null,
-                    insurance || null
+
+                    fileUrl
 
                 );
 
@@ -2661,7 +2485,7 @@ app.get(
             const contracts = db.prepare(`
                 SELECT *
                 FROM contracts
-                ORDER BY id DESC
+                ORDER BY createdAt DESC
             `).all();
 
             res.json({

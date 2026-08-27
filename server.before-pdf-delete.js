@@ -197,29 +197,7 @@ name TEXT,
 
 email TEXT,
 
-phone TEXT,
-
-contractType TEXT,
-
-typedName TEXT,
-
-signature TEXT,
-
-pdfUrl TEXT,
-
-businessName TEXT,
-
-address TEXT,
-
-experience TEXT,
-
-services TEXT,
-
-availability TEXT,
-
-license TEXT,
-
-insurance TEXT,
+file TEXT,
 
 createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
 
@@ -686,7 +664,7 @@ SELECT *
 
 FROM contacts
 
-ORDER BY id DESC
+ORDER BY createdAt DESC
 
 `).all();
 
@@ -1540,34 +1518,53 @@ app.get(
 verifyAdmin,
 (req,res)=>{
 
-console.log("=== ADMIN BOOKINGS ROUTE REACHED ===");
 
 try{
 
-const bookings=db.prepare("SELECT * FROM bookings ORDER BY id DESC").all();
 
-console.log("=== ADMIN BOOKINGS SUCCESS ===",bookings.length);
+const bookings =
+db.prepare(`
+
+SELECT *
+
+FROM bookings
+
+ORDER BY createdAt DESC
+
+`).all();
+
+
 
 res.json({
+
 success:true,
-bookings:bookings
+
+bookings
+
 });
+
+
 
 }catch(error){
 
-console.error("=== ADMIN BOOKINGS SQL ERROR ===");
-console.error(error);
-console.error(error.message);
 
 res.status(500).json({
+
 success:false,
-message:"Could not load bookings",
-error:error.message
+
+message:
+"Could not load bookings"
+
 });
+
 
 }
 
+
 });
+
+
+
 
 
 // ============================================================
@@ -2563,39 +2560,18 @@ app.post(
                         bookingId,
                         name,
                         email,
-                        phone,
-                        contractType,
-                        typedName,
-                        signature,
-                        pdfUrl,
-                        businessName,
-                        address,
-                        experience,
-                        services,
-                        availability,
-                        license,
-                        insurance
+                        pdfUrl
                     )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?)
                 `).run(
 
                     null,
+
                     name,
+
                     email,
-                    phone || null,
-                    contractType || null,
-                    typedName || null,
-                    signature || null,
-                    fileUrl,
-                    businessName || null,
-                    address || null,
-                    experience || null,
-                    Array.isArray(services)
-                        ? JSON.stringify(services)
-                        : services || null,
-                    availability || null,
-                    license || null,
-                    insurance || null
+
+                    fileUrl
 
                 );
 
@@ -2661,7 +2637,7 @@ app.get(
             const contracts = db.prepare(`
                 SELECT *
                 FROM contracts
-                ORDER BY id DESC
+                ORDER BY createdAt DESC
             `).all();
 
             res.json({

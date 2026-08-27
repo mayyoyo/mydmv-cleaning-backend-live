@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Documents Admin</title>
+
+<link rel="stylesheet" href="../css/dashboard.css">
+
+<script>
+if(!localStorage.getItem("adminToken")){
+  window.location.href = "login.html";
+}
+</script>
+
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <h2>📄 Documents</h2>
+
+  <a href="dashboard.html">📊 Dashboard</a>
+  <a href="documents.html">📄 Documents</a>
+  <a href="../index.html">🏠 Home</a>
+
+  <hr>
+
+  <a href="#" onclick="logout()">🚪 Logout</a>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <h2>📄 Signed Contracts</h2>
+  <div id="contracts" class="contracts-container">Loading...</div>
+</div>
+
+<script>
+
+const API = "http://localhost:5000";
+
+// LOGOUT
+function logout(){
+  localStorage.removeItem("adminToken");
+  window.location.href = "login.html";
+}
+
+// LOAD CONTRACTS
+async function loadContracts(){
+  try{
+
+    const res = await fetch(API + "/api/admin/contracts",{
+      headers:{
+        Authorization: "Bearer " + localStorage.getItem("adminToken")
+      }
+    });
+
+    const contracts = await res.json();
+
+    const container = document.getElementById("contracts");
+    container.innerHTML = "";
+
+    if(!contracts.length){
+      container.innerHTML = "<p>No contracts yet</p>";
+      return;
+    }
+
+    contracts.forEach(c => {
+
+      const id = c._id || c.id;
+
+      const div = document.createElement("div");
+      div.className = "card contract-card";
+
+      div.innerHTML = `
+        <h3>${c.name || "-"}</h3>
+
+        <p><b>Email:</b> ${c.email || "-"}</p>
+        <p><b>Booking ID:</b> ${c.bookingId || "-"}</p>
+        <p><b>Type:</b> ${c.contractType || "-"}</p>
+
+        <div class="actions">
+          <button class="btn view" onclick="viewSignature('${c.signature}')">
+            View Signature
+          </button>
+
+          <button class="btn approve" onclick="approveContract('${id}')">
+            Approve
+          </button>
+        </div>
+      `;
+
+      container.appendChild(div);
+    });
+
+  }catch(err){
+    console.error(err);
+    document.getElementById("contracts").innerHTML =
+      "<p>Error loading contracts</p>";
+  }
+}
+
+// VIEW SIGNATURE
+function viewSignature(sig){
+  if(!sig){
+    alert("No signature found");
+    return;
+  }
+  window.open(sig, "_blank");
+}
+
+// APPROVE CONTRACT
+async function approveContract(id){
+  await fetch(API + "/api/admin/contracts/approve/" + id,{
+    method:"POST",
+    headers:{
+      Authorization: "Bearer " + localStorage.getItem("adminToken")
+    }
+  });
+
+  alert("✅ Contract Approved");
+  loadContracts();
+}
+
+// INIT
+loadContracts();
+
+</script>
+
+</body>
+</html>

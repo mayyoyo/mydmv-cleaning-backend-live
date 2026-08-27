@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+Book Cleaning Service | My DMV Cleaning Services LLC
+</title>
+
+
+<!-- BOOKING CSS -->
+
+<link
+    rel="stylesheet"
+    href="./css/booking.css"
+/>
+
+
+<!-- FULLCALENDAR CSS -->
+
+<link
+href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css"
+rel="stylesheet"
+/>
+
+
+<!-- FULLCALENDAR JS -->
+
+<script
+src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js">
+</script>
+
+
+</head>
+
+
+<body>
+
+
+
+<!-- ========================================================
+NAVBAR
+========================================================= -->
+
+<header class="navbar">
+
+
+<div class="logo">
+
+🧼 My DMV Cleaning Services
+
+</div>
+
+
+
+<div
+class="hamburger"
+onclick="toggleMenu()"
+>
+
+☰
+
+</div>
+
+
+
+<nav
+class="nav-links"
+id="navLinks"
+>
+
+
+<a href="index.html">
+🏠 Home
+</a>
+
+
+<a href="booking.html">
+📅 Booking
+</a>
+
+
+<a href="documents.html">
+📄 Documents
+</a>
+
+
+</nav>
+
+
+</header>
+
+
+
+
+
+<!-- ========================================================
+BOOKING PAGE
+========================================================= -->
+
+
+<main class="booking-page">
+
+
+<div class="booking-card">
+
+
+<h1>
+
+📅 Book Cleaning Service
+
+</h1>
+
+
+
+
+
+<!-- CALENDAR -->
+
+<div id="calendar"></div>
+
+
+
+<p id="selectedDate">
+
+Please select a date
+
+</p>
+
+
+
+
+<!-- SERVICE -->
+
+<select
+id="service"
+class="input"
+onchange="updatePrice()"
+>
+
+
+<option value="">
+
+Select Service
+
+</option>
+
+
+<option value="120">
+
+House Cleaning - $120
+
+</option>
+
+
+<option value="180">
+
+Office Cleaning - $180
+
+</option>
+
+
+<option value="200">
+
+Deep Cleaning - $200
+
+</option>
+
+
+<option value="250">
+
+Move In / Out Cleaning - $250
+
+</option>
+
+
+</select>
+
+
+
+
+
+<!-- TIME -->
+
+<select
+id="timeSlot"
+class="input"
+>
+
+
+<option value="">
+
+Select Time
+
+</option>
+
+
+<option value="08:00-10:00">
+
+08:00 - 10:00
+
+</option>
+
+
+<option value="10:00-12:00">
+
+10:00 - 12:00
+
+</option>
+
+
+<option value="12:00-14:00">
+
+12:00 - 14:00
+
+</option>
+
+
+<option value="14:00-16:00">
+
+14:00 - 16:00
+
+</option>
+
+
+<option value="16:00-18:00">
+
+16:00 - 18:00
+
+</option>
+
+
+</select>
+
+
+
+
+
+<!-- CUSTOMER INFORMATION -->
+
+
+<input
+id="name"
+class="input"
+type="text"
+placeholder="Full Name"
+/>
+
+
+
+<input
+id="phone"
+class="input"
+type="tel"
+placeholder="Phone Number"
+/>
+
+
+
+<input
+id="email"
+class="input"
+type="email"
+placeholder="Email"
+/>
+
+
+
+<input
+id="address"
+class="input"
+type="text"
+placeholder="Address"
+/>
+
+
+
+
+
+<!-- PRICE BOX -->
+
+<div class="price-box">
+
+
+<p>
+
+Total:
+
+<strong id="total">
+
+$0.00
+
+</strong>
+
+
+</p>
+
+
+
+<p>
+
+Deposit (25%):
+
+<strong id="deposit">
+
+$0.00
+
+</strong>
+
+
+</p>
+
+
+
+<p>
+
+Remaining:
+
+<strong id="remaining">
+
+$0.00
+
+</strong>
+
+
+</p>
+
+
+
+</div>
+<!-- ========================================================
+BUTTONS
+========================================================= -->
+
+
+<div class="btn-group">
+
+
+<button
+type="button"
+id="payNowButton"
+onclick="payNow()"
+class="btn pay"
+>
+
+
+💳 Pay Now
+
+<br>
+
+25% Deposit
+
+
+</button>
+
+
+
+
+<button
+type="button"
+id="payLaterButton"
+onclick="payLater()"
+class="btn later"
+>
+
+
+📌 Pay Later
+
+
+</button>
+
+
+</div>
+
+
+
+
+<!-- MESSAGE -->
+
+<div id="msg"></div>
+
+
+
+</div>
+
+</main>
+
+
+
+
+
+<!-- ========================================================
+BOOKING JAVASCRIPT
+========================================================= -->
+
+
+<script>
+
+
+// ========================================================
+// API
+// ========================================================
+
+
+const API_URL =
+
+window.location.hostname === "localhost"
+
+?
+
+"http://localhost:5000"
+
+:
+
+"https://mydmv-cleaning-backend-live.onrender.com";
+
+
+
+
+
+// ========================================================
+// MOBILE MENU
+// ========================================================
+
+
+function toggleMenu(){
+
+const nav =
+document.getElementById("navLinks");
+
+
+if(nav){
+
+nav.classList.toggle("active");
+
+}
+
+}
+
+
+
+
+
+// ========================================================
+// SELECTED DATE
+// ========================================================
+
+
+window.selectedDate = null;
+
+
+
+
+
+// ========================================================
+// UPDATE PRICE
+// ========================================================
+
+
+function updatePrice(){
+
+
+const price =
+
+Number(
+document.getElementById("service").value
+)
+
+|| 0;
+
+
+
+const deposit =
+
+price * 0.25;
+
+
+
+const remaining =
+
+price - deposit;
+
+
+
+
+document.getElementById("total")
+.innerText =
+
+"$" + price.toFixed(2);
+
+
+
+
+document.getElementById("deposit")
+.innerText =
+
+"$" + deposit.toFixed(2);
+
+
+
+
+document.getElementById("remaining")
+.innerText =
+
+"$" + remaining.toFixed(2);
+
+
+
+}
+
+
+
+
+
+// ========================================================
+// COLLECT BOOKING DATA
+// ========================================================
+
+
+function collectBookingData(){
+
+
+const serviceSelect =
+
+document.getElementById("service");
+
+
+
+const price =
+
+Number(
+serviceSelect.value
+)
+
+|| 0;
+
+
+
+
+return {
+
+
+name:
+
+document.getElementById("name")
+.value
+.trim(),
+
+
+
+email:
+
+document.getElementById("email")
+.value
+.trim(),
+
+
+
+phone:
+
+document.getElementById("phone")
+.value
+.trim(),
+
+
+
+address:
+
+document.getElementById("address")
+.value
+.trim(),
+
+
+
+service:
+
+serviceSelect.options[
+serviceSelect.selectedIndex
+].text,
+
+
+
+price:price,
+
+
+
+deposit:
+
+price * 0.25,
+
+
+
+remaining:
+
+price -
+(price * 0.25),
+
+
+
+date:
+
+window.selectedDate,
+
+
+
+timeSlot:
+
+document.getElementById("timeSlot")
+.value
+
+
+
+};
+
+
+}
+
+
+
+
+
+
+// ========================================================
+// PAY NOW STRIPE
+// ========================================================
+
+
+async function payNow(){
+
+
+const msg =
+document.getElementById("msg");
+
+
+
+try{
+
+
+const booking =
+collectBookingData();
+
+
+
+
+if(!booking.name)
+
+throw new Error(
+"Enter your name"
+);
+
+
+
+if(!booking.email)
+
+throw new Error(
+"Enter your email"
+);
+
+
+
+if(!booking.date)
+
+throw new Error(
+"Select a date"
+);
+
+
+
+if(!booking.timeSlot)
+
+throw new Error(
+"Select a time"
+);
+
+
+
+
+
+msg.innerText =
+"⏳ Connecting to Stripe...";
+
+
+
+
+
+const response =
+
+await fetch(
+
+API_URL +
+"/api/create-deposit-checkout",
+
+{
+
+
+method:"POST",
+
+
+
+headers:{
+
+
+"Content-Type":
+"application/json"
+
+
+},
+
+
+
+body:
+
+JSON.stringify(booking)
+
+
+}
+
+);
+
+
+
+
+
+const data =
+
+await response.json();
+
+
+
+
+
+console.log(
+"STRIPE RESPONSE:",
+data
+);
+
+
+
+
+
+if(!response.ok){
+
+throw new Error(
+
+data.message ||
+
+"Stripe checkout failed"
+
+);
+
+}
+
+
+
+
+
+if(!data.checkoutUrl){
+
+throw new Error(
+
+"No Stripe checkout URL"
+
+);
+
+}
+
+
+
+
+
+window.location.href =
+
+data.checkoutUrl;
+
+
+
+}
+
+
+
+catch(error){
+
+
+console.log(
+error
+);
+
+
+msg.innerText =
+
+"❌ " +
+error.message;
+
+
+}
+
+
+
+}
+
+
+
+
+
+// ========================================================
+// PAY LATER
+// ========================================================
+
+
+async function payLater(){
+
+
+const msg =
+document.getElementById("msg");
+
+
+
+try{
+
+
+const booking =
+collectBookingData();
+
+
+
+
+
+const response =
+
+await fetch(
+
+API_URL +
+"/api/book-pay-later",
+
+{
+
+
+method:"POST",
+
+
+headers:{
+
+
+"Content-Type":
+"application/json"
+
+
+},
+
+
+body:
+
+JSON.stringify(booking)
+
+
+}
+
+);
+
+
+
+
+
+const data =
+
+await response.json();
+
+
+
+
+
+if(!response.ok){
+
+throw new Error(
+
+data.message ||
+
+"Booking failed"
+
+);
+
+}
+
+
+
+
+
+window.location.href =
+
+"/success.html?booking_id="
+
++
+
+data.bookingId;
+
+
+
+}
+
+
+
+catch(error){
+
+
+msg.innerText =
+
+"❌ " +
+error.message;
+
+
+
+}
+
+
+}
+// ========================================================
+// CALENDAR + BOOKED SLOT BLOCKING
+// ========================================================
+
+
+document.addEventListener(
+"DOMContentLoaded",
+function(){
+
+
+
+const calendarEl =
+document.getElementById("calendar");
+
+
+
+if(!calendarEl){
+
+return;
+
+}
+
+
+
+
+
+const calendar =
+
+new FullCalendar.Calendar(
+
+calendarEl,
+
+{
+
+
+initialView:
+"dayGridMonth",
+
+
+
+selectable:true,
+
+
+
+dateClick:
+
+async function(info){
+
+
+
+window.selectedDate =
+info.dateStr;
+
+
+
+document.getElementById(
+"selectedDate"
+).innerText =
+
+"Selected Date: " +
+info.dateStr;
+
+
+
+await loadBookedSlots(
+info.dateStr
+);
+
+
+
+}
+
+
+
+}
+
+);
+
+
+
+calendar.render();
+
+
+
+});
+
+
+
+
+
+
+// ========================================================
+// LOAD BOOKED SLOTS
+// ========================================================
+
+
+async function loadBookedSlots(date){
+
+
+
+try{
+
+
+const response =
+
+await fetch(
+
+API_URL +
+
+"/api/booked-slots/" +
+
+encodeURIComponent(date)
+
+);
+
+
+
+
+
+const data =
+
+await response.json();
+
+
+
+
+
+console.log(
+"BOOKED SLOTS:",
+data
+);
+
+
+
+
+
+const bookedSlots =
+
+data.bookedSlots || [];
+
+
+
+
+
+const options =
+
+document
+.getElementById("timeSlot")
+.options;
+
+
+
+
+
+for(let i=0;i<options.length;i++){
+
+
+
+const option =
+options[i];
+
+
+
+if(!option.value){
+
+continue;
+
+}
+
+
+
+const booked = bookedSlots.some(slot => String(slot).trim().toLowerCase() === String(option.value).trim().toLowerCase());
+
+if(booked){
+
+
+
+option.disabled =
+true;
+
+
+
+option.textContent =
+
+option.value +
+
+" (Booked)";
+
+
+
+option.style.color =
+"red";
+
+
+
+}
+
+else{
+
+
+option.disabled =
+false;
+
+
+
+option.textContent =
+
+option.value;
+
+
+
+option.style.color =
+"";
+
+
+}
+
+
+
+}
+
+
+
+}
+
+
+
+catch(error){
+
+
+console.log(
+
+"Booked slot error:",
+
+error
+
+);
+
+
+
+}
+
+
+
+}
+
+
+
+</script>
+
+
+
+
+<!-- SITE NAVIGATION -->
+
+<script src="/js/site-navigation.js"></script>
+
+
+
+</body>
+
+</html>
