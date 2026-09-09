@@ -12,7 +12,7 @@ const path = require("path");
 const fs = require("fs");
 const dotenv = require("dotenv");
 const Stripe = require("stripe");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 const jwt = require("jsonwebtoken");
 const Database = require("better-sqlite3");
 const PDFDocument = require("pdfkit");
@@ -638,20 +638,19 @@ console.log(
 // EMAIL SYSTEM
 // ============================================================
 
-const transporter =
-    nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
-        },
-        family: 4,
-        connectionTimeout: 15000,
-        greetingTimeout: 15000,
-        socketTimeout: 20000
-    });
+// ============================================================
+// RESEND EMAIL SYSTEM
+// ============================================================
+
+const resend =
+    process.env.RESEND_API_KEY
+        ? new Resend(process.env.RESEND_API_KEY)
+        : null;
+
+const EMAIL_FROM =
+    process.env.EMAIL_FROM ||
+    "My DMV Cleaning Services <noreply@mydmvcleaningservice.com>";
+
 
 // ============================================================
 // EMAIL HELPER
@@ -662,7 +661,9 @@ async function sendEmail({
     subject,
     html
 }) {
+
     if (!to) {
+
         console.log(
             "Email skipped: no recipient"
         );
@@ -670,25 +671,58 @@ async function sendEmail({
         return false;
     }
 
-    if (
-        !process.env.EMAIL_USER ||
-        !process.env.EMAIL_PASS
-    ) {
+    if (!resend) {
+
         console.error(
-            "Email skipped: EMAIL_USER or EMAIL_PASS not configured"
+            "Email skipped: RESEND_API_KEY is not configured"
         );
 
         return false;
     }
 
     try {
-        const info =
-            await transporter.sendMail({
-                from: process.env.EMAIL_USER,
-                to,
+
+        const result =
+            await resend.emails.send({
+
+                from: EMAIL_FROM,
+
+                to: Array.isArray(to)
+                    ? to
+                    : [to],
+
                 subject,
+
                 html
+
             });
+
+        if (result.error) {
+
+            console.error(
+                "============================================================"
+            );
+
+            console.error(
+                "RESEND EMAIL ERROR"
+            );
+
+            console.error(
+                "Message:",
+                result.error.message
+            );
+
+            console.error(
+                "Name:",
+                result.error.name || "N/A"
+            );
+
+            console.error(
+                "============================================================"
+            );
+
+            return false;
+        }
 
         console.log(
             "Email sent successfully:",
@@ -696,39 +730,25 @@ async function sendEmail({
         );
 
         console.log(
-            "Message ID:",
-            info.messageId
+            "Resend Email ID:",
+            result.data?.id || "N/A"
         );
 
         return true;
 
     } catch (error) {
+
         console.error(
             "============================================================"
         );
 
         console.error(
-            "EMAIL SEND ERROR"
+            "RESEND EMAIL SEND ERROR"
         );
 
         console.error(
             "Message:",
             error.message
-        );
-
-        console.error(
-            "Code:",
-            error.code || "N/A"
-        );
-
-        console.error(
-            "Response:",
-            error.response || "N/A"
-        );
-
-        console.error(
-            "Command:",
-            error.command || "N/A"
         );
 
         console.error(
@@ -743,42 +763,55 @@ async function sendEmail({
 // ============================================================
 // EMAIL TEST
 // ============================================================
+// ============================================================
+// EMAIL TEST
+// ============================================================
 
 app.get(
     "/api/test-email",
     async (req, res) => {
+
         try {
-            if (
-                !process.env.EMAIL_USER ||
-                !process.env.EMAIL_PASS
-            ) {
+
+            if (!resend) {
+
                 return res.status(500).json({
+
                     success: false,
+
                     message:
-                        "EMAIL_USER or EMAIL_PASS is not configured"
+                        "RESEND_API_KEY is not configured"
+
+                });
+            }
+
+            const testRecipient =
+                process.env.EMAIL_USER;
+
+            if (!testRecipient) {
+
+                return res.status(500).json({
+
+                    success: false,
+
+                    message:
+                        "EMAIL_USER is not configured"
+
                 });
             }
 
             console.log(
-                "Testing Gmail SMTP connection..."
+                "Testing Resend email service..."
             );
 
-            await transporter.verify();
-
-            console.log(
-                "Gmail SMTP connection verified successfully"
-            );
-
-            const info =
-                await transporter.sendMail({
-                    from:
-                        process.env.EMAIL_USER,
+            const sent =
+                await sendEmail({
 
                     to:
-                        process.env.EMAIL_USER,
+                        testRecipient,
 
                     subject:
-                        "My DMV Cleaning Services - Local Email Test",
+                        "My DMV Cleaning Services - Resend Test",
 
                     html: `
                         <div style="
@@ -789,13 +822,12 @@ app.get(
                         ">
 
                             <h2>
-                                Email Test Successful
+                                Resend Email Test Successful
                             </h2>
 
                             <p>
                                 This is a test email from
-                                the local My DMV Cleaning Services
-                                server.
+                                My DMV Cleaning Services LLC.
                             </p>
 
                             <hr>
@@ -811,42 +843,57 @@ app.get(
                             </p>
 
                             <p>
+                                <strong>Email Provider:</strong>
+                                Resend
+                            </p>
+
+                            <p>
                                 <strong>Time:</strong>
                                 ${new Date().toLocaleString()}
                             </p>
 
                             <p>
-                                Gmail SMTP is working correctly.
+                                Resend API email delivery is
+                                working correctly.
                             </p>
 
                         </div>
                     `
                 });
 
-            console.log(
-                "TEST EMAIL SENT:"
-            );
+            if (!sent) {
+
+                return res.status(500).json({
+
+                    success: false,
+
+                    message:
+                        "Email test failed"
+
+                });
+            }
 
             console.log(
-                "Message ID:",
-                info.messageId
+                "RESEND TEST EMAIL SENT"
             );
 
             return res.json({
+
                 success: true,
+
                 message:
-                    "Test email sent successfully",
-                messageId:
-                    info.messageId
+                    "Test email sent successfully using Resend."
+
             });
 
         } catch (error) {
+
             console.error(
                 "============================================================"
             );
 
             console.error(
-                "TEST EMAIL ERROR"
+                "RESEND TEST EMAIL ERROR"
             );
 
             console.error(
@@ -855,32 +902,19 @@ app.get(
             );
 
             console.error(
-                "Code:",
-                error.code || "N/A"
-            );
-
-            console.error(
-                "Response:",
-                error.response || "N/A"
-            );
-
-            console.error(
-                "Command:",
-                error.command || "N/A"
-            );
-
-            console.error(
                 "============================================================"
             );
 
             return res.status(500).json({
+
                 success: false,
+
                 message:
                     "Email test failed",
+
                 error:
-                    error.message,
-                code:
-                    error.code || null
+                    error.message
+
             });
         }
     }
@@ -1790,7 +1824,7 @@ console.log(
 app.post(
     "/api/create-deposit-checkout",
     async (req, res) => {
-        try { get
+        try {
             if (!stripe) {
                 return res.status(500).json({
                     success: false,
