@@ -4,13 +4,23 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Service Agreement | My DMV Cleaning Services LLC</title>
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
 
-<link rel="stylesheet" href="../css/legal.css">
+<title>
+    Service Agreement | My DMV Cleaning Services LLC
+</title>
 
-<script defer src="../js/legal.js"></script>
+<link
+    rel="stylesheet"
+    href="../css/legal.css">
+
+<script
+    defer
+    src="../js/legal.js">
+</script>
 
 </head>
 
@@ -18,512 +28,877 @@
 <body>
 
 
-
-
-
-<!-- ================= NAVBAR ================= -->
-
+<!-- ============================================================
+     NAVBAR
+============================================================ -->
 
 <header class="legal-nav">
 
+    <div class="logo">
+        🧼 My DMV Cleaning Services
+    </div>
 
-<div class="logo">
-🧼 My DMV Cleaning Services
-</div>
+    <nav>
 
+        <a href="../index.html">
+            🏠 Home
+        </a>
 
+        <a href="../booking.html">
+            📅 Booking
+        </a>
 
+        <a href="../documents.html">
+            📄 Documents
+        </a>
 
-<nav>
-
-
-<a href="../index.html">
-🏠 Home
-</a>
-
-
-
-<a href="../booking.html">
-📅 Booking
-</a>
-
-
-
-<a href="../documents.html">
-📄 Documents
-</a>
-
-
-
-</nav>
-
+    </nav>
 
 </header>
 
 
-
-
-
-
-
-
-<!-- ================= CONTENT ================= -->
-
+<!-- ============================================================
+     MAIN CONTENT
+============================================================ -->
 
 <div class="container">
 
 
+    <h1 class="fade">
+        Service Agreement
+    </h1>
 
-<h1 class="fade">
-Service Agreement
-</h1>
 
+    <p class="effective fade">
+        Effective Date: January 1, 2026
+    </p>
 
 
+    <!-- ========================================================
+         SCOPE
+    ========================================================= -->
 
-<p class="effective fade">
-Effective Date: January 1, 2026
-</p>
+    <h2 class="fade">
+        Scope of Services
+    </h2>
 
+    <p class="fade">
+        Cleaning services will be performed based on the selected
+        package and customer request.
+    </p>
 
 
+    <!-- ========================================================
+         PRICING
+    ========================================================= -->
 
+    <h2 class="fade">
+        Pricing Terms
+    </h2>
 
+    <p class="fade">
+        All prices are confirmed before service begins.
+        Additional services may include extra charges.
+    </p>
 
 
+    <!-- ========================================================
+         SCHEDULING
+    ========================================================= -->
 
-<h2 class="fade">
-Scope of Services
-</h2>
+    <h2 class="fade">
+        Scheduling
+    </h2>
 
+    <p class="fade">
+        Appointments must be confirmed in advance.
+        Rescheduling requires at least 24 hours notice.
+    </p>
 
-<p class="fade">
 
-Cleaning services will be performed based on the selected package and customer request.
+    <!-- ========================================================
+         REFUND
+    ========================================================= -->
 
-</p>
+    <h2 class="fade">
+        Refund Policy
+    </h2>
 
+    <p class="fade">
+        No refunds will be issued after service completion unless
+        otherwise approved by management.
+    </p>
 
 
+    <!-- ========================================================
+         LIABILITY
+    ========================================================= -->
 
+    <h2 class="fade">
+        Liability
+    </h2>
 
+    <p class="fade">
+        The company is not responsible for pre-existing damages
+        or customer negligence.
+    </p>
 
 
-<h2 class="fade">
-Pricing Terms
-</h2>
+    <!-- ========================================================
+         ACTION BUTTONS
+    ========================================================= -->
 
+    <div class="action-buttons">
 
-<p class="fade">
+        <button
+            type="button"
+            class="legal-btn"
+            onclick="openSignBox()">
 
-All prices are confirmed before service begins. Additional services may include extra charges.
+            ✍️ Accept &amp; Sign
 
-</p>
+        </button>
 
 
+        <a
+            class="legal-btn"
+            href="service-agreement.pdf"
+            target="_blank">
 
+            📄 Download PDF
 
+        </a>
 
+    </div>
 
 
-<h2 class="fade">
-Scheduling
-</h2>
+    <!-- ========================================================
+         SIGNING BOX
+    ========================================================= -->
 
+    <div
+        id="signBox"
+        class="sign-box">
 
-<p class="fade">
 
-Appointments must be confirmed in advance. Rescheduling requires at least 24 hours notice.
+        <h2>
+            Sign Service Agreement
+        </h2>
 
-</p>
 
+        <p>
+            Please enter your information and provide your
+            handwritten signature below.
+        </p>
 
 
+        <!-- FULL NAME -->
 
+        <input
+            class="input"
+            type="text"
+            id="name"
+            placeholder="Full Name"
+            autocomplete="name">
 
 
+        <!-- EMAIL -->
 
-<h2 class="fade">
-Refund Policy
-</h2>
+        <input
+            class="input"
+            type="email"
+            id="email"
+            placeholder="Email"
+            autocomplete="email">
 
 
-<p class="fade">
+        <!-- PHONE -->
 
-No refunds will be issued after service completion unless otherwise approved by management.
+        <input
+            class="input"
+            type="tel"
+            id="phone"
+            placeholder="Phone Number"
+            autocomplete="tel">
 
-</p>
 
+        <!-- LEGAL NAME -->
 
+        <input
+            class="input"
+            type="text"
+            id="typedName"
+            placeholder="Type Your Full Legal Name"
+            autocomplete="name">
 
 
+        <!-- ====================================================
+             ACCEPTANCE
+        ==================================================== -->
 
+        <label
+            for="agreementAccepted"
+            style="
+                display:block;
+                margin:20px 0;
+                line-height:1.6;
+            ">
 
+            <input
+                type="checkbox"
+                id="agreementAccepted">
 
-<h2 class="fade">
-Liability
-</h2>
+            I have read and agree to the terms of this
+            Service Agreement.
 
+        </label>
 
-<p class="fade">
 
-The company is not responsible for pre-existing damages or customer negligence.
+        <!-- ====================================================
+             SIGNATURE PAD
+        ==================================================== -->
 
-</p>
+        <p>
+            <strong>
+                Draw Your Signature
+            </strong>
+        </p>
 
 
+        <canvas
+            id="pad"
+            width="400"
+            height="150"
+            style="
+                display:block;
+                width:100%;
+                max-width:400px;
+                height:150px;
+                background:#ffffff;
+                border:1px solid #777;
+                border-radius:6px;
+                cursor:crosshair;
+                touch-action:none;
+            ">
+        </canvas>
 
 
+        <!-- CLEAR SIGNATURE -->
 
+        <button
+            type="button"
+            class="legal-btn"
+            onclick="clearSignature()">
 
+            Clear Signature
 
+        </button>
 
 
-<!-- ================= ACTION BUTTONS ================= -->
+        <!-- SUBMIT -->
 
+        <button
+            type="button"
+            class="legal-btn"
+            id="submitAgreementButton"
+            onclick="submitContract()">
 
-<div class="action-buttons">
+            Submit &amp; Sign
 
+        </button>
 
-<button 
-class="legal-btn"
-onclick="openSignBox()">
 
-✍️ Accept & Sign
+        <!-- RESULT -->
 
-</button>
+        <div
+            id="signResult"
+            style="
+                margin-top:15px;
+                line-height:1.6;
+            ">
+        </div>
 
 
-
-
-<a 
-class="legal-btn"
-href="service-agreement.pdf"
-target="_blank">
-
-📄 Download PDF
-
-</a>
-
+    </div>
 
 
 </div>
 
 
-
-
-
-
-
-
-<!-- ================= SIGN BOX ================= -->
-
-
-<div id="signBox" class="sign-box">
-
-
-
-<h2>
-Sign Service Agreement
-</h2>
-
-
-
-
-
-<input 
-class="input"
-type="text"
-id="name"
-placeholder="Full Name">
-
-
-
-
-
-
-<input 
-class="input"
-type="email"
-id="email"
-placeholder="Email">
-
-
-
-
-
-
-<input 
-class="input"
-type="text"
-id="phone"
-placeholder="Phone Number">
-
-
-
-
-
-
-<input 
-class="input"
-type="text"
-id="typedName"
-placeholder="Type Your Full Legal Name">
-
-
-
-
-
-
-<canvas 
-id="pad"
-width="400"
-height="150">
-</canvas>
-
-
-
-
-
-
-<button 
-class="legal-btn"
-onclick="submitContract()">
-
-Submit & Sign
-
-</button>
-
-
-
-
-</div>
-
-
-
-
-
-
-</div>
-
-
-
-
-
-
-
-
-
-<!-- ================= FOOTER ================= -->
-
+<!-- ============================================================
+     FOOTER
+============================================================ -->
 
 <footer class="legal-footer">
 
+    <a href="../legal/privacy.html">
+        🔒 Privacy
+    </a>
 
+    <a href="../legal/terms.html">
+        📜 Terms
+    </a>
 
-<a href="../legal/privacy.html">
-🔒 Privacy
-</a>
+    <a href="../legal/refund.html">
+        💰 Refund
+    </a>
 
+    <a href="client-contract.html">
+        📄 Client Contract
+    </a>
 
+    <a href="independent-subcontractor.html">
+        👷 Contractor Agreement
+    </a>
 
-
-<a href="../legal/terms.html">
-📜 Terms
-</a>
-
-
-
-
-<a href="../legal/refund.html">
-💰 Refund
-</a>
-
-
-
-
-
-<a href="client-contract.html">
-📄 Client Contract
-</a>
-
-
-
-
-
-<a href="contractor-agreement.html">
-👷 Contractor Agreement
-</a>
-
-
-
-
-
-<a href="../documents.html">
-📄 Documents
-</a>
-
-
+    <a href="../documents.html">
+        📄 Documents
+    </a>
 
 </footer>
 
 
-
-
-
-
-
-
+<!-- ============================================================
+     SERVICE AGREEMENT SIGNING JAVASCRIPT
+============================================================ -->
 
 <script>
 
+"use strict";
 
 
-function openSignBox(){
+/* ============================================================
+   SIGNATURE PAD
+============================================================ */
 
-document
-.getElementById("signBox")
-.style.display="block";
+const canvas =
+    document.getElementById("pad");
+
+const ctx =
+    canvas.getContext("2d");
+
+
+let drawing = false;
+
+let hasSignature = false;
+
+
+/* ============================================================
+   CANVAS SETUP
+============================================================ */
+
+ctx.lineWidth = 2;
+
+ctx.lineCap = "round";
+
+ctx.lineJoin = "round";
+
+ctx.strokeStyle = "#000000";
+
+
+/* ============================================================
+   GET CANVAS POSITION
+============================================================ */
+
+function getCanvasPosition(event) {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+    let clientX;
+    let clientY;
+
+
+    if (event.touches && event.touches.length > 0) {
+
+        clientX =
+            event.touches[0].clientX;
+
+        clientY =
+            event.touches[0].clientY;
+
+    } else {
+
+        clientX =
+            event.clientX;
+
+        clientY =
+            event.clientY;
+
+    }
+
+
+    return {
+
+        x:
+            (clientX - rect.left) *
+            (canvas.width / rect.width),
+
+        y:
+            (clientY - rect.top) *
+            (canvas.height / rect.height)
+
+    };
 
 }
 
 
+/* ============================================================
+   START DRAWING
+============================================================ */
+
+function startDrawing(event) {
+
+    event.preventDefault();
+
+    drawing = true;
+
+    hasSignature = true;
 
 
+    const position =
+        getCanvasPosition(event);
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        position.x,
+        position.y
+    );
+
+}
 
 
+/* ============================================================
+   DRAW
+============================================================ */
 
-async function submitContract(){
+function draw(event) {
 
+    if (!drawing) {
+        return;
+    }
 
-try{
-
-
-const data = {
-
-
-name:
-document.getElementById("name").value,
-
-
-email:
-document.getElementById("email").value,
+    event.preventDefault();
 
 
-phone:
-document.getElementById("phone").value,
+    const position =
+        getCanvasPosition(event);
 
 
-typedName:
-document.getElementById("typedName").value,
+    ctx.lineTo(
+        position.x,
+        position.y
+    );
+
+    ctx.stroke();
+
+}
 
 
-contractType:
-"Service Agreement",
+/* ============================================================
+   STOP DRAWING
+============================================================ */
+
+function stopDrawing(event) {
+
+    if (event) {
+        event.preventDefault();
+    }
+
+    drawing = false;
+
+    ctx.closePath();
+
+}
 
 
+/* ============================================================
+   MOUSE EVENTS
+============================================================ */
 
-signature:
-"base64-image-placeholder"
+canvas.addEventListener(
+    "mousedown",
+    startDrawing
+);
 
+canvas.addEventListener(
+    "mousemove",
+    draw
+);
 
+canvas.addEventListener(
+    "mouseup",
+    stopDrawing
+);
 
-};
-
-
-
-
-
-
-const res =
-await fetch(
-"/api/sign-contract",
-{
-
-
-method:"POST",
-
-
-headers:{
-
-
-"Content-Type":"application/json"
-
-},
-
-
-body:
-JSON.stringify(data)
-
-
-});
-
-
-
-
-
-
-const result =
-await res.json();
-
-
-
-
-
-
-if(result.success){
-
-
-alert(
-"Agreement Signed Successfully!"
+canvas.addEventListener(
+    "mouseleave",
+    stopDrawing
 );
 
 
+/* ============================================================
+   TOUCH EVENTS
+============================================================ */
 
-window.location.href =
-result.contract.pdfUrl;
+canvas.addEventListener(
+    "touchstart",
+    startDrawing,
+    { passive: false }
+);
 
+canvas.addEventListener(
+    "touchmove",
+    draw,
+    { passive: false }
+);
 
-
-}
-
-else{
-
-
-alert(
-result.error || "Signing failed"
+canvas.addEventListener(
+    "touchend",
+    stopDrawing,
+    { passive: false }
 );
 
 
-}
+/* ============================================================
+   CLEAR SIGNATURE
+============================================================ */
 
+function clearSignature() {
 
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
 
-}
-
-catch(err){
-
-
-console.log(err);
-
-
-alert(
-"Server connection error"
-);
-
+    hasSignature = false;
 
 }
 
 
+/* ============================================================
+   OPEN SIGN BOX
+============================================================ */
+
+function openSignBox() {
+
+    const signBox =
+        document.getElementById("signBox");
+
+
+    signBox.style.display =
+        "block";
+
+
+    signBox.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
 
 }
 
 
+/* ============================================================
+   SUBMIT SERVICE AGREEMENT
+============================================================ */
+
+async function submitContract() {
+
+    const resultBox =
+        document.getElementById("signResult");
+
+    const submitButton =
+        document.getElementById(
+            "submitAgreementButton"
+        );
+
+
+    const name =
+        document.getElementById(
+            "name"
+        ).value.trim();
+
+
+    const email =
+        document.getElementById(
+            "email"
+        ).value.trim();
+
+
+    const phone =
+        document.getElementById(
+            "phone"
+        ).value.trim();
+
+
+    const typedName =
+        document.getElementById(
+            "typedName"
+        ).value.trim();
+
+
+    const agreementAccepted =
+        document.getElementById(
+            "agreementAccepted"
+        ).checked;
+
+
+    /* ========================================================
+       VALIDATION
+    ======================================================== */
+
+    if (!name) {
+
+        resultBox.innerHTML =
+            "❌ Please enter your full name.";
+
+        return;
+
+    }
+
+
+    if (!email) {
+
+        resultBox.innerHTML =
+            "❌ Please enter your email.";
+
+        return;
+
+    }
+
+
+    if (!phone) {
+
+        resultBox.innerHTML =
+            "❌ Please enter your phone number.";
+
+        return;
+
+    }
+
+
+    if (!typedName) {
+
+        resultBox.innerHTML =
+            "❌ Please type your full legal name.";
+
+        return;
+
+    }
+
+
+    if (!agreementAccepted) {
+
+        resultBox.innerHTML =
+            "❌ Please confirm that you agree to the Service Agreement.";
+
+        return;
+
+    }
+
+
+    if (!hasSignature) {
+
+        resultBox.innerHTML =
+            "❌ Please draw your signature.";
+
+        return;
+
+    }
+
+
+    /* ========================================================
+       EMAIL FORMAT
+    ======================================================== */
+
+    const emailRegex =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+    if (!emailRegex.test(email)) {
+
+        resultBox.innerHTML =
+            "❌ Please enter a valid email address.";
+
+        return;
+
+    }
+
+
+    /* ========================================================
+       GET SIGNATURE IMAGE
+    ======================================================== */
+
+    const signature =
+        canvas.toDataURL(
+            "image/png"
+        );
+
+
+    /* ========================================================
+       DISABLE BUTTON
+    ======================================================== */
+
+    submitButton.disabled = true;
+
+    submitButton.textContent =
+        "Submitting...";
+
+
+    resultBox.innerHTML =
+        "⏳ Creating your signed agreement...";
+
+
+    try {
+
+
+        /* ====================================================
+           SEND TO SERVER
+        ==================================================== */
+
+        const response =
+            await fetch(
+                "/api/sign-service-agreement",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            name:
+                                name,
+
+                            email:
+                                email,
+
+                            phone:
+                                phone,
+
+                            typedName:
+                                typedName,
+
+                            signature:
+                                signature,
+
+                            agreementAccepted:
+                                true,
+
+                            contractType:
+                                "Service Agreement"
+
+                        })
+                }
+            );
+
+
+        /* ====================================================
+           READ RESPONSE
+        ==================================================== */
+
+        const result =
+            await response.json();
+
+
+        /* ====================================================
+           SUCCESS
+        ==================================================== */
+
+        if (
+            response.ok &&
+            result.success
+        ) {
+
+            resultBox.innerHTML =
+                "✅ Agreement signed successfully! Opening your signed PDF...";
+
+
+            let pdfUrl = "";
+
+
+            if (
+                result.contract &&
+                result.contract.pdfUrl
+            ) {
+
+                pdfUrl =
+                    result.contract.pdfUrl;
+
+            } else if (result.file) {
+
+                pdfUrl =
+                    result.file;
+
+            }
+
+
+            if (pdfUrl) {
+
+                window.location.href =
+                    pdfUrl;
+
+            } else {
+
+                resultBox.innerHTML =
+                    "✅ Agreement signed successfully, but the PDF link was not returned.";
+
+            }
+
+
+            return;
+
+        }
+
+
+        /* ====================================================
+           SERVER ERROR
+        ==================================================== */
+
+        resultBox.innerHTML =
+            "❌ " +
+            (
+                result.message ||
+                result.error ||
+                "Signing failed. Please try again."
+            );
+
+
+        submitButton.disabled = false;
+
+        submitButton.textContent =
+            "Submit & Sign";
+
+
+    } catch (error) {
+
+
+        console.error(
+            "Service Agreement signing error:",
+            error
+        );
+
+
+        resultBox.innerHTML =
+            "❌ Server connection error. Please make sure the server is running and try again.";
+
+
+        submitButton.disabled = false;
+
+        submitButton.textContent =
+            "Submit & Sign";
+
+    }
+
+}
 
 </script>
-
-
-
 
 
 </body>

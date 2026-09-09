@@ -3361,6 +3361,280 @@ app.post(
         }
     }
 );
+// 
+
+/* ============================================================
+   SERVICE AGREEMENT SIGNING
+   Separate from Independent Subcontractor Agreement
+============================================================ */
+
+app.post("/api/sign-service-agreement", async (req, res) => {
+
+    try {
+
+        const data = {
+            ...req.body,
+
+            contractType: "Service Agreement"
+        };
+
+        /* ----------------------------------------------------
+           REQUIRED FIELDS
+        ---------------------------------------------------- */
+
+        if (
+            !data.name ||
+            !data.email ||
+            !data.phone ||
+            !data.typedName ||
+            !data.signature
+        ) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Please complete all required fields."
+            });
+
+        }
+
+        /* ----------------------------------------------------
+           AGREEMENT ACCEPTANCE
+        ---------------------------------------------------- */
+
+        if (data.agreementAccepted !== true) {
+
+            return res.status(400).json({
+                success: false,
+                message: "You must accept the Service Agreement."
+            });
+
+        }
+
+        /* ----------------------------------------------------
+           EMAIL VALIDATION
+        ---------------------------------------------------- */
+
+        const emailRegex =
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailRegex.test(data.email)) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Please enter a valid email address."
+            });
+
+        }
+
+        /* ----------------------------------------------------
+           SIGNATURE VALIDATION
+        ---------------------------------------------------- */
+
+        const signatureBuffer =
+            signatureDataUrlToBuffer(data.signature);
+
+        if (!signatureBuffer) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Please provide a valid handwritten signature."
+            });
+
+        }
+
+        /* ----------------------------------------------------
+           CREATE SIGNED PDF
+        ---------------------------------------------------- */
+
+        const pdf =
+            await createContractPdf(data);
+
+        /* ----------------------------------------------------
+           SAVE CONTRACT
+        ---------------------------------------------------- */
+
+        const contractId =
+            saveContract(
+                data,
+                pdf.fileUrl
+            );
+
+        /* ----------------------------------------------------
+           ADMIN EMAIL
+        ---------------------------------------------------- */
+
+        try {
+
+            await sendEmail({
+
+                to: ADMIN_EMAIL,
+
+                subject:
+                    "New Service Agreement Signed",
+
+                html: `
+                    <h2>New Service Agreement Signed</h2>
+
+                    <p>
+                        A customer has signed the
+                        Service Agreement.
+                    </p>
+
+                    <hr>
+
+                    <p>
+                        <strong>Name:</strong>
+                        ${data.name}
+                    </p>
+
+                    <p>
+                        <strong>Email:</strong>
+                        ${data.email}
+                    </p>
+
+                    <p>
+                        <strong>Phone:</strong>
+                        ${data.phone}
+                    </p>
+
+                    <p>
+                        <strong>Typed Legal Name:</strong>
+                        ${data.typedName}
+                    </p>
+
+                    <p>
+                        <strong>Contract:</strong>
+                        Service Agreement
+                    </p>
+
+                    <p>
+                        <strong>Contract ID:</strong>
+                        ${contractId}
+                    </p>
+
+                    <p>
+                        <a href="${pdf.fileUrl}">
+                            View Signed Agreement
+                        </a>
+                    </p>
+                `
+
+            });
+
+        } catch (emailError) {
+
+            console.error(
+                "Service Agreement admin email error:",
+                emailError
+            );
+
+        }
+
+        /* ----------------------------------------------------
+           CUSTOMER CONFIRMATION EMAIL
+        ---------------------------------------------------- */
+
+        try {
+
+            await sendEmail({
+
+                to: data.email,
+
+                subject:
+                    "Your My DMV Cleaning Services Agreement",
+
+                html: `
+                    <h2>Service Agreement Signed</h2>
+
+                    <p>
+                        Hello ${data.name},
+                    </p>
+
+                    <p>
+                        Thank you for signing the
+                        My DMV Cleaning Services LLC
+                        Service Agreement.
+                    </p>
+
+                    <p>
+                        Your signed agreement has been
+                        successfully received.
+                    </p>
+
+                    <p>
+                        <strong>Contract ID:</strong>
+                        ${contractId}
+                    </p>
+
+                    <p>
+                        <a href="${pdf.fileUrl}">
+                            View Your Signed Agreement
+                        </a>
+                    </p>
+
+                    <p>
+                        My DMV Cleaning Services LLC<br>
+                        703-967-0674<br>
+                        mydmvcleaningservice@gmail.com
+                    </p>
+                `
+
+            });
+
+        } catch (emailError) {
+
+            console.error(
+                "Service Agreement customer email error:",
+                emailError
+            );
+
+        }
+
+        /* ----------------------------------------------------
+           RESPONSE
+        ---------------------------------------------------- */
+
+        return res.json({
+
+            success: true,
+
+            contractId,
+
+            contract: {
+
+                id: contractId,
+
+                pdfUrl: pdf.fileUrl
+
+            },
+
+            file: pdf.fileUrl,
+
+            message:
+                "Service Agreement signed successfully."
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Service Agreement signing error:",
+            error
+        );
+
+        return res.status(500).json({
+
+            success: false,
+
+            message:
+                "Unable to create the Service Agreement. Please try again."
+
+        });
+
+    }
+
+});
+// 
 
 // ============================================================
 // LEGACY CONTRACT ROUTE
