@@ -410,17 +410,12 @@ BOOKING JAVASCRIPT
 
 
 const API_URL =
-
-window.location.hostname === "localhost"
-
-?
-
-"http://localhost:5000"
-
-:
-
-"https://mydmv-cleaning-backend-live.onrender.com";
-
+    (
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+    )
+        ? ""
+        : "https://mydmv-cleaning-backend-live.onrender.com";
 
 
 
@@ -1181,4 +1176,4 @@ error
 
 </body>
 
-</html>
+</html>

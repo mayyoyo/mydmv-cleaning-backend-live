@@ -4,20 +4,16 @@
 
 <head>
 
-
 <meta charset="UTF-8">
-
 
 <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
 >
 
-
 <title>
     Contact Us | My DMV Cleaning Services LLC
 </title>
-
 
 <!-- <link rel="stylesheet" href="./css/style.css"> -->
 
@@ -25,7 +21,6 @@
     rel="stylesheet"
     href="./css/contract.css"
 >
-
 
 </head>
 
@@ -113,6 +108,30 @@
 </form>
 
 
+<!-- ============================================================
+     PAGE NAVIGATION
+============================================================ -->
+
+<div class="page-navigation">
+
+    <a
+        href="./index.html"
+        class="nav-button"
+    >
+        🏠 Back to Home
+    </a>
+
+
+    <a
+        href="./booking.html"
+        class="nav-button"
+    >
+        📅 Book a Cleaning
+    </a>
+
+</div>
+
+
 </div>
 
 
@@ -124,19 +143,12 @@
 // ============================================================
 
 const API =
-
-(
-    window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1"
-)
-
-?
-
-"http://localhost:5000"
-
-:
-
-"https://dmv-cleaning-backend.onrender.com";
+    (
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+    )
+        ? ""
+        : "https://mydmv-cleaning-backend-live.onrender.com";
 
 
 

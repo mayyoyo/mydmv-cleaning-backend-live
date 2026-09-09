@@ -196,3 +196,50 @@ h1{
 }
 
 }
+
+/* ============================================================
+   CONTACT PAGE NAVIGATION
+============================================================ */
+
+.page-navigation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.nav-button {
+    display: inline-block;
+    padding: 12px 22px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: 0.25s ease;
+}
+
+.nav-button:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 600px) {
+
+    .page-navigation {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .nav-button {
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+    }
+
+}
