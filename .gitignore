@@ -11,3 +11,8 @@ public/signed-contracts/
 database.db
 database.db-shm
 database.db-wal
+
+# SQLite temporary files
+*.db-shm
+*.db-wal
+*.db-journal

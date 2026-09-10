@@ -3567,7 +3567,7 @@ app.post("/api/sign-service-agreement", async (req, res) => {
                     </p>
 
                     <p>
-                        <a href="${pdf.fileUrl}">
+                       <a href="${FRONTEND_URL}${pdf.fileUrl}">
                             View Your Signed Agreement
                         </a>
                     </p>
@@ -3966,11 +3966,47 @@ app.get(
 );
 
 // ============================================================
+// INDEPENDENT SUBCONTRACTOR AGREEMENT
+// ============================================================
+
+app.get(
+    "/documents/independent-subcontractor-agreement.html",
+    (req, res) => {
+
+        const filePath = path.join(
+            __dirname,
+            "public",
+            "documents",
+            "independent-subcontractor-agreement.html"
+        );
+
+        console.log(
+            "Agreement requested:",
+            filePath
+        );
+
+        console.log(
+            "Agreement exists:",
+            fs.existsSync(filePath)
+        );
+
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).send(
+                "Agreement file not found"
+            );
+        }
+
+        res.sendFile(filePath);
+    }
+);
+
+// ============================================================
 // 404
 // ============================================================
 
 app.use(
     (req, res) => {
+
         console.log(
             "404 ROUTE:",
             req.method,
@@ -3990,12 +4026,8 @@ app.use(
 // ============================================================
 
 app.use(
-    (
-        error,
-        req,
-        res,
-        next
-    ) => {
+    (error, req, res, next) => {
+
         console.error(
             "GLOBAL SERVER ERROR:",
             error
@@ -4007,8 +4039,7 @@ app.use(
 
         res.status(500).json({
             success: false,
-            message:
-                "Internal server error"
+            message: "Internal server error"
         });
     }
 );
