@@ -2903,64 +2903,105 @@ async function createContractPdf(
         doc.moveDown();
     }
 
-    // ========================================================
-    // SIGNATURE
-    // ========================================================
+  
+   // ========================================================
+// SIGNATURE
+// ========================================================
+
+doc
+    .fontSize(13)
+    .font("Helvetica-Bold")
+    .text(
+        "Electronic Signature"
+    );
+
+doc.moveDown(0.5);
+
+doc
+    .fontSize(11)
+    .font("Helvetica")
+    .text(
+        `Typed Signature: ${
+            data.typedName || ""
+        }`
+    );
+
+doc.moveDown();
+
+const signatureBuffer =
+    signatureDataUrlToBuffer(
+        data.signature
+    );
+
+if (signatureBuffer) {
 
     doc
-        .fontSize(13)
+        .fontSize(11)
         .font("Helvetica-Bold")
         .text(
-            "Electronic Signature"
+            "Drawn Signature:"
         );
 
     doc.moveDown(0.5);
 
+    try {
+
+        console.log(
+            "Signature buffer size:",
+            signatureBuffer.length
+        );
+
+        const signatureX =
+            doc.x;
+
+        const signatureY =
+            doc.y;
+
+        doc.image(
+            signatureBuffer,
+            signatureX,
+            signatureY,
+            {
+                fit: [
+                    300,
+                    100
+                ],
+                align: "left",
+                valign: "top"
+            }
+        );
+
+        doc.y =
+            signatureY + 110;
+
+    } catch (error) {
+
+        console.error(
+            "Could not place signature in PDF:",
+            error
+        );
+
+        doc
+            .fontSize(10)
+            .font("Helvetica")
+            .text(
+                "[Drawn signature could not be rendered]"
+            );
+    }
+
+} else {
+
+    console.error(
+        "No valid signature buffer was created."
+    );
+
     doc
-        .fontSize(11)
+        .fontSize(10)
         .font("Helvetica")
         .text(
-            `Typed Signature: ${
-                data.typedName || ""
-            }`
+            "[No drawn signature image was received]"
         );
-
-    doc.moveDown();
-
-    const signatureBuffer =
-        signatureDataUrlToBuffer(
-            data.signature
-        );
-
-    if (signatureBuffer) {
-        doc
-            .fontSize(11)
-            .font("Helvetica-Bold")
-            .text(
-                "Drawn Signature:"
-            );
-
-        doc.moveDown(0.5);
-
-        try {
-            doc.image(
-                signatureBuffer,
-                {
-                    fit: [
-                        300,
-                        100
-                    ]
-                }
-            );
-        } catch (error) {
-            console.error(
-                "Could not place signature in PDF:",
-                error.message
-            );
-        }
-
-        doc.moveDown();
-    }
+}
 
     // ========================================================
     // LEGAL NOTICE
@@ -3023,12 +3064,12 @@ async function createContractPdf(
         }
     );
 
-    return {
-        fileName,
-        filePath,
-        fileUrl:
-            `/contracts/${fileName}`
-    };
+ return {
+    fileName,
+    filePath,
+    fileUrl:
+        `https://mydmv-cleaning-backend-live.onrender.com/contracts/${fileName}`
+};
 }
 
 // ============================================================
@@ -3567,7 +3608,7 @@ app.post("/api/sign-service-agreement", async (req, res) => {
                     </p>
 
                     <p>
-                       <a href="${FRONTEND_URL}${pdf.fileUrl}">
+                      <a href="${pdf.fileUrl}">
                             View Your Signed Agreement
                         </a>
                     </p>
