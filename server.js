@@ -3784,7 +3784,85 @@ app.get(
         }
     }
 );
+// 
+// ============================================================
+// ADMIN GET DOCUMENTS
+// ============================================================
+//
+// The admin Documents page uses /api/admin/documents.
+// Signed agreements are stored in the existing contracts table.
+// This route provides the document list without creating
+// a separate documents table.
+// ============================================================
 
+app.get(
+    "/api/admin/documents",
+    verifyAdmin,
+    (req, res) => {
+        try {
+            const documents =
+                db.prepare(`
+                    SELECT
+                        id,
+                        bookingId,
+                        name,
+                        email,
+                        phone,
+                        contractType,
+                        typedName,
+                        signature,
+                        pdfUrl,
+                        businessName,
+                        address,
+                        experience,
+                        services,
+                        availability,
+                        license,
+                        insurance,
+                        businessType,
+                        serviceArea,
+                        requirementsConfirmed,
+                        agreementAccepted,
+                        signedAt,
+                        approvalStatus,
+                        createdAt
+                    FROM contracts
+                    ORDER BY id DESC
+                `).all();
+
+            const formattedDocuments =
+                documents.map((document) => ({
+                    ...document,
+
+                    file:
+                        document.pdfUrl || "",
+
+                    documentType:
+                        document.contractType ||
+                        "Signed Document"
+                }));
+
+            return res.json({
+                success: true,
+                documents:
+                    formattedDocuments
+            });
+
+        } catch (error) {
+            console.error(
+                "GET ADMIN DOCUMENTS ERROR:",
+                error
+            );
+
+            return res.status(500).json({
+                success: false,
+                message:
+                    "Could not load documents"
+            });
+        }
+    }
+);
+// 
 // ============================================================
 // ADMIN GET ONE CONTRACT
 // ============================================================
