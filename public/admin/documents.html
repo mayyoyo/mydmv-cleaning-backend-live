@@ -1,135 +1,1505 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+    <meta charset="UTF-8">
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+```
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-<title>Documents Admin</title>
+<title>
+    Documents | My DMV Cleaning Services
+</title>
 
-<link rel="stylesheet" href="../css/dashboard.css">
+<link
+    rel="stylesheet"
+    href="../css/style.css"
+>
 
-<script>
-if(!localStorage.getItem("adminToken")){
-  window.location.href = "login.html";
-}
-</script>
+<link
+    rel="stylesheet"
+    href="../css/documents.css"
+>
+```
 
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <h2>📄 Documents</h2>
+<header class="navbar">
 
-  <a href="dashboard.html">📊 Dashboard</a>
-  <a href="documents.html">📄 Documents</a>
-  <a href="../index.html">🏠 Home</a>
-
-  <hr>
-
-  <a href="#" onclick="logout()">🚪 Logout</a>
+```
+<div class="logo">
+    🧼 My DMV Cleaning Services LLC
 </div>
 
-<!-- MAIN -->
-<div class="main">
-  <h2>📄 Signed Contracts</h2>
-  <div id="contracts" class="contracts-container">Loading...</div>
+<div
+    class="hamburger"
+    onclick="toggleMenu()"
+>
+    ☰
 </div>
+
+<nav
+    id="navLinks"
+    class="nav-links"
+>
+
+    <a href="../index.html">
+        🏠 Home
+    </a>
+
+    <a href="../booking.html">
+        📅 Booking
+    </a>
+
+    <a
+        href="documents.html"
+        class="active"
+    >
+        📄 Documents
+    </a>
+
+    <a href="../legal/terms.html">
+        📜 Terms
+    </a>
+
+    <a href="../legal/refund.html">
+        💰 Refund
+    </a>
+
+    <a href="../legal/privacy.html">
+        🔒 Privacy
+    </a>
+
+</nav>
+```
+
+</header>
+
+<main class="container">
+
+```
+<h1>
+    📄 Company Documents
+</h1>
+
+<p class="subtitle">
+    Review customer agreements, independent subcontractor
+    applications, signed documents, and company policies.
+</p>
+
+
+<!-- ========================================================
+     CUSTOMER DOCUMENTS
+========================================================= -->
+
+<section class="card">
+
+    <h2>
+        👤 Customer Documents
+    </h2>
+
+    <div class="grid">
+
+        <a
+            href="../documents/sign-contract.html?type=Client%20Contract"
+        >
+            📄 Client Contract
+        </a>
+
+        <a
+            href="../documents/sign-contract.html?type=Service%20Agreement"
+        >
+            📄 Service Agreement
+        </a>
+
+        <a
+            href="../documents/sign-contract.html?type=Non-Binding%20Agreement"
+        >
+            📄 Non-Binding Agreement
+        </a>
+
+        <a
+            href="../documents/sign-contract.html?type=Job%20Completion%20Form"
+        >
+            ✅ Job Completion Form
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- ========================================================
+     SUBCONTRACTOR DOCUMENTS
+========================================================= -->
+
+<section class="card">
+
+    <h2>
+        👷 Subcontractor Documents
+    </h2>
+
+    <div class="grid">
+
+        <a
+            href="../documents/independent-subcontractor-agreement.html"
+        >
+            👷 Independent Subcontractor Agreement
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- ========================================================
+     LEGAL DOCUMENTS
+========================================================= -->
+
+<section class="card">
+
+    <h2>
+        ⚖️ Legal Documents
+    </h2>
+
+    <div class="grid">
+
+        <a href="../legal/privacy.html">
+            🔒 Privacy Policy
+        </a>
+
+        <a href="../legal/terms.html">
+            📜 Terms &amp; Conditions
+        </a>
+
+        <a href="../legal/refund.html">
+            💰 Refund Policy
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- ========================================================
+     SUBMITTED DOCUMENTS
+========================================================= -->
+
+<section class="card">
+
+    <h2>
+        📄 Submitted Documents
+    </h2>
+
+    <p class="subtitle">
+        Review applications and signed documents submitted
+        through the website.
+    </p>
+
+    <div id="signedDocuments">
+
+        <div class="loading">
+            Loading submitted documents...
+        </div>
+
+    </div>
+
+</section>
+```
+
+</main>
+
+<!-- ============================================================
+     DETAILS MODAL
+============================================================ -->
+
+<div
+    id="detailsModal"
+    class="modal"
+>
+
+```
+<div class="modal-content">
+
+    <div class="modal-header">
+
+        <h2>
+            Independent Subcontractor Application
+        </h2>
+
+        <button
+            type="button"
+            class="modal-close"
+            onclick="closeDetails()"
+        >
+            ×
+        </button>
+
+    </div>
+
+    <div id="detailsContent">
+        Loading...
+    </div>
+
+</div>
+```
+
+</div>
+
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+
+<footer class="footer">
+
+```
+<div class="footer-links">
+
+    <a href="../legal/privacy.html">
+        🔒 Privacy
+    </a>
+
+    <a href="../legal/terms.html">
+        📜 Terms
+    </a>
+
+    <a href="../legal/refund.html">
+        💰 Refund
+    </a>
+
+    <a
+        href="../documents/sign-contract.html?type=Client%20Contract"
+    >
+        📄 Client Contract
+    </a>
+
+    <a
+        href="../documents/independent-subcontractor-agreement.html"
+    >
+        👷 Independent Subcontractor Agreement
+    </a>
+
+    <a href="documents.html">
+        📄 Documents
+    </a>
+
+</div>
+
+<p class="copy">
+    © 2026 My DMV Cleaning Services LLC
+</p>
+```
+
+</footer>
 
 <script>
 
-const API = "http://localhost:5000";
+/* ============================================================
+   MOBILE MENU
+============================================================ */
 
-// LOGOUT
-function logout(){
-  localStorage.removeItem("adminToken");
-  window.location.href = "login.html";
-}
+function toggleMenu() {
 
-// LOAD CONTRACTS
-async function loadContracts(){
-  try{
+    const nav =
+        document.getElementById(
+            "navLinks"
+        );
 
-    const res = await fetch(API + "/api/admin/contracts",{
-      headers:{
-        Authorization: "Bearer " + localStorage.getItem("adminToken")
-      }
-    });
-
-    const data = await res.json();
-    const contracts = data.contracts || [];
-
-    const container = document.getElementById("contracts");
-    container.innerHTML = "";
-
-    if(!contracts.length){
-      container.innerHTML = "<p>No contracts yet</p>";
-      return;
+    if (!nav) {
+        return;
     }
 
-    contracts.forEach(c => {
+    nav.classList.toggle(
+        "active"
+    );
+}
 
-      const id = c._id || c.id;
 
-      const div = document.createElement("div");
-      div.className = "card contract-card";
+document
+    .querySelectorAll(
+        "#navLinks a"
+    )
+    .forEach(
+        link => {
 
-      div.innerHTML = `
-        <h3>${c.name || "-"}</h3>
+            link.addEventListener(
+                "click",
+                () => {
 
-        <p><b>Email:</b> ${c.email || "-"}</p>
-        <p><b>Booking ID:</b> ${c.bookingId || "-"}</p>
-        <p><b>Type:</b> ${c.contractType || "-"}</p>
+                    const nav =
+                        document.getElementById(
+                            "navLinks"
+                        );
 
-        <div class="actions">
-          <button class="btn view" onclick="viewSignature('${c.signature}')">
-            View Signature
-          </button>
+                    if (nav) {
 
-          <button class="btn approve" onclick="approveContract('${id}')">
-            Approve
-          </button>
+                        nav.classList.remove(
+                            "active"
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+/* ============================================================
+   API
+============================================================ */
+
+const API =
+    (
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+    )
+        ? "http://localhost:5000"
+        : "https://mydmv-cleaning-backend-live.onrender.com";
+
+
+console.log(
+    "Documents API:",
+    API
+);
+
+
+/* ============================================================
+   ESCAPE HTML
+============================================================ */
+
+function escapeHTML(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
+        return "-";
+
+    }
+
+    return String(value)
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* ============================================================
+   FORMAT DATE
+============================================================ */
+
+function formatDate(value) {
+
+    if (!value) {
+
+        return "-";
+
+    }
+
+    try {
+
+        const date =
+            new Date(value);
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+
+            return escapeHTML(
+                value
+            );
+
+        }
+
+        return date.toLocaleString(
+            "en-US",
+            {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "numeric",
+                minute: "2-digit"
+            }
+        );
+
+    } catch (error) {
+
+        return escapeHTML(
+            value
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   FORMAT BOOLEAN
+============================================================ */
+
+function formatBoolean(value) {
+
+    if (
+        value === true ||
+        value === 1 ||
+        value === "1" ||
+        value === "true"
+    ) {
+
+        return "Yes";
+
+    }
+
+    return "No";
+
+}
+
+
+/* ============================================================
+   DOCUMENT STATUS
+============================================================ */
+
+function statusHTML(status) {
+
+    const normalized =
+        String(
+            status || "pending"
+        ).toLowerCase();
+
+    let className =
+        "status-pending";
+
+    if (
+        normalized === "approved"
+    ) {
+
+        className =
+            "status-approved";
+
+    }
+
+    if (
+        normalized === "rejected"
+    ) {
+
+        className =
+            "status-rejected";
+
+    }
+
+    return `
+        <span class="status ${className}">
+            ${escapeHTML(normalized)}
+        </span>
+    `;
+
+}
+
+
+/* ============================================================
+   GET ADMIN TOKEN
+============================================================ */
+
+function getAdminToken() {
+
+    return localStorage.getItem(
+        "adminToken"
+    );
+
+}
+
+
+/* ============================================================
+   ADMIN LOGIN CHECK
+============================================================ */
+
+function requireAdminToken() {
+
+    const token =
+        getAdminToken();
+
+    if (!token) {
+
+        alert(
+            "Admin login required. Please log in first."
+        );
+
+        return null;
+
+    }
+
+    return token;
+
+}
+
+
+/* ============================================================
+   NORMALIZE DOCUMENT / PDF URL
+============================================================ */
+
+function normalizeDocumentUrl(file) {
+
+    if (!file) {
+
+        return "";
+
+    }
+
+    let url =
+        String(file).trim();
+
+    if (!url) {
+
+        return "";
+
+    }
+
+
+    /*
+        Fix malformed URLs such as:
+
+        https://mydmvcleaningservice.comhttps://
+        mydmv-cleaning-backend-live.onrender.com/contracts/file.pdf
+
+        Keep the actual Render backend URL.
+    */
+
+    const backendMarker =
+        "https://mydmv-cleaning-backend-live.onrender.com";
+
+    const backendIndex =
+        url.indexOf(
+            backendMarker
+        );
+
+    if (
+        backendIndex > 0
+    ) {
+
+        url =
+            url.substring(
+                backendIndex
+            );
+
+    }
+
+
+    /*
+        Remove accidental duplicate backend URLs.
+    */
+
+    const duplicateMarker =
+        `${backendMarker}${backendMarker}`;
+
+    while (
+        url.startsWith(
+            duplicateMarker
+        )
+    ) {
+
+        url =
+            url.substring(
+                backendMarker.length
+            );
+
+    }
+
+
+    /*
+        Absolute URL.
+    */
+
+    if (
+        /^https?:\/\//i.test(
+            url
+        )
+    ) {
+
+        return url;
+
+    }
+
+
+    /*
+        Root-relative URL.
+    */
+
+    if (
+        url.startsWith("/")
+    ) {
+
+        return `${API}${url}`;
+
+    }
+
+
+    /*
+        Relative URL.
+    */
+
+    return `${API}/${url}`;
+
+}
+
+
+/* ============================================================
+   LOAD SUBMITTED DOCUMENTS
+============================================================ */
+
+async function loadSubmittedDocuments() {
+
+    const container =
+        document.getElementById(
+            "signedDocuments"
+        );
+
+    if (!container) {
+
+        return;
+
+    }
+
+    container.innerHTML = `
+        <div class="loading">
+            Loading submitted documents...
         </div>
-      `;
+    `;
 
-      container.appendChild(div);
-    });
 
-  }catch(err){
-    console.error(err);
-    document.getElementById("contracts").innerHTML =
-      "<p>Error loading contracts</p>";
-  }
-}
+    try {
 
-// VIEW SIGNATURE
-function viewSignature(sig){
-  if(!sig){
-    alert("No signature found");
-    return;
-  }
-  window.open(sig, "_blank");
-}
+        const token =
+            getAdminToken();
 
-// APPROVE CONTRACT
-async function approveContract(id){
-  await fetch(API + "/api/admin/contracts/approve/" + id,{
-    method:"POST",
-    headers:{
-      Authorization: "Bearer " + localStorage.getItem("adminToken")
+        if (!token) {
+
+            container.innerHTML = `
+                <div class="error">
+                    Admin login required.
+                    <br><br>
+                    Please log in to the admin dashboard first.
+                </div>
+            `;
+
+            return;
+
+        }
+
+
+        console.log(
+            "Loading documents from:",
+            `${API}/api/admin/documents`
+        );
+
+
+        const response =
+            await fetch(
+                `${API}/api/admin/documents`,
+                {
+                    method: "GET",
+
+                    headers: {
+
+                        "Accept":
+                            "application/json",
+
+                        "Authorization":
+                            `Bearer ${token}`
+
+                    }
+                }
+            );
+
+
+        console.log(
+            "Documents API status:",
+            response.status
+        );
+
+
+        if (
+            response.status === 401 ||
+            response.status === 403
+        ) {
+
+            localStorage.removeItem(
+                "adminToken"
+            );
+
+            container.innerHTML = `
+                <div class="error">
+                    Your admin session has expired.
+                    <br><br>
+                    Please log in again.
+                </div>
+            `;
+
+            return;
+
+        }
+
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            console.error(
+                "Documents API error:",
+                errorText
+            );
+
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+
+        }
+
+
+        const result =
+            await response.json();
+
+
+        console.log(
+            "Admin documents response:",
+            result
+        );
+
+
+        let documents = [];
+
+
+        if (
+            Array.isArray(result)
+        ) {
+
+            documents =
+                result;
+
+        } else if (
+            Array.isArray(
+                result.documents
+            )
+        ) {
+
+            documents =
+                result.documents;
+
+        } else if (
+            Array.isArray(
+                result.contracts
+            )
+        ) {
+
+            documents =
+                result.contracts;
+
+        } else if (
+            Array.isArray(
+                result.data
+            )
+        ) {
+
+            documents =
+                result.data;
+
+        }
+
+
+        if (
+            documents.length === 0
+        ) {
+
+            container.innerHTML = `
+                <div class="loading">
+                    No submitted documents found.
+                </div>
+            `;
+
+            return;
+
+        }
+
+
+        container.innerHTML =
+            documents
+                .map(
+                    document =>
+                        renderDocumentCard(
+                            document
+                        )
+                )
+                .join("");
+
+
+    } catch (error) {
+
+        console.error(
+            "Could not load submitted documents:",
+            error
+        );
+
+        container.innerHTML = `
+            <div class="error">
+                Unable to load submitted documents.
+                <br><br>
+                ${escapeHTML(
+                    error.message
+                )}
+            </div>
+        `;
+
     }
-  });
 
-  alert("✅ Contract Approved");
-  loadContracts();
 }
 
-// INIT
-loadContracts();
 
-</script>
+/* ============================================================
+   RENDER DOCUMENT CARD
+============================================================ */
 
-</body>
-</html>
+function renderDocumentCard(document) {
+
+    const id =
+        document.id ??
+        document.contractId ??
+        "-";
+
+
+    const documentType =
+        document.documentType ||
+        document.contractType ||
+        "Signed Document";
+
+
+    const name =
+        document.name ||
+        document.fullName ||
+        document.contractorName ||
+        "-";
+
+
+    const email =
+        document.email ||
+        "-";
+
+
+    const phone =
+        document.phone ||
+        "-";
+
+
+    const status =
+        document.approvalStatus ||
+        document.status ||
+        "pending";
+
+
+    const createdAt =
+        document.createdAt ||
+        document.signedAt ||
+        document.created_at ||
+        document.date ||
+        null;
+
+
+    const rawPdfUrl =
+        document.file ||
+        document.pdfUrl ||
+        document.pdf ||
+        "";
+
+
+    const pdfUrl =
+        normalizeDocumentUrl(
+            rawPdfUrl
+        );
+
+
+    return `
+        <div class="document-card">
+
+            <div class="document-card-header">
+
+                <div>
+
+                    <h3>
+                        ${escapeHTML(
+                            documentType
+                        )}
+                    </h3>
+
+                    <p>
+                        Submitted by:
+                        <strong>
+                            ${escapeHTML(
+                                name
+                            )}
+                        </strong>
+                    </p>
+
+                </div>
+
+                <div>
+                    ${statusHTML(status)}
+                </div>
+
+            </div>
+
+
+            <div class="document-card-body">
+
+                <p>
+                    <strong>ID:</strong>
+                    ${escapeHTML(id)}
+                </p>
+
+                <p>
+                    <strong>Email:</strong>
+                    ${escapeHTML(email)}
+                </p>
+
+                <p>
+                    <strong>Phone:</strong>
+                    ${escapeHTML(phone)}
+                </p>
+
+                <p>
+                    <strong>Submitted:</strong>
+                    ${formatDate(createdAt)}
+                </p>
+
+            </div>
+
+
+            <div class="document-card-actions">
+
+                <button
+                    type="button"
+                    onclick="showDetails('${escapeHTML(id)}')"
+                >
+                    👁️ View Details
+                </button>
+
+
+                ${
+                    pdfUrl
+                        ? `
+                            <button
+                                type="button"
+                                onclick="openPDF('${escapeHTML(pdfUrl)}')"
+                            >
+                                📄 Open PDF
+                            </button>
+                          `
+                        : ""
+                }
+
+            </div>
+
+        </div>
+    `;
+
+}
+
+
+/* ============================================================
+   OPEN PDF
+============================================================ */
+
+function openPDF(file) {
+
+    if (!file) {
+
+        alert(
+            "PDF document is not available."
+        );
+
+        return;
+
+    }
+
+
+    const url =
+        normalizeDocumentUrl(
+            file
+        );
+
+
+    if (!url) {
+
+        alert(
+            "PDF document is not available."
+        );
+
+        return;
+
+    }
+
+
+    console.log(
+        "Original PDF value:",
+        file
+    );
+
+    console.log(
+        "Opening normalized PDF:",
+        url
+    );
+
+
+    window.open(
+        url,
+        "_blank",
+        "noopener"
+    );
+
+}
+
+
+/* ============================================================
+   SHOW DETAILS
+============================================================ */
+
+async function showDetails(id) {
+
+    const modal =
+        document.getElementById(
+            "detailsModal"
+        );
+
+    const content =
+        document.getElementById(
+            "detailsContent"
+        );
+
+
+    if (
+        !modal ||
+        !content
+    ) {
+
+        return;
+
+    }
+
+
+    const token =
+        requireAdminToken();
+
+    if (!token) {
+
+        return;
+
+    }
+
+
+    modal.classList.add(
+        "active"
+    );
+
+
+    content.innerHTML = `
+        <div class="loading">
+            Loading application details...
+        </div>
+    `;
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API}/api/admin/contracts/${encodeURIComponent(id)}`,
+                {
+                    method: "GET",
+
+                    headers: {
+
+                        "Accept":
+                            "application/json",
+
+                        "Authorization":
+                            `Bearer ${token}`
+
+                    }
+                }
+            );
+
+
+        if (
+            response.status === 401 ||
+            response.status === 403
+        ) {
+
+            localStorage.removeItem(
+                "adminToken"
+            );
+
+            content.innerHTML = `
+                <div class="error">
+                    Your admin session has expired.
+                    <br><br>
+                    Please log in again.
+                </div>
+            `;
+
+            return;
+
+        }
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+
+        }
+
+
+        const result =
+            await response.json();
+
+
+        const contract =
+            result.contract ||
+            result.document ||
+            result.data ||
+            result;
+
+
+        renderDetails(
+            contract
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Could not load document details:",
+            error
+        );
+
+        content.innerHTML = `
+            <div class="error">
+                Unable to load application details.
+                <br><br>
+                ${escapeHTML(
+                    error.message
+                )}
+            </div>
+        `;
+
+    }
+
+}
+
+
+/* ============================================================
+   RENDER DETAILS
+============================================================ */
+
+function renderDetails(contract) {
+
+    const content =
+        document.getElementById(
+            "detailsContent"
+        );
+
+
+    if (!content) {
+
+        return;
+
+    }
+
+
+    const id =
+        contract.id ??
+        "-";
+
+
+    const name =
+        contract.name ||
+        contract.fullName ||
+        contract.contractorName ||
+        "-";
+
+
+    const email =
+        contract.email ||
+        "-";
+
+
+    const phone =
+        contract.phone ||
+        "-";
+
+
+    const businessType =
+        contract.businessType ||
+        "-";
+
+
+    const serviceArea =
+        contract.serviceArea ||
+        "-";
+
+
+    const requirementsConfirmed =
+        contract.requirementsConfirmed;
+
+
+    const agreementAccepted =
+        contract.agreementAccepted;
+
+
+    const signedAt =
+        contract.signedAt ||
+        contract.createdAt ||
+        null;
+
+
+    const approvalStatus =
+        contract.approvalStatus ||
+        contract.status ||
+        "pending";
+
+
+    const rawPdfUrl =
+        contract.pdfUrl ||
+        contract.file ||
+        "";
+
+
+    const pdfUrl =
+        normalizeDocumentUrl(
+            rawPdfUrl
+        );
+
+
+    content.innerHTML = `
+
+        <div class="document-details">
+
+            <p>
+                <strong>Document ID:</strong>
+                ${escapeHTML(id)}
+            </p>
+
+            <p>
+                <strong>Full Name:</strong>
+                ${escapeHTML(name)}
+            </p>
+
+            <p>
+                <strong>Email:</strong>
+                ${escapeHTML(email)}
+            </p>
+
+            <p>
+                <strong>Phone:</strong>
+                ${escapeHTML(phone)}
+            </p>
+
+            <p>
+                <strong>Business Type:</strong>
+                ${escapeHTML(businessType)}
+            </p>
+
+            <p>
+                <strong>Service Area:</strong>
+                ${escapeHTML(serviceArea)}
+            </p>
+
+            <p>
+                <strong>Requirements Confirmed:</strong>
+                ${formatBoolean(
+                    requirementsConfirmed
+                )}
+            </p>
+
+            <p>
+                <strong>Agreement Accepted:</strong>
+                ${formatBoolean(
+                    agreementAccepted
+                )}
+            </p>
+
+            <p>
+                <strong>Signed At:</strong>
+                ${formatDate(signedAt)}
+            </p>
+
+            <p>
+                <strong>Status:</strong>
+                ${statusHTML(
+                    approvalStatus
+                )}
+            </p>
+
+        </div>
+
+
+        <div class="document-actions">
+
+            ${
+                pdfUrl
+                    ? `
+                        <button
+                            type="button"
+                            onclick="openPDF('${escapeHTML(pdfUrl)}')"
+                        >
+                            📄 Open Signed PDF
+                        </button>
+                      `
+                    : ""
+            }
+
+
+            <button
+                type="button"
+                onclick="updateStatus('${escapeHTML(id)}', 'approved')"
+            >
+                ✅ Approve
+            </button>
+
+
+            <button
+                type="button"
+                onclick="updateStatus('${escapeHTML(id)}', 'rejected')"
+            >
+                ❌ Reject
+            </button>
+
+        </div>
+
+    `;
+
+}
+
+
+/* ============================================================
+   UPDATE DOCUMENT STATUS
+============================================================ */
+
+async function updateStatus(
+    id,
+    status
+) {
+
+    const token =
+        requireAdminToken();
+
+    if (!token) {
+
+        return;
+
+    }
+
+
+    const action =
+        status === "approved"
+            ? "approve"
+            : "reject";
+
+
+    const confirmed =
+        window.confirm(
+            `Are you sure you want to ${action} this document?`
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API}/api/admin/contracts/${encodeURIComponent(id)}/status`,
+                {
+                    method: "PUT",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Accept":
+                            "application/json",
+
+                        "Authorization":
+                            `Bearer ${token}`
+
+                    },
+
+                    body:
+                        JSON.stringify({
+                            status:
+                                status
+                        })
+
+                }
+            );
+
+
+        if (
+            response.status === 401 ||
+            response.status === 403
+        ) {
+
+            localStorage.removeItem(
+                "adminToken"
+            );
+
+            alert(
+                "Your admin session has expired. Please log in again."
+            );
+
+            return;
+
+        }
+
+
+        const result =
+            await response.json();
