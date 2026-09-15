@@ -1,30 +1,16 @@
 <!DOCTYPE html>
 
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-```
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
 
-<title>
-    Documents | My DMV Cleaning Services
-</title>
+<title>Documents | My DMV Cleaning Services</title>
 
-<link
-    rel="stylesheet"
-    href="../css/style.css"
->
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/documents.css">
 
-<link
-    rel="stylesheet"
-    href="../css/documents.css"
->
-```
 
 </head>
 
@@ -32,7 +18,7 @@
 
 <header class="navbar">
 
-```
+
 <div class="logo">
     🧼 My DMV Cleaning Services LLC
 </div>
@@ -40,14 +26,12 @@
 <div
     class="hamburger"
     onclick="toggleMenu()"
+    aria-label="Toggle navigation"
 >
     ☰
 </div>
 
-<nav
-    id="navLinks"
-    class="nav-links"
->
+<nav id="navLinks" class="nav-links">
 
     <a href="../index.html">
         🏠 Home
@@ -57,10 +41,7 @@
         📅 Booking
     </a>
 
-    <a
-        href="documents.html"
-        class="active"
-    >
+    <a href="documents.html" class="active">
         📄 Documents
     </a>
 
@@ -77,13 +58,13 @@
     </a>
 
 </nav>
-```
+
 
 </header>
 
 <main class="container">
 
-```
+
 <h1>
     📄 Company Documents
 </h1>
@@ -211,7 +192,7 @@
     </div>
 
 </section>
-```
+
 
 </main>
 
@@ -222,9 +203,10 @@
 <div
     id="detailsModal"
     class="modal"
+    aria-hidden="true"
 >
 
-```
+
 <div class="modal-content">
 
     <div class="modal-header">
@@ -237,6 +219,7 @@
             type="button"
             class="modal-close"
             onclick="closeDetails()"
+            aria-label="Close"
         >
             ×
         </button>
@@ -248,7 +231,7 @@
     </div>
 
 </div>
-```
+
 
 </div>
 
@@ -258,7 +241,7 @@
 
 <footer class="footer">
 
-```
+
 <div class="footer-links">
 
     <a href="../legal/privacy.html">
@@ -294,7 +277,7 @@
 <p class="copy">
     © 2026 My DMV Cleaning Services LLC
 </p>
-```
+
 
 </footer>
 
@@ -307,49 +290,32 @@
 function toggleMenu() {
 
     const nav =
-        document.getElementById(
-            "navLinks"
-        );
+        document.getElementById("navLinks");
 
     if (!nav) {
         return;
     }
 
-    nav.classList.toggle(
-        "active"
-    );
+    nav.classList.toggle("active");
 }
 
 
 document
-    .querySelectorAll(
-        "#navLinks a"
-    )
-    .forEach(
-        link => {
+    .querySelectorAll("#navLinks a")
+    .forEach(function (link) {
 
-            link.addEventListener(
-                "click",
-                () => {
+        link.addEventListener("click", function () {
 
-                    const nav =
-                        document.getElementById(
-                            "navLinks"
-                        );
+            const nav =
+                document.getElementById("navLinks");
 
-                    if (nav) {
+            if (nav) {
+                nav.classList.remove("active");
+            }
 
-                        nav.classList.remove(
-                            "active"
-                        );
+        });
 
-                    }
-
-                }
-            );
-
-        }
-    );
+    });
 
 
 /* ============================================================
@@ -365,10 +331,7 @@ const API =
         : "https://mydmv-cleaning-backend-live.onrender.com";
 
 
-console.log(
-    "Documents API:",
-    API
-);
+console.log("Documents API:", API);
 
 
 /* ============================================================
@@ -381,38 +344,15 @@ function escapeHTML(value) {
         value === null ||
         value === undefined
     ) {
-
         return "-";
-
     }
 
     return String(value)
-
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-
-        .replace(
-            /</g,
-            "&lt;"
-        )
-
-        .replace(
-            />/g,
-            "&gt;"
-        )
-
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 
@@ -423,9 +363,7 @@ function escapeHTML(value) {
 function formatDate(value) {
 
     if (!value) {
-
         return "-";
-
     }
 
     try {
@@ -438,11 +376,7 @@ function formatDate(value) {
                 date.getTime()
             )
         ) {
-
-            return escapeHTML(
-                value
-            );
-
+            return escapeHTML(value);
         }
 
         return date.toLocaleString(
@@ -458,12 +392,9 @@ function formatDate(value) {
 
     } catch (error) {
 
-        return escapeHTML(
-            value
-        );
+        return escapeHTML(value);
 
     }
-
 }
 
 
@@ -479,13 +410,10 @@ function formatBoolean(value) {
         value === "1" ||
         value === "true"
     ) {
-
         return "Yes";
-
     }
 
     return "No";
-
 }
 
 
@@ -503,22 +431,14 @@ function statusHTML(status) {
     let className =
         "status-pending";
 
-    if (
-        normalized === "approved"
-    ) {
-
+    if (normalized === "approved") {
         className =
             "status-approved";
-
     }
 
-    if (
-        normalized === "rejected"
-    ) {
-
+    if (normalized === "rejected") {
         className =
             "status-rejected";
-
     }
 
     return `
@@ -526,7 +446,6 @@ function statusHTML(status) {
             ${escapeHTML(normalized)}
         </span>
     `;
-
 }
 
 
@@ -539,7 +458,6 @@ function getAdminToken() {
     return localStorage.getItem(
         "adminToken"
     );
-
 }
 
 
@@ -559,11 +477,9 @@ function requireAdminToken() {
         );
 
         return null;
-
     }
 
     return token;
-
 }
 
 
@@ -574,52 +490,42 @@ function requireAdminToken() {
 function normalizeDocumentUrl(file) {
 
     if (!file) {
-
         return "";
-
     }
 
     let url =
         String(file).trim();
 
     if (!url) {
-
         return "";
-
     }
 
 
     /*
-        Fix malformed URLs such as:
+       Handle malformed values such as:
 
-        https://mydmvcleaningservice.comhttps://
-        mydmv-cleaning-backend-live.onrender.com/contracts/file.pdf
+       https://mydmvcleaningservice.comhttps://mydmv-cleaning-backend-live.onrender.com/contracts/file.pdf
 
-        Keep the actual Render backend URL.
+       We keep the actual Render backend URL.
     */
 
     const backendMarker =
         "https://mydmv-cleaning-backend-live.onrender.com";
 
     const backendIndex =
-        url.indexOf(
-            backendMarker
-        );
+        url.indexOf(backendMarker);
 
-    if (
-        backendIndex > 0
-    ) {
+    if (backendIndex > 0) {
 
         url =
             url.substring(
                 backendIndex
             );
-
     }
 
 
     /*
-        Remove accidental duplicate backend URLs.
+       Remove accidental duplicate backend URLs.
     */
 
     const duplicateMarker =
@@ -640,13 +546,11 @@ function normalizeDocumentUrl(file) {
 
 
     /*
-        Absolute URL.
+       Absolute URL.
     */
 
     if (
-        /^https?:\/\//i.test(
-            url
-        )
+        /^https?:\/\//i.test(url)
     ) {
 
         return url;
@@ -655,7 +559,7 @@ function normalizeDocumentUrl(file) {
 
 
     /*
-        Root-relative URL.
+       Root-relative URL.
     */
 
     if (
@@ -668,11 +572,10 @@ function normalizeDocumentUrl(file) {
 
 
     /*
-        Relative URL.
+       Relative URL.
     */
 
     return `${API}/${url}`;
-
 }
 
 
@@ -688,9 +591,7 @@ async function loadSubmittedDocuments() {
         );
 
     if (!container) {
-
         return;
-
     }
 
     container.innerHTML = `
@@ -716,30 +617,30 @@ async function loadSubmittedDocuments() {
             `;
 
             return;
-
         }
 
 
+        const endpoint =
+            `${API}/api/admin/documents`;
+
         console.log(
             "Loading documents from:",
-            `${API}/api/admin/documents`
+            endpoint
         );
 
 
         const response =
             await fetch(
-                `${API}/api/admin/documents`,
+                endpoint,
                 {
                     method: "GET",
 
                     headers: {
-
                         "Accept":
                             "application/json",
 
                         "Authorization":
                             `Bearer ${token}`
-
                     }
                 }
             );
@@ -769,7 +670,6 @@ async function loadSubmittedDocuments() {
             `;
 
             return;
-
         }
 
 
@@ -786,13 +686,11 @@ async function loadSubmittedDocuments() {
             throw new Error(
                 `HTTP ${response.status}`
             );
-
         }
 
 
         const result =
             await response.json();
-
 
         console.log(
             "Admin documents response:",
@@ -803,35 +701,27 @@ async function loadSubmittedDocuments() {
         let documents = [];
 
 
-        if (
-            Array.isArray(result)
-        ) {
+        if (Array.isArray(result)) {
 
             documents =
                 result;
 
         } else if (
-            Array.isArray(
-                result.documents
-            )
+            Array.isArray(result.documents)
         ) {
 
             documents =
                 result.documents;
 
         } else if (
-            Array.isArray(
-                result.contracts
-            )
+            Array.isArray(result.contracts)
         ) {
 
             documents =
                 result.contracts;
 
         } else if (
-            Array.isArray(
-                result.data
-            )
+            Array.isArray(result.data)
         ) {
 
             documents =
@@ -851,18 +741,18 @@ async function loadSubmittedDocuments() {
             `;
 
             return;
-
         }
 
 
         container.innerHTML =
             documents
-                .map(
-                    document =>
-                        renderDocumentCard(
-                            document
-                        )
-                )
+                .map(function (document) {
+
+                    return renderDocumentCard(
+                        document
+                    );
+
+                })
                 .join("");
 
 
@@ -877,9 +767,7 @@ async function loadSubmittedDocuments() {
             <div class="error">
                 Unable to load submitted documents.
                 <br><br>
-                ${escapeHTML(
-                    error.message
-                )}
+                ${escapeHTML(error.message)}
             </div>
         `;
 
@@ -951,6 +839,7 @@ function renderDocumentCard(document) {
 
 
     return `
+
         <div class="document-card">
 
             <div class="document-card-header">
@@ -958,17 +847,13 @@ function renderDocumentCard(document) {
                 <div>
 
                     <h3>
-                        ${escapeHTML(
-                            documentType
-                        )}
+                        ${escapeHTML(documentType)}
                     </h3>
 
                     <p>
                         Submitted by:
                         <strong>
-                            ${escapeHTML(
-                                name
-                            )}
+                            ${escapeHTML(name)}
                         </strong>
                     </p>
 
@@ -1026,12 +911,17 @@ function renderDocumentCard(document) {
                                 📄 Open PDF
                             </button>
                           `
-                        : ""
+                        : `
+                            <span class="error">
+                                PDF not available
+                            </span>
+                          `
                 }
 
             </div>
 
         </div>
+
     `;
 
 }
@@ -1050,14 +940,11 @@ function openPDF(file) {
         );
 
         return;
-
     }
 
 
     const url =
-        normalizeDocumentUrl(
-            file
-        );
+        normalizeDocumentUrl(file);
 
 
     if (!url) {
@@ -1067,7 +954,6 @@ function openPDF(file) {
         );
 
         return;
-
     }
 
 
@@ -1112,9 +998,7 @@ async function showDetails(id) {
         !modal ||
         !content
     ) {
-
         return;
-
     }
 
 
@@ -1122,14 +1006,17 @@ async function showDetails(id) {
         requireAdminToken();
 
     if (!token) {
-
         return;
-
     }
 
 
     modal.classList.add(
         "active"
+    );
+
+    modal.setAttribute(
+        "aria-hidden",
+        "false"
     );
 
 
@@ -1149,13 +1036,11 @@ async function showDetails(id) {
                     method: "GET",
 
                     headers: {
-
                         "Accept":
                             "application/json",
 
                         "Authorization":
                             `Bearer ${token}`
-
                     }
                 }
             );
@@ -1179,16 +1064,22 @@ async function showDetails(id) {
             `;
 
             return;
-
         }
 
 
         if (!response.ok) {
 
+            const errorText =
+                await response.text();
+
+            console.error(
+                "Details API error:",
+                errorText
+            );
+
             throw new Error(
                 `HTTP ${response.status}`
             );
-
         }
 
 
@@ -1219,9 +1110,7 @@ async function showDetails(id) {
             <div class="error">
                 Unable to load application details.
                 <br><br>
-                ${escapeHTML(
-                    error.message
-                )}
+                ${escapeHTML(error.message)}
             </div>
         `;
 
@@ -1243,9 +1132,7 @@ function renderDetails(contract) {
 
 
     if (!content) {
-
         return;
-
     }
 
 
@@ -1271,13 +1158,48 @@ function renderDetails(contract) {
         "-";
 
 
+    const businessName =
+        contract.businessName ||
+        "-";
+
+
     const businessType =
         contract.businessType ||
         "-";
 
 
+    const address =
+        contract.address ||
+        "-";
+
+
     const serviceArea =
         contract.serviceArea ||
+        "-";
+
+
+    const experience =
+        contract.experience ||
+        "-";
+
+
+    const services =
+        contract.services ||
+        "-";
+
+
+    const availability =
+        contract.availability ||
+        "-";
+
+
+    const license =
+        contract.license ||
+        "-";
+
+
+    const insurance =
+        contract.insurance ||
         "-";
 
 
@@ -1287,6 +1209,11 @@ function renderDetails(contract) {
 
     const agreementAccepted =
         contract.agreementAccepted;
+
+
+    const typedName =
+        contract.typedName ||
+        "-";
 
 
     const signedAt =
@@ -1338,8 +1265,18 @@ function renderDetails(contract) {
             </p>
 
             <p>
+                <strong>Business Name:</strong>
+                ${escapeHTML(businessName)}
+            </p>
+
+            <p>
                 <strong>Business Type:</strong>
                 ${escapeHTML(businessType)}
+            </p>
+
+            <p>
+                <strong>Address:</strong>
+                ${escapeHTML(address)}
             </p>
 
             <p>
@@ -1348,17 +1285,43 @@ function renderDetails(contract) {
             </p>
 
             <p>
+                <strong>Experience:</strong>
+                ${escapeHTML(experience)}
+            </p>
+
+            <p>
+                <strong>Services:</strong>
+                ${escapeHTML(services)}
+            </p>
+
+            <p>
+                <strong>Availability:</strong>
+                ${escapeHTML(availability)}
+            </p>
+
+            <p>
+                <strong>License:</strong>
+                ${escapeHTML(license)}
+            </p>
+
+            <p>
+                <strong>Insurance:</strong>
+                ${escapeHTML(insurance)}
+            </p>
+
+            <p>
                 <strong>Requirements Confirmed:</strong>
-                ${formatBoolean(
-                    requirementsConfirmed
-                )}
+                ${formatBoolean(requirementsConfirmed)}
             </p>
 
             <p>
                 <strong>Agreement Accepted:</strong>
-                ${formatBoolean(
-                    agreementAccepted
-                )}
+                ${formatBoolean(agreementAccepted)}
+            </p>
+
+            <p>
+                <strong>Typed Name:</strong>
+                ${escapeHTML(typedName)}
             </p>
 
             <p>
@@ -1368,9 +1331,7 @@ function renderDetails(contract) {
 
             <p>
                 <strong>Status:</strong>
-                ${statusHTML(
-                    approvalStatus
-                )}
+                ${statusHTML(approvalStatus)}
             </p>
 
         </div>
@@ -1388,7 +1349,11 @@ function renderDetails(contract) {
                             📄 Open Signed PDF
                         </button>
                       `
-                    : ""
+                    : `
+                        <p class="error">
+                            Signed PDF is not available.
+                        </p>
+                      `
             }
 
 
@@ -1409,7 +1374,7 @@ function renderDetails(contract) {
 
         </div>
 
-    `;
+    ;
 
 }
 
@@ -1427,9 +1392,7 @@ async function updateStatus(
         requireAdminToken();
 
     if (!token) {
-
         return;
-
     }
 
 
@@ -1439,16 +1402,16 @@ async function updateStatus(
             : "reject";
 
 
-    const confirmed =
-        window.confirm(
-            `Are you sure you want to ${action} this document?`
-        );
+  const confirmed =
+    window.confirm(
+        "Are you sure you want to " +
+        action +
+        " this document?"
+    );
 
 
     if (!confirmed) {
-
         return;
-
     }
 
 
@@ -1461,7 +1424,6 @@ async function updateStatus(
                     method: "PUT",
 
                     headers: {
-
                         "Content-Type":
                             "application/json",
 
@@ -1470,15 +1432,12 @@ async function updateStatus(
 
                         "Authorization":
                             `Bearer ${token}`
-
                     },
 
                     body:
                         JSON.stringify({
-                            status:
-                                status
+                            status: status
                         })
-
                 }
             );
 
@@ -1497,9 +1456,187 @@ async function updateStatus(
             );
 
             return;
+        }
+
+
+        const contentType =
+            response.headers.get(
+                "content-type"
+            ) || "";
+
+
+        let result = null;
+
+
+        if (
+            contentType.includes(
+                "application/json"
+            )
+        ) {
+
+            result =
+                await response.json();
+
+        } else {
+
+            const text =
+                await response.text();
+
+            console.error(
+                "Status update response:",
+                text
+            );
+
+            throw new Error(
+                `HTTP ${response.status}`
+            );
 
         }
 
 
-        const result =
-            await response.json();
+        if (!response.ok) {
+
+            throw new Error(
+                result?.error ||
+                result?.message ||
+                `HTTP ${response.status}`
+            );
+
+        }
+
+
+        alert(
+            `Document ${action}d successfully.`
+        );
+
+
+        closeDetails();
+
+
+        await loadSubmittedDocuments();
+
+
+    } catch (error) {
+
+        console.error(
+            "Could not update document status:",
+            error
+        );
+
+        alert(
+            `Unable to ${action} document: ${error.message}`
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   CLOSE DETAILS MODAL
+============================================================ */
+
+function closeDetails() {
+
+    const modal =
+        document.getElementById(
+            "detailsModal"
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    modal.classList.remove(
+        "active"
+    );
+
+
+    modal.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+}
+
+
+/* ============================================================
+   CLOSE MODAL WHEN CLICKING OUTSIDE
+============================================================ */
+
+document.addEventListener(
+    "click",
+    function (event) {
+
+        const modal =
+            document.getElementById(
+                "detailsModal"
+            );
+
+
+        if (!modal) {
+            return;
+        }
+
+
+        if (
+            event.target === modal
+        ) {
+
+            closeDetails();
+
+        }
+
+    }
+);
+
+
+/* ============================================================
+   ESC KEY CLOSES MODAL
+============================================================ */
+
+document.addEventListener(
+    "keydown",
+    function (event) {
+
+        if (
+            event.key === "Escape"
+        ) {
+
+            closeDetails();
+
+        }
+
+    }
+);
+
+
+/* ============================================================
+   LOAD DOCUMENTS WHEN PAGE IS READY
+============================================================ */
+
+if (
+    document.readyState === "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            loadSubmittedDocuments();
+
+        }
+    );
+
+} else {
+
+    loadSubmittedDocuments();
+
+}
+
+</script>
+
+</body>
+</html>
