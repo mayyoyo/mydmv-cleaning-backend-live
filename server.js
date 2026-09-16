@@ -28,12 +28,27 @@ dotenv.config();
 // ============================================================
 
 const app = express();
+app.use(express.static(path.join(__dirname, "public")));
 
+// ============================================================
+// SIGNED CONTRACT PDF FILES
+// ============================================================
+
+app.use(
+    "/contracts",
+    express.static(
+        path.join(__dirname, "public", "signed-contracts")
+    )
+);
 // ============================================================
 // CONFIGURATION
 // ============================================================
 
 const PORT = process.env.PORT || 5000;
+
+const BACKEND_URL =
+    process.env.BACKEND_URL ||
+    `http://127.0.0.1:${PORT}`;
 
 const FRONTEND_URL =
     process.env.FRONTEND_URL ||
@@ -456,6 +471,7 @@ app.use(
         path.join(__dirname, "public")
     )
 );
+// 
 
 // ============================================================
 // DATABASE
@@ -2109,20 +2125,11 @@ app.get(
 // ============================================================
 // DOCUMENT STORAGE
 // ============================================================
-
 const contractsFolder =
-    path.join(
-        __dirname,
-        "public",
-        "contracts"
-    );
+    path.join(__dirname, "public", "contracts");
 
 const invoicesFolder =
-    path.join(
-        __dirname,
-        "public",
-        "invoices"
-    );
+    path.join(__dirname, "public", "invoices");
 
 if (!fs.existsSync(contractsFolder)) {
     fs.mkdirSync(
@@ -2150,6 +2157,13 @@ app.use(
     "/contracts",
     express.static(
         contractsFolder
+    )
+);
+
+app.use(
+    "/invoices",
+    express.static(
+        invoicesFolder
     )
 );
 
@@ -2771,50 +2785,51 @@ async function createContractPdf(
 
         doc.moveDown();
     }
+// ========================================================
+// CLIENT SERVICE INFORMATION
+// ========================================================
 
-    // ========================================================
-    // CLIENT SERVICE INFORMATION
-    // ========================================================
+if (
+    data.contractType ===
+        "Client Service Agreement" ||
+    data.contractType ===
+        "Service Agreement"
+) {
+    doc
+        .fontSize(13)
+        .font("Helvetica-Bold")
+        .text(
+            "Client Service Information"
+        );
 
-    if (
-        data.contractType ===
-        "Client Service Agreement"
-    ) {
-        doc
-            .fontSize(13)
-            .font("Helvetica-Bold")
-            .text(
-                "Client Service Information"
-            );
+    doc.moveDown(0.5);
 
-        doc.moveDown(0.5);
+    doc
+        .fontSize(11)
+        .font("Helvetica")
+        .text(
+            `Service Address: ${
+                data.address || ""
+            }`
+        );
 
-        doc
-            .fontSize(11)
-            .font("Helvetica")
-            .text(
-                `Service Address: ${
-                    data.address || ""
-                }`
-            );
+    doc.moveDown(0.5);
 
-        doc.moveDown(0.5);
+    doc
+        .font("Helvetica-Bold")
+        .text(
+            "Requested Services:"
+        );
 
-        doc
-            .font("Helvetica-Bold")
-            .text(
-                "Requested Services:"
-            );
+    doc
+        .font("Helvetica")
+        .text(
+            data.serviceDescription ||
+                ""
+        );
 
-        doc
-            .font("Helvetica")
-            .text(
-                data.serviceDescription ||
-                    ""
-            );
-
-        doc.moveDown();
-    }
+    doc.moveDown();
+}
 
     // ========================================================
     // JOB COMPLETION
@@ -2928,6 +2943,7 @@ doc
 
 doc.moveDown();
 
+
 const signatureBuffer =
     signatureDataUrlToBuffer(
         data.signature
@@ -2947,20 +2963,20 @@ if (signatureBuffer) {
     try {
 
         console.log(
+            "Signature received successfully."
+        );
+
+        console.log(
             "Signature buffer size:",
             signatureBuffer.length
         );
 
-        const signatureX =
-            doc.x;
-
-        const signatureY =
-            doc.y;
-
+        /*
+         * Place the handwritten signature image
+         * directly into the PDF.
+         */
         doc.image(
             signatureBuffer,
-            signatureX,
-            signatureY,
             {
                 fit: [
                     300,
@@ -2971,8 +2987,7 @@ if (signatureBuffer) {
             }
         );
 
-        doc.y =
-            signatureY + 110;
+        doc.moveDown(1);
 
     } catch (error) {
 
@@ -3064,17 +3079,17 @@ if (signatureBuffer) {
         }
     );
 
- return {
+return {
     fileName,
     filePath,
     fileUrl:
-        `https://mydmv-cleaning-backend-live.onrender.com/contracts/${fileName}`
+        `${BACKEND_URL}/contracts/${encodeURIComponent(fileName)}`
 };
 }
 
 // ============================================================
 // SAVE CONTRACT
-// ============================================================
+// ========================================================================================================================
 
 function saveContract(
     data,
@@ -3248,74 +3263,80 @@ app.post(
                     pdf.fileUrl
                 );
 
-            // ------------------------------------------------
-            // ADMIN NOTIFICATION
-            // ------------------------------------------------
+         // ------------------------------------------------
+// ADMIN NOTIFICATION
+// ------------------------------------------------
 
-            await sendEmail({
-                to: ADMIN_EMAIL,
-                subject:
-                    `New Independent Subcontractor Agreement #${contractId}`,
-                html: `
-                    <div style="font-family:Arial,sans-serif;line-height:1.6">
-                        <h2>New Independent Subcontractor Application</h2>
+await sendEmail({
+    to: ADMIN_EMAIL,
+    subject:
+        `New Independent Subcontractor Agreement #${contractId}`,
+    html: `
+        <div style="font-family:Arial,sans-serif;line-height:1.6">
+            <h2>New Independent Subcontractor Application</h2>
 
-                        <p>
-                            <strong>Contract ID:</strong>
-                            ${contractId}
-                        </p>
+            <p>
+                <strong>Contract ID:</strong>
+                ${contractId}
+            </p>
 
-                        <p>
-                            <strong>Name:</strong>
-                            ${escapeHtml(data.name)}
-                        </p>
+            <p>
+                <strong>Name:</strong>
+                ${escapeHtml(data.name)}
+            </p>
 
-                        <p>
-                            <strong>Business:</strong>
-                            ${escapeHtml(data.businessName)}
-                        </p>
+            <p>
+                <strong>Business:</strong>
+                ${escapeHtml(data.businessName)}
+            </p>
 
-                        <p>
-                            <strong>Email:</strong>
-                            ${escapeHtml(data.email)}
-                        </p>
+            <p>
+                <strong>Email:</strong>
+                ${escapeHtml(data.email)}
+            </p>
 
-                        <p>
-                            <strong>Phone:</strong>
-                            ${escapeHtml(data.phone)}
-                        </p>
+            <p>
+                <strong>Phone:</strong>
+                ${escapeHtml(data.phone)}
+            </p>
 
-                        <p>
-                            <strong>Business Type:</strong>
-                            ${escapeHtml(data.businessType)}
-                        </p>
+            <p>
+                <strong>Business Type:</strong>
+                ${escapeHtml(data.businessType)}
+            </p>
 
-                        <p>
-                            <strong>Service Area:</strong>
-                            ${escapeHtml(data.serviceArea)}
-                        </p>
+            <p>
+                <strong>Service Area:</strong>
+                ${escapeHtml(data.serviceArea)}
+            </p>
 
-                        <p>
-                            <strong>Services:</strong>
-                            ${escapeHtml(
-                                formatServices(
-                                    data.services
-                                )
-                            )}
-                        </p>
+            <p>
+                <strong>Services:</strong>
+                ${escapeHtml(
+                    formatServices(
+                        data.services
+                    )
+                )}
+            </p>
 
-                        <p>
-                            <strong>Status:</strong>
-                            Pending Review
-                        </p>
+            <p>
+                <strong>Status:</strong>
+                Pending Review
+            </p>
 
-                        <p>
-                            <strong>Signed PDF:</strong>
-                            ${FRONTEND_URL}${pdf.fileUrl}
-                        </p>
-                    </div>
-                `
-            });
+            <p>
+                <strong>Signed PDF:</strong>
+                ${pdf.fileUrl}
+            </p>
+
+            <p>
+                <a href="${pdf.fileUrl}">
+                    View Signed Agreement
+                </a>
+            </p>
+        </div>
+    `
+});
 
             // ------------------------------------------------
             // APPLICANT CONFIRMATION
@@ -3360,8 +3381,8 @@ app.post(
                         </p>
 
                         <p>
-                            <a href="${FRONTEND_URL}${pdf.fileUrl}">
-                                View Signed Agreement
+                           <a href="${pdf.fileUrl}">
+                            View Signed Agreement
                             </a>
                         </p>
                     </div>
@@ -3755,7 +3776,7 @@ app.post(
                         </p>
 
                         <p>
-                            <a href="${FRONTEND_URL}${pdf.fileUrl}">
+                           <a href="${pdf.fileUrl}">
                                 View Signed Contract
                             </a>
                         </p>
@@ -3794,34 +3815,93 @@ app.post(
 // ADMIN GET CONTRACTS
 // ============================================================
 
-app.get(
-    "/api/admin/contracts",
-    verifyAdmin,
-    (req, res) => {
-        try {
-            const contracts =
-                db.prepare(`
-                    SELECT *
-                    FROM contracts
-                    ORDER BY id DESC
-                `).all();
+// ============================================================
+// REGENERATE SIGNED CONTRACT PDF
+// ============================================================
 
-            res.json({
+app.post(
+    "/api/admin/contracts/:id/regenerate-pdf",
+    verifyAdmin,
+    async (req, res) => {
+
+        try {
+
+            const contract = db.prepare(`
+                SELECT *
+                FROM contracts
+                WHERE id = ?
+            `).get(req.params.id);
+
+            if (!contract) {
+
+                return res.status(404).json({
+                    success: false,
+                    message: "Contract not found."
+                });
+
+            }
+
+            if (
+                !contract.signature ||
+                typeof contract.signature !== "string"
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "This contract does not contain a stored signature."
+                });
+
+            }
+
+            console.log(
+                "Regenerating signed PDF for contract:",
+                contract.id
+            );
+
+            const pdf = await createContractPdf({
+                ...contract,
+                contractType:
+                    contract.contractType ||
+                    "Independent Subcontractor Agreement"
+            });
+
+            db.prepare(`
+                UPDATE contracts
+                SET pdfUrl = ?
+                WHERE id = ?
+            `).run(
+                pdf.fileUrl,
+                contract.id
+            );
+
+            console.log(
+                "Signed PDF regenerated:",
+                pdf.fileUrl
+            );
+
+            return res.json({
                 success: true,
-                contracts
+                contractId: contract.id,
+                pdfUrl: pdf.fileUrl,
+                file: pdf.fileUrl,
+                message:
+                    "Signed PDF regenerated successfully."
             });
 
         } catch (error) {
+
             console.error(
-                "GET CONTRACTS ERROR:",
+                "REGENERATE CONTRACT PDF ERROR:",
                 error
             );
 
-            res.status(500).json({
+            return res.status(500).json({
                 success: false,
                 message:
-                    "Could not load contracts"
+                    "Failed to regenerate signed PDF."
             });
+
         }
     }
 );
