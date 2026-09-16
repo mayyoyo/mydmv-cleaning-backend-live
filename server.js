@@ -2126,7 +2126,7 @@ app.get(
 // DOCUMENT STORAGE
 // ============================================================
 const contractsFolder =
-    path.join(__dirname, "public", "contracts");
+    path.join(__dirname, "public", "signed-contracts");
 
 const invoicesFolder =
     path.join(__dirname, "public", "invoices");
@@ -4199,6 +4199,38 @@ app.get(
     }
 );
 
+//
+
+// ============================================================
+// SERVE SIGNED CONTRACT PDFs
+// ============================================================
+
+app.get("/contracts/:filename", (req, res) => {
+    const filename = path.basename(req.params.filename);
+
+    const filePath = path.join(
+        __dirname,
+        "public",
+        "signed-contracts",
+        filename
+    );
+
+    console.log("CONTRACT PDF REQUEST:", filename);
+    console.log("CONTRACT PDF PATH:", filePath);
+
+    if (!fs.existsSync(filePath)) {
+        console.error("CONTRACT PDF NOT FOUND:", filePath);
+
+        return res.status(404).json({
+            success: false,
+            error: "Signed contract PDF not found",
+            filename: filename
+        });
+    }
+
+    return res.sendFile(filePath);
+});
+//
 // ============================================================
 // 404
 // ============================================================
