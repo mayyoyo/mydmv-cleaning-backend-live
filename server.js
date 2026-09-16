@@ -28,18 +28,7 @@ dotenv.config();
 // ============================================================
 
 const app = express();
-app.use(express.static(path.join(__dirname, "public")));
 
-// ============================================================
-// SIGNED CONTRACT PDF FILES
-// ============================================================
-
-app.use(
-    "/contracts",
-    express.static(
-        path.join(__dirname, "public", "signed-contracts")
-    )
-);
 // ============================================================
 // CONFIGURATION
 // ============================================================
@@ -2034,10 +2023,6 @@ app.post(
 // GET BOOKING BY ID
 // ============================================================
 
-// ============================================================
-// GET BOOKING BY ID
-// ============================================================
-
 app.get(
     "/api/bookings/:id",
     (req, res) => {
@@ -2126,7 +2111,11 @@ app.get(
 // DOCUMENT STORAGE
 // ============================================================
 const contractsFolder =
-    path.join(__dirname, "public", "signed-contracts");
+    path.join(
+        __dirname,
+        "public",
+        "signed-contracts"
+    );
 
 const invoicesFolder =
     path.join(__dirname, "public", "invoices");
@@ -2148,36 +2137,35 @@ if (!fs.existsSync(invoicesFolder)) {
         }
     );
 }
-
 // ============================================================
-// SERVE CONTRACTS
-// ============================================================
-
-app.use(
-    "/contracts",
-    express.static(
-        contractsFolder
-    )
-);
-
-app.use(
-    "/invoices",
-    express.static(
-        invoicesFolder
-    )
-);
-
-// ============================================================
-// SERVE INVOICES
+// SERVE SIGNED CONTRACT PDFs
 // ============================================================
 
-app.use(
-    "/invoices",
-    express.static(
-        invoicesFolder
-    )
-);
+app.get("/contracts/:filename", (req, res) => {
+    const filename = path.basename(req.params.filename);
 
+    const filePath = path.join(
+        __dirname,
+        "public",
+        "signed-contracts",
+        filename
+    );
+
+    console.log("CONTRACT PDF REQUEST:", filename);
+    console.log("CONTRACT PDF PATH:", filePath);
+
+    if (!fs.existsSync(filePath)) {
+        console.error("CONTRACT PDF NOT FOUND:", filePath);
+
+        return res.status(404).json({
+            success: false,
+            error: "Signed contract PDF not found",
+            filename: filename
+        });
+    }
+
+    return res.sendFile(filePath);
+});
 // ============================================================
 // ADMIN GET BOOKINGS
 // ============================================================
@@ -2633,10 +2621,16 @@ async function createContractPdf(
             margin: 50
         });
 
-    const writeStream =
-        fs.createWriteStream(
-            filePath
-        );
+   console.log("========== CONTRACT PDF DEBUG ==========");
+console.log("contractsFolder:", contractsFolder);
+console.log("fileName:", fileName);
+console.log("filePath:", filePath);
+console.log("========================================");
+
+const writeStream =
+    fs.createWriteStream(
+        filePath
+    );
 
     doc.pipe(writeStream);
 
@@ -3036,7 +3030,6 @@ if (signatureBuffer) {
     doc.text(
         "The typed name and drawn signature above represent the signer's electronic signature."
     );
-
     // ========================================================
     // FOOTER
     // ========================================================
@@ -3063,28 +3056,57 @@ if (signatureBuffer) {
             }
         );
 
-    doc.end();
-
     await new Promise(
         (resolve, reject) => {
+
             writeStream.on(
                 "finish",
-                resolve
+                () => {
+
+                    console.log(
+                        "PDF WRITE COMPLETE:",
+                        filePath
+                    );
+
+                    console.log(
+                        "PDF EXISTS AFTER WRITE:",
+                        fs.existsSync(filePath)
+                    );
+
+                    console.log(
+                        "PDF SIZE:",
+                        fs.existsSync(filePath)
+                            ? fs.statSync(filePath).size
+                            : 0
+                    );
+
+                    resolve();
+                }
             );
 
             writeStream.on(
                 "error",
-                reject
+                (error) => {
+
+                    console.error(
+                        "PDF WRITE STREAM ERROR:",
+                        error
+                    );
+
+                    reject(error);
+                }
             );
+
+            doc.end();
         }
     );
 
-return {
-    fileName,
-    filePath,
-    fileUrl:
-        `${BACKEND_URL}/contracts/${encodeURIComponent(fileName)}`
-};
+    return {
+        fileName,
+        filePath,
+        fileUrl:
+            `${BACKEND_URL}/contracts/${encodeURIComponent(fileName)}`
+    };
 }
 
 // ============================================================
@@ -3252,16 +3274,36 @@ app.post(
                 });
             }
 
-            const pdf =
-                await createContractPdf(
-                    data
-                );
+           const pdf =
+    await createContractPdf(
+        data
+    );
 
-            const contractId =
-                saveContract(
-                    data,
-                    pdf.fileUrl
-                );
+console.log("========== SIGN CONTRACT PDF RESULT ==========");
+console.log("PDF FILE NAME:", pdf.fileName);
+console.log("PDF FILE PATH:", pdf.filePath);
+console.log("PDF FILE URL:", pdf.fileUrl);
+console.log("PDF EXISTS FROM SIGN ROUTE:", fs.existsSync(pdf.filePath));
+
+if (fs.existsSync(pdf.filePath)) {
+    console.log(
+        "PDF SIZE FROM SIGN ROUTE:",
+        fs.statSync(pdf.filePath).size
+    );
+}
+
+console.log(
+    "SIGNED CONTRACT DIRECTORY:",
+    fs.readdirSync(contractsFolder)
+);
+
+console.log("===============================================");
+
+const contractId =
+    saveContract(
+        data,
+        pdf.fileUrl
+    );
 
          // ------------------------------------------------
 // ADMIN NOTIFICATION
@@ -3504,22 +3546,46 @@ app.post("/api/sign-service-agreement", async (req, res) => {
 
         }
 
-        /* ----------------------------------------------------
-           CREATE SIGNED PDF
-        ---------------------------------------------------- */
+/* ----------------------------------------------------
+   CREATE SIGNED PDF
+---------------------------------------------------- */
 
-        const pdf =
-            await createContractPdf(data);
+const pdf =
+    await createContractPdf(data);
 
-        /* ----------------------------------------------------
-           SAVE CONTRACT
-        ---------------------------------------------------- */
+console.log("========== SIGN CONTRACT PDF RESULT ==========");
+console.log("PDF FILE NAME:", pdf.fileName);
+console.log("PDF FILE PATH:", pdf.filePath);
+console.log("PDF FILE URL:", pdf.fileUrl);
 
-        const contractId =
-            saveContract(
-                data,
-                pdf.fileUrl
-            );
+console.log(
+    "PDF EXISTS FROM SIGN ROUTE:",
+    fs.existsSync(pdf.filePath)
+);
+
+if (fs.existsSync(pdf.filePath)) {
+    console.log(
+        "PDF SIZE FROM SIGN ROUTE:",
+        fs.statSync(pdf.filePath).size
+    );
+}
+
+console.log(
+    "SIGNED CONTRACT DIRECTORY:",
+    fs.readdirSync(contractsFolder)
+);
+
+console.log("===============================================");
+
+/* ----------------------------------------------------
+   SAVE CONTRACT
+---------------------------------------------------- */
+
+const contractId =
+    saveContract(
+        data,
+        pdf.fileUrl
+    );
 
         /* ----------------------------------------------------
            ADMIN EMAIL
@@ -3814,6 +3880,7 @@ app.post(
 // ============================================================
 // ADMIN GET CONTRACTS
 // ============================================================
+
 
 // ============================================================
 // REGENERATE SIGNED CONTRACT PDF
@@ -4199,38 +4266,8 @@ app.get(
     }
 );
 
-//
 
-// ============================================================
-// SERVE SIGNED CONTRACT PDFs
-// ============================================================
 
-app.get("/contracts/:filename", (req, res) => {
-    const filename = path.basename(req.params.filename);
-
-    const filePath = path.join(
-        __dirname,
-        "public",
-        "signed-contracts",
-        filename
-    );
-
-    console.log("CONTRACT PDF REQUEST:", filename);
-    console.log("CONTRACT PDF PATH:", filePath);
-
-    if (!fs.existsSync(filePath)) {
-        console.error("CONTRACT PDF NOT FOUND:", filePath);
-
-        return res.status(404).json({
-            success: false,
-            error: "Signed contract PDF not found",
-            filename: filename
-        });
-    }
-
-    return res.sendFile(filePath);
-});
-//
 // ============================================================
 // 404
 // ============================================================
