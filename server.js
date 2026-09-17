@@ -1,9 +1,9 @@
-
 "use strict";
 
 // ============================================================
 // My DMV Cleaning Services LLC
 // PRODUCTION SERVER
+// SUPABASE POSTGRESQL VERSION
 // ============================================================
 
 const express = require("express");
@@ -14,7 +14,7 @@ const dotenv = require("dotenv");
 const Stripe = require("stripe");
 const { Resend } = require("resend");
 const jwt = require("jsonwebtoken");
-const Database = require("better-sqlite3");
+const { Pool } = require("pg");
 const PDFDocument = require("pdfkit");
 
 // ============================================================
@@ -68,16 +68,107 @@ const folders = [
 ];
 
 folders.forEach((folder) => {
-    const folderPath = path.join(__dirname, folder);
+
+    const folderPath =
+        path.join(
+            __dirname,
+            folder
+        );
 
     if (!fs.existsSync(folderPath)) {
-        fs.mkdirSync(folderPath, {
-            recursive: true
-        });
 
-        console.log("Created:", folder);
+        fs.mkdirSync(
+            folderPath,
+            {
+                recursive: true
+            }
+        );
+
+        console.log(
+            "Created:",
+            folder
+        );
     }
 });
+
+// ============================================================
+// SUPABASE POSTGRESQL
+// ============================================================
+
+const pool =
+    new Pool({
+        host:
+            process.env.SUPABASE_DB_HOST,
+
+        port:
+            Number(
+                process.env.SUPABASE_DB_PORT ||
+                5432
+            ),
+
+        database:
+            process.env.SUPABASE_DB_NAME ||
+            "postgres",
+
+        user:
+            process.env.SUPABASE_DB_USER ||
+            "postgres",
+
+        password:
+            process.env.SUPABASE_DB_PASSWORD,
+
+        ssl: {
+            rejectUnauthorized: false
+        },
+
+        max: 10,
+
+        idleTimeoutMillis: 30000,
+
+        connectionTimeoutMillis: 10000
+    });
+
+pool.on(
+    "error",
+    (error) => {
+
+        console.error(
+            "SUPABASE POSTGRES POOL ERROR:",
+            error
+        );
+    }
+);
+
+// ============================================================
+// DATABASE CONNECTION TEST
+// ============================================================
+
+async function testDatabaseConnection() {
+
+    try {
+
+        const result =
+            await pool.query(
+                "SELECT NOW() AS time"
+            );
+
+        console.log(
+            "Supabase PostgreSQL connected:",
+            result.rows[0].time
+        );
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "SUPABASE POSTGRES CONNECTION ERROR:",
+            error.message
+        );
+
+        return false;
+    }
+}
 
 // ============================================================
 // STRIPE
@@ -85,11 +176,24 @@ folders.forEach((folder) => {
 
 let stripe = null;
 
-if (process.env.STRIPE_SECRET_KEY) {
-    stripe = Stripe(process.env.STRIPE_SECRET_KEY);
-    console.log("Stripe service configured");
+if (
+    process.env.STRIPE_SECRET_KEY
+) {
+
+    stripe =
+        Stripe(
+            process.env.STRIPE_SECRET_KEY
+        );
+
+    console.log(
+        "Stripe service configured"
+    );
+
 } else {
-    console.log("WARNING: STRIPE_SECRET_KEY is not configured");
+
+    console.log(
+        "WARNING: STRIPE_SECRET_KEY is not configured"
+    );
 }
 
 // ============================================================
@@ -102,50 +206,70 @@ if (process.env.STRIPE_SECRET_KEY) {
 
 app.post(
     "/api/stripe-webhook",
+
     express.raw({
         type: "application/json"
     }),
+
     async (req, res) => {
+
         if (!stripe) {
-            return res.status(500).send("Stripe is not configured");
+
+            return res
+                .status(500)
+                .send(
+                    "Stripe is not configured"
+                );
         }
 
         const webhookSecret =
             process.env.STRIPE_WEBHOOK_SECRET;
 
         if (!webhookSecret) {
+
             console.error(
                 "STRIPE_WEBHOOK_SECRET is not configured"
             );
 
-            return res.status(500).send(
-                "Stripe webhook secret is not configured"
-            );
+            return res
+                .status(500)
+                .send(
+                    "Stripe webhook secret is not configured"
+                );
         }
 
         const signature =
-            req.headers["stripe-signature"];
+            req.headers[
+                "stripe-signature"
+            ];
 
         let event;
 
         try {
-            event = stripe.webhooks.constructEvent(
-                req.body,
-                signature,
-                webhookSecret
-            );
+
+            event =
+                stripe.webhooks.constructEvent(
+                    req.body,
+                    signature,
+                    webhookSecret
+                );
+
         } catch (error) {
+
             console.error(
                 "Stripe webhook signature error:",
                 error.message
             );
 
-            return res.status(400).send(
-                `Webhook Error: ${error.message}`
-            );
+            return res
+                .status(400)
+                .send(
+                    `Webhook Error: ${error.message}`
+                );
         }
 
         try {
+
             console.log(
                 "Stripe webhook received:",
                 event.type
@@ -159,16 +283,44 @@ app.post(
                 event.type ===
                 "checkout.session.completed"
             ) {
-                const session = event.data.object;
+
+                const session =
+                    event.data.object;
+
+                const bookingResult =
+                    await pool.query(
+                        `
+                        SELECT
+                            id,
+                            name,
+                            email,
+                            phone,
+                            address,
+                            service,
+                            price::double precision AS price,
+                            deposit::double precision AS deposit,
+                            remaining::double precision AS remaining,
+                            date,
+                            timeslot AS "timeSlot",
+                            paymenttype AS "paymentType",
+                            stripesession AS "stripeSession",
+                            stripepaymentintent AS "stripePaymentIntent",
+                            status,
+                            paidat AS "paidAt",
+                            createdat AS "createdAt"
+                        FROM bookings
+                        WHERE stripesession = $1
+                        `,
+                        [
+                            session.id
+                        ]
+                    );
 
                 const booking =
-                    db.prepare(`
-                        SELECT *
-                        FROM bookings
-                        WHERE stripeSession = ?
-                    `).get(session.id);
+                    bookingResult.rows[0];
 
                 if (!booking) {
+
                     console.log(
                         "Stripe payment completed but booking was not found:",
                         session.id
@@ -179,20 +331,31 @@ app.post(
                     });
                 }
 
-                // Prevent duplicate confirmation emails.
                 const alreadyPaid =
                     String(
                         booking.status || ""
-                    ).toLowerCase() === "paid";
+                    ).toLowerCase() ===
+                    "paid";
 
-                // Update booking payment status.
-                db.prepare(`
+                const paymentIntent =
+                    session.payment_intent ||
+                    null;
+
+                await pool.query(
+                    `
                     UPDATE bookings
-                    SET status = ?
-                    WHERE id = ?
-                `).run(
-                    "paid",
-                    booking.id
+                    SET
+                        status = $1,
+                        stripepaymentintent = $2,
+                        paidat = $3
+                    WHERE id = $4
+                    `,
+                    [
+                        "paid",
+                        paymentIntent,
+                        new Date().toISOString(),
+                        booking.id
+                    ]
                 );
 
                 console.log(
@@ -204,105 +367,68 @@ app.post(
                 // ------------------------------------------------
 
                 if (!alreadyPaid) {
-                    const updatedBooking =
-                        db.prepare(`
-                            SELECT *
+
+                    const updatedResult =
+                        await pool.query(
+                            `
+                            SELECT
+                                id,
+                                name,
+                                email,
+                                phone,
+                                address,
+                                service,
+                                price::double precision AS price,
+                                deposit::double precision AS deposit,
+                                remaining::double precision AS remaining,
+                                date,
+                                timeslot AS "timeSlot",
+                                paymenttype AS "paymentType",
+                                stripesession AS "stripeSession",
+                                stripepaymentintent AS "stripePaymentIntent",
+                                status,
+                                paidat AS "paidAt",
+                                createdat AS "createdAt"
                             FROM bookings
-                            WHERE id = ?
-                        `).get(booking.id);
+                            WHERE id = $1
+                            `,
+                            [
+                                booking.id
+                            ]
+                        );
 
-                    // CUSTOMER PAYMENT CONFIRMATION
+                    const updatedBooking =
+                        updatedResult.rows[0];
 
-                    await sendEmail({
-                        to: updatedBooking.email,
-                        subject:
-                            "My DMV Cleaning Services - Deposit Payment Confirmed",
-                        html: `
-                            <div style="font-family:Arial,sans-serif;line-height:1.6">
-                                <h2>Deposit Payment Confirmed</h2>
+                    if (updatedBooking) {
 
-                                <p>
-                                    Hello ${escapeHtml(updatedBooking.name)},
-                                </p>
+                        // CUSTOMER PAYMENT CONFIRMATION
 
-                                <p>
-                                    Your cleaning appointment has been received
-                                    and your deposit payment has been successfully
-                                    processed.
-                                </p>
-
-                                <hr>
-
-                                <p>
-                                    <strong>Booking ID:</strong>
-                                    ${updatedBooking.id}
-                                </p>
-
-                                <p>
-                                    <strong>Service:</strong>
-                                    ${escapeHtml(updatedBooking.service)}
-                                </p>
-
-                                <p>
-                                    <strong>Date:</strong>
-                                    ${escapeHtml(updatedBooking.date)}
-                                </p>
-
-                                <p>
-                                    <strong>Time:</strong>
-                                    ${escapeHtml(updatedBooking.timeSlot)}
-                                </p>
-
-                                <p>
-                                    <strong>Total Price:</strong>
-                                    $${Number(
-                                        updatedBooking.price || 0
-                                    ).toFixed(2)}
-                                </p>
-
-                                <p>
-                                    <strong>Deposit Paid:</strong>
-                                    $${Number(
-                                        updatedBooking.deposit || 0
-                                    ).toFixed(2)}
-                                </p>
-
-                                <p>
-                                    <strong>Remaining Balance:</strong>
-                                    $${Number(
-                                        updatedBooking.remaining || 0
-                                    ).toFixed(2)}
-                                </p>
-
-                                <p>
-                                    <strong>Payment Status:</strong>
-                                    Deposit Paid
-                                </p>
-
-                                <hr>
-
-                                <p>
-                                    Thank you for choosing
-                                    My DMV Cleaning Services LLC.
-                                </p>
-                            </div>
-                        `
-                    });
-
-                    // ADMIN PAYMENT NOTIFICATION
-
-                    if (ADMIN_EMAIL) {
                         await sendEmail({
-                            to: ADMIN_EMAIL,
+
+                            to:
+                                updatedBooking.email,
+
                             subject:
-                                `Deposit Paid - Booking #${updatedBooking.id}`,
+                                "My DMV Cleaning Services - Deposit Payment Confirmed",
+
                             html: `
                                 <div style="font-family:Arial,sans-serif;line-height:1.6">
-                                    <h2>Cleaning Booking Deposit Paid</h2>
+
+                                    <h2>
+                                        Deposit Payment Confirmed
+                                    </h2>
 
                                     <p>
-                                        A customer has successfully paid
-                                        the booking deposit.
+                                        Hello ${escapeHtml(
+                                            updatedBooking.name
+                                        )},
+                                    </p>
+
+                                    <p>
+                                        Your cleaning appointment has been received
+                                        and your deposit payment has been successfully
+                                        processed.
                                     </p>
 
                                     <hr>
@@ -313,70 +439,175 @@ app.post(
                                     </p>
 
                                     <p>
-                                        <strong>Name:</strong>
-                                        ${escapeHtml(updatedBooking.name)}
-                                    </p>
-
-                                    <p>
-                                        <strong>Email:</strong>
-                                        ${escapeHtml(updatedBooking.email)}
-                                    </p>
-
-                                    <p>
-                                        <strong>Phone:</strong>
-                                        ${escapeHtml(updatedBooking.phone)}
-                                    </p>
-
-                                    <p>
-                                        <strong>Address:</strong>
-                                        ${escapeHtml(updatedBooking.address)}
-                                    </p>
-
-                                    <p>
                                         <strong>Service:</strong>
-                                        ${escapeHtml(updatedBooking.service)}
+                                        ${escapeHtml(
+                                            updatedBooking.service
+                                        )}
                                     </p>
 
                                     <p>
                                         <strong>Date:</strong>
-                                        ${escapeHtml(updatedBooking.date)}
+                                        ${escapeHtml(
+                                            updatedBooking.date
+                                        )}
                                     </p>
 
                                     <p>
                                         <strong>Time:</strong>
-                                        ${escapeHtml(updatedBooking.timeSlot)}
+                                        ${escapeHtml(
+                                            updatedBooking.timeSlot
+                                        )}
                                     </p>
 
                                     <p>
-                                        <strong>Total:</strong>
+                                        <strong>Total Price:</strong>
                                         $${Number(
                                             updatedBooking.price || 0
                                         ).toFixed(2)}
                                     </p>
 
                                     <p>
-                                        <strong>Deposit:</strong>
+                                        <strong>Deposit Paid:</strong>
                                         $${Number(
                                             updatedBooking.deposit || 0
                                         ).toFixed(2)}
                                     </p>
 
                                     <p>
-                                        <strong>Remaining:</strong>
+                                        <strong>Remaining Balance:</strong>
                                         $${Number(
                                             updatedBooking.remaining || 0
                                         ).toFixed(2)}
                                     </p>
 
                                     <p>
-                                        <strong>Stripe Session:</strong>
-                                        ${escapeHtml(
-                                            updatedBooking.stripeSession
-                                        )}
+                                        <strong>Payment Status:</strong>
+                                        Deposit Paid
                                     </p>
+
+                                    <hr>
+
+                                    <p>
+                                        Thank you for choosing
+                                        My DMV Cleaning Services LLC.
+                                    </p>
+
                                 </div>
                             `
                         });
+
+                        // ADMIN PAYMENT NOTIFICATION
+
+                        if (ADMIN_EMAIL) {
+
+                            await sendEmail({
+
+                                to:
+                                    ADMIN_EMAIL,
+
+                                subject:
+                                    `Deposit Paid - Booking #${updatedBooking.id}`,
+
+                                html: `
+                                    <div style="font-family:Arial,sans-serif;line-height:1.6">
+
+                                        <h2>
+                                            Cleaning Booking Deposit Paid
+                                        </h2>
+
+                                        <p>
+                                            A customer has successfully paid
+                                            the booking deposit.
+                                        </p>
+
+                                        <hr>
+
+                                        <p>
+                                            <strong>Booking ID:</strong>
+                                            ${updatedBooking.id}
+                                        </p>
+
+                                        <p>
+                                            <strong>Name:</strong>
+                                            ${escapeHtml(
+                                                updatedBooking.name
+                                            )}
+                                        </p>
+
+                                        <p>
+                                            <strong>Email:</strong>
+                                            ${escapeHtml(
+                                                updatedBooking.email
+                                            )}
+                                        </p>
+
+                                        <p>
+                                            <strong>Phone:</strong>
+                                            ${escapeHtml(
+                                                updatedBooking.phone
+                                            )}
+                                        </p>
+
+                                        <p>
+                                            <strong>Address:</strong>
+                                            ${escapeHtml(
+                                                updatedBooking.address
+                                            )}
+                                        </p>
+
+                                        <p>
+                                            <strong>Service:</strong>
+                                            ${escapeHtml(
+                                                updatedBooking.service
+                                            )}
+                                        </p>
+
+                                        <p>
+                                            <strong>Date:</strong>
+                                            ${escapeHtml(
+                                                updatedBooking.date
+                                            )}
+                                        </p>
+
+                                        <p>
+                                            <strong>Time:</strong>
+                                            ${escapeHtml(
+                                                updatedBooking.timeSlot
+                                            )}
+                                        </p>
+
+                                        <p>
+                                            <strong>Total:</strong>
+                                            $${Number(
+                                                updatedBooking.price || 0
+                                            ).toFixed(2)}
+                                        </p>
+
+                                        <p>
+                                            <strong>Deposit:</strong>
+                                            $${Number(
+                                                updatedBooking.deposit || 0
+                                            ).toFixed(2)}
+                                        </p>
+
+                                        <p>
+                                            <strong>Remaining:</strong>
+                                            $${Number(
+                                                updatedBooking.remaining || 0
+                                            ).toFixed(2)}
+                                        </p>
+
+                                        <p>
+                                            <strong>Stripe Session:</strong>
+                                            ${escapeHtml(
+                                                updatedBooking.stripeSession
+                                            )}
+                                        </p>
+
+                                    </div>
+                                `
+                            });
+                        }
                     }
                 }
             }
@@ -389,23 +620,37 @@ app.post(
                 event.type ===
                 "checkout.session.expired"
             ) {
-                const session = event.data.object;
+
+                const session =
+                    event.data.object;
+
+                const bookingResult =
+                    await pool.query(
+                        `
+                        SELECT id
+                        FROM bookings
+                        WHERE stripesession = $1
+                        `,
+                        [
+                            session.id
+                        ]
+                    );
 
                 const booking =
-                    db.prepare(`
-                        SELECT *
-                        FROM bookings
-                        WHERE stripeSession = ?
-                    `).get(session.id);
+                    bookingResult.rows[0];
 
                 if (booking) {
-                    db.prepare(`
+
+                    await pool.query(
+                        `
                         UPDATE bookings
-                        SET status = ?
-                        WHERE id = ?
-                    `).run(
-                        "payment_expired",
-                        booking.id
+                        SET status = $1
+                        WHERE id = $2
+                        `,
+                        [
+                            "payment_expired",
+                            booking.id
+                        ]
                     );
 
                     console.log(
@@ -419,15 +664,19 @@ app.post(
             });
 
         } catch (error) {
+
             console.error(
                 "Stripe webhook processing error:",
                 error
             );
 
-            return res.status(500).json({
-                success: false,
-                message: "Webhook processing failed"
-            });
+            return res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Webhook processing failed"
+                });
         }
     }
 );
@@ -457,205 +706,27 @@ app.use(
 
 app.use(
     express.static(
-        path.join(__dirname, "public")
+        path.join(
+            __dirname,
+            "public"
+        )
     )
-);
-// 
-
-// ============================================================
-// DATABASE
-// ============================================================
-
-const db = new Database(
-    path.join(
-        __dirname,
-        "bookings.db"
-    )
-);
-
-db.pragma("journal_mode = WAL");
-
-// ============================================================
-// BOOKINGS TABLE
-// ============================================================
-
-db.prepare(`
-    CREATE TABLE IF NOT EXISTS bookings (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        email TEXT NOT NULL,
-        phone TEXT,
-        address TEXT,
-        service TEXT,
-        price REAL,
-        deposit REAL,
-        remaining REAL,
-        date TEXT,
-        timeSlot TEXT,
-        paymentType TEXT,
-        stripeSession TEXT,
-        status TEXT DEFAULT 'pending',
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-`).run();
-
-// ============================================================
-// CONTACTS TABLE
-// ============================================================
-
-db.prepare(`
-    CREATE TABLE IF NOT EXISTS contacts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        email TEXT,
-        phone TEXT,
-        message TEXT,
-        status TEXT DEFAULT 'new',
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-`).run();
-
-// ============================================================
-// CONTRACTS TABLE
-// ============================================================
-
-db.prepare(`
-    CREATE TABLE IF NOT EXISTS contracts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        bookingId INTEGER,
-        name TEXT,
-        email TEXT,
-        phone TEXT,
-        contractType TEXT,
-        typedName TEXT,
-        signature TEXT,
-        pdfUrl TEXT,
-        businessName TEXT,
-        address TEXT,
-        experience TEXT,
-        services TEXT,
-        availability TEXT,
-        license TEXT,
-        insurance TEXT,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-`).run();
-
-// ============================================================
-// DATABASE MIGRATION HELPER
-// ============================================================
-
-function ensureColumn(
-    table,
-    column,
-    definition
-) {
-    try {
-        const columns =
-            db.prepare(
-                `PRAGMA table_info(${table})`
-            ).all();
-
-        const exists =
-            columns.some(
-                item => item.name === column
-            );
-
-        if (!exists) {
-            db.prepare(
-                `ALTER TABLE ${table}
-                 ADD COLUMN ${column} ${definition}`
-            ).run();
-
-            console.log(
-                `Added ${column} column to ${table}`
-            );
-        }
-    } catch (error) {
-        console.error(
-            `Migration error for ${table}.${column}:`,
-            error.message
-        );
-    }
-}
-
-// ============================================================
-// BOOKING MIGRATIONS
-// ============================================================
-
-ensureColumn(
-    "bookings",
-    "stripePaymentIntent",
-    "TEXT"
-);
-
-ensureColumn(
-    "bookings",
-    "paidAt",
-    "TEXT"
-);
-
-// ============================================================
-// CONTRACT MIGRATIONS
-// ============================================================
-
-ensureColumn(
-    "contracts",
-    "businessType",
-    "TEXT"
-);
-
-ensureColumn(
-    "contracts",
-    "serviceArea",
-    "TEXT"
-);
-
-ensureColumn(
-    "contracts",
-    "requirementsConfirmed",
-    "INTEGER DEFAULT 0"
-);
-
-ensureColumn(
-    "contracts",
-    "agreementAccepted",
-    "INTEGER DEFAULT 0"
-);
-
-ensureColumn(
-    "contracts",
-    "signedAt",
-    "TEXT"
-);
-
-ensureColumn(
-    "contracts",
-    "approvalStatus",
-    "TEXT DEFAULT 'pending'"
-);
-
-console.log(
-    "Database connected successfully"
 );
 
 // ============================================================
 // EMAIL SYSTEM
 // ============================================================
 
-// ============================================================
-// RESEND EMAIL SYSTEM
-// ============================================================
-
 const resend =
     process.env.RESEND_API_KEY
-        ? new Resend(process.env.RESEND_API_KEY)
+        ? new Resend(
+            process.env.RESEND_API_KEY
+        )
         : null;
 
 const EMAIL_FROM =
     process.env.EMAIL_FROM ||
     "My DMV Cleaning Services <noreply@mydmvcleaningservice.com>";
-
 
 // ============================================================
 // EMAIL HELPER
@@ -690,16 +761,17 @@ async function sendEmail({
         const result =
             await resend.emails.send({
 
-                from: EMAIL_FROM,
+                from:
+                    EMAIL_FROM,
 
-                to: Array.isArray(to)
-                    ? to
-                    : [to],
+                to:
+                    Array.isArray(to)
+                        ? to
+                        : [to],
 
                 subject,
 
                 html
-
             });
 
         if (result.error) {
@@ -719,7 +791,8 @@ async function sendEmail({
 
             console.error(
                 "Name:",
-                result.error.name || "N/A"
+                result.error.name ||
+                "N/A"
             );
 
             console.error(
@@ -736,7 +809,8 @@ async function sendEmail({
 
         console.log(
             "Resend Email ID:",
-            result.data?.id || "N/A"
+            result.data?.id ||
+            "N/A"
         );
 
         return true;
@@ -764,8 +838,6 @@ async function sendEmail({
     }
 }
 
-
-
 // ============================================================
 // EMAIL TEST
 // ============================================================
@@ -778,14 +850,13 @@ app.get(
 
             if (!resend) {
 
-                return res.status(500).json({
-
-                    success: false,
-
-                    message:
-                        "RESEND_API_KEY is not configured"
-
-                });
+                return res
+                    .status(500)
+                    .json({
+                        success: false,
+                        message:
+                            "RESEND_API_KEY is not configured"
+                    });
             }
 
             const testRecipient =
@@ -793,14 +864,13 @@ app.get(
 
             if (!testRecipient) {
 
-                return res.status(500).json({
-
-                    success: false,
-
-                    message:
-                        "EMAIL_USER is not configured"
-
-                });
+                return res
+                    .status(500)
+                    .json({
+                        success: false,
+                        message:
+                            "EMAIL_USER is not configured"
+                    });
             }
 
             console.log(
@@ -842,7 +912,7 @@ app.get(
 
                             <p>
                                 <strong>Server:</strong>
-                                Local Node.js server
+                                Node.js server
                             </p>
 
                             <p>
@@ -866,14 +936,13 @@ app.get(
 
             if (!sent) {
 
-                return res.status(500).json({
-
-                    success: false,
-
-                    message:
-                        "Email test failed"
-
-                });
+                return res
+                    .status(500)
+                    .json({
+                        success: false,
+                        message:
+                            "Email test failed"
+                    });
             }
 
             console.log(
@@ -881,12 +950,9 @@ app.get(
             );
 
             return res.json({
-
                 success: true,
-
                 message:
                     "Test email sent successfully using Resend."
-
             });
 
         } catch (error) {
@@ -908,31 +974,48 @@ app.get(
                 "============================================================"
             );
 
-            return res.status(500).json({
-
-                success: false,
-
-                message:
-                    "Email test failed",
-
-                error:
-                    error.message
-
-            });
+            return res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Email test failed",
+                    error:
+                        error.message
+                });
         }
     }
 );
+
 // ============================================================
 // HTML ESCAPE
 // ============================================================
 
 function escapeHtml(value) {
-    return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 }
 
 // ============================================================
@@ -942,21 +1025,28 @@ function escapeHtml(value) {
 app.post(
     "/api/admin/login",
     (req, res) => {
+
         const {
             username,
             password
         } = req.body;
 
         if (
-            username === ADMIN_USERNAME &&
-            password === ADMIN_PASSWORD
+            username ===
+                ADMIN_USERNAME &&
+            password ===
+                ADMIN_PASSWORD
         ) {
+
             const token =
                 jwt.sign(
-                    { username },
+                    {
+                        username
+                    },
                     JWT_SECRET,
                     {
-                        expiresIn: "8h"
+                        expiresIn:
+                            "8h"
                     }
                 );
 
@@ -966,10 +1056,13 @@ app.post(
             });
         }
 
-        return res.status(401).json({
-            success: false,
-            message: "Invalid login"
-        });
+        return res
+            .status(401)
+            .json({
+                success: false,
+                message:
+                    "Invalid login"
+            });
     }
 );
 
@@ -982,14 +1075,19 @@ function verifyAdmin(
     res,
     next
 ) {
+
     const header =
         req.headers.authorization;
 
     if (!header) {
-        return res.status(401).json({
-            success: false,
-            message: "No token"
-        });
+
+        return res
+            .status(401)
+            .json({
+                success: false,
+                message:
+                    "No token"
+            });
     }
 
     const parts =
@@ -999,28 +1097,38 @@ function verifyAdmin(
         parts.length !== 2 ||
         parts[0] !== "Bearer"
     ) {
-        return res.status(401).json({
-            success: false,
-            message: "Invalid authorization header"
-        });
+
+        return res
+            .status(401)
+            .json({
+                success: false,
+                message:
+                    "Invalid authorization header"
+            });
     }
 
     try {
+
         const decoded =
             jwt.verify(
                 parts[1],
                 JWT_SECRET
             );
 
-        req.admin = decoded;
+        req.admin =
+            decoded;
 
         next();
 
     } catch (error) {
-        return res.status(401).json({
-            success: false,
-            message: "Invalid token"
-        });
+
+        return res
+            .status(401)
+            .json({
+                success: false,
+                message:
+                    "Invalid token"
+            });
     }
 }
 
@@ -1030,89 +1138,114 @@ function verifyAdmin(
 
 app.get(
     "/api/booked-slots/:date",
-    (req, res) => {
+    async (req, res) => {
+
         try {
-            const rows =
-                db.prepare(`
-                    SELECT timeSlot
+
+            const result =
+                await pool.query(
+                    `
+                    SELECT timeslot AS "timeSlot"
                     FROM bookings
-                    WHERE date = ?
-                    AND status != 'cancelled'
-                    AND status != 'payment_expired'
-                `).all(
-                    req.params.date
+                    WHERE date = $1
+                    AND status NOT IN (
+                        'cancelled',
+                        'payment_expired'
+                    )
+                    `,
+                    [
+                        req.params.date
+                    ]
                 );
 
+            const rows =
+                result.rows;
+
             const bookedSlots =
-                rows.flatMap(item => {
-                    const slot =
-                        String(
-                            item.timeSlot || ""
-                        ).trim();
+                rows.flatMap(
+                    (item) => {
 
-                    const match =
-                        slot.match(
-                            /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i
-                        );
+                        const slot =
+                            String(
+                                item.timeSlot ||
+                                ""
+                            ).trim();
 
-                    if (!match) {
-                        return slot
-                            ? [slot]
-                            : [];
+                        const match =
+                            slot.match(
+                                /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i
+                            );
+
+                        if (!match) {
+
+                            return slot
+                                ? [slot]
+                                : [];
+                        }
+
+                        let hour =
+                            parseInt(
+                                match[1],
+                                10
+                            );
+
+                        const minutes =
+                            match[2];
+
+                        const period =
+                            match[3]
+                                .toUpperCase();
+
+                        if (
+                            period ===
+                                "PM" &&
+                            hour !== 12
+                        ) {
+                            hour += 12;
+                        }
+
+                        if (
+                            period ===
+                                "AM" &&
+                            hour === 12
+                        ) {
+                            hour = 0;
+                        }
+
+                        const endHour =
+                            hour + 2;
+
+                        if (
+                            endHour >
+                            23
+                        ) {
+                            return [slot];
+                        }
+
+                        const start =
+                            String(hour)
+                                .padStart(
+                                    2,
+                                    "0"
+                                ) +
+                            ":" +
+                            minutes;
+
+                        const end =
+                            String(endHour)
+                                .padStart(
+                                    2,
+                                    "0"
+                                ) +
+                            ":" +
+                            minutes;
+
+                        return [
+                            slot,
+                            `${start} - ${end}`
+                        ];
                     }
-
-                    let hour =
-                        parseInt(
-                            match[1],
-                            10
-                        );
-
-                    const minutes =
-                        match[2];
-
-                    const period =
-                        match[3].toUpperCase();
-
-                    if (
-                        period === "PM" &&
-                        hour !== 12
-                    ) {
-                        hour += 12;
-                    }
-
-                    if (
-                        period === "AM" &&
-                        hour === 12
-                    ) {
-                        hour = 0;
-                    }
-
-                    const endHour =
-                        hour + 2;
-
-                    if (
-                        endHour > 23
-                    ) {
-                        return [slot];
-                    }
-
-                    const start =
-                        String(hour)
-                            .padStart(2, "0") +
-                        ":" +
-                        minutes;
-
-                    const end =
-                        String(endHour)
-                            .padStart(2, "0") +
-                        ":" +
-                        minutes;
-
-                    return [
-                        slot,
-                        `${start} - ${end}`
-                    ];
-                });
+                );
 
             res.json({
                 success: true,
@@ -1120,15 +1253,19 @@ app.get(
             });
 
         } catch (error) {
+
             console.error(
                 "BOOKED SLOTS ERROR:",
                 error.message
             );
 
-            res.status(500).json({
-                success: false,
-                message: "Cannot load slots"
-            });
+            res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Cannot load slots"
+                });
         }
     }
 );
@@ -1140,7 +1277,9 @@ app.get(
 app.post(
     "/api/contact",
     async (req, res) => {
+
         try {
+
             const {
                 name,
                 email,
@@ -1153,15 +1292,19 @@ app.post(
                 !email ||
                 !message
             ) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Name, email, and message are required"
-                });
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Name, email, and message are required"
+                    });
             }
 
             const result =
-                db.prepare(`
+                await pool.query(
+                    `
                     INSERT INTO contacts
                     (
                         name,
@@ -1169,25 +1312,38 @@ app.post(
                         phone,
                         message
                     )
-                    VALUES (?, ?, ?, ?)
-                `).run(
-                    name,
-                    email,
-                    phone || null,
-                    message
+                    VALUES ($1, $2, $3, $4)
+                    RETURNING id
+                    `,
+                    [
+                        name,
+                        email,
+                        phone || null,
+                        message
+                    ]
                 );
 
+            const contactId =
+                result.rows[0].id;
+
             await sendEmail({
-                to: ADMIN_EMAIL,
+
+                to:
+                    ADMIN_EMAIL,
+
                 subject:
                     "New Website Contact Message",
+
                 html: `
                     <div style="font-family:Arial,sans-serif;line-height:1.6">
-                        <h2>New Contact Message</h2>
+
+                        <h2>
+                            New Contact Message
+                        </h2>
 
                         <p>
                             <strong>Contact ID:</strong>
-                            ${result.lastInsertRowid}
+                            ${contactId}
                         </p>
 
                         <p>
@@ -1212,25 +1368,31 @@ app.post(
                         <p>
                             ${escapeHtml(message)}
                         </p>
+
                     </div>
                 `
             });
 
             res.json({
                 success: true,
-                message: "Message sent"
+                message:
+                    "Message sent"
             });
 
         } catch (error) {
+
             console.error(
                 "CONTACT ERROR:",
                 error
             );
 
-            res.status(500).json({
-                success: false,
-                message: "Contact failed"
-            });
+            res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Contact failed"
+                });
         }
     }
 );
@@ -1242,31 +1404,46 @@ app.post(
 app.get(
     "/api/admin/contacts",
     verifyAdmin,
-    (req, res) => {
+    async (req, res) => {
+
         try {
-            const contacts =
-                db.prepare(`
-                    SELECT *
+
+            const result =
+                await pool.query(
+                    `
+                    SELECT
+                        id,
+                        name,
+                        email,
+                        phone,
+                        message,
+                        status,
+                        createdat AS "createdAt"
                     FROM contacts
                     ORDER BY id DESC
-                `).all();
+                    `
+                );
 
             res.json({
                 success: true,
-                contacts
+                contacts:
+                    result.rows
             });
 
         } catch (error) {
+
             console.error(
                 "GET CONTACTS ERROR:",
                 error.message
             );
 
-            res.status(500).json({
-                success: false,
-                message:
-                    "Could not load contacts"
-            });
+            res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Could not load contacts"
+                });
         }
     }
 );
@@ -1278,30 +1455,50 @@ app.get(
 app.delete(
     "/api/admin/contacts/:id",
     verifyAdmin,
-    (req, res) => {
-        try {
-            const id =
-                Number(req.params.id);
+    async (req, res) => {
 
-            if (!Number.isInteger(id)) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Invalid contact ID"
-                });
+        try {
+
+            const id =
+                Number(
+                    req.params.id
+                );
+
+            if (
+                !Number.isInteger(id)
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Invalid contact ID"
+                    });
             }
 
             const result =
-                db.prepare(`
+                await pool.query(
+                    `
                     DELETE FROM contacts
-                    WHERE id = ?
-                `).run(id);
+                    WHERE id = $1
+                    `,
+                    [
+                        id
+                    ]
+                );
 
-            if (result.changes === 0) {
-                return res.status(404).json({
-                    success: false,
-                    message:
-                        "Contact message not found"
-                });
+            if (
+                result.rowCount === 0
+            ) {
+
+                return res
+                    .status(404)
+                    .json({
+                        success: false,
+                        message:
+                            "Contact message not found"
+                    });
             }
 
             res.json({
@@ -1311,16 +1508,19 @@ app.delete(
             });
 
         } catch (error) {
+
             console.error(
                 "DELETE CONTACT ERROR:",
                 error.message
             );
 
-            res.status(500).json({
-                success: false,
-                message:
-                    "Could not delete contact message"
-            });
+            res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Could not delete contact message"
+                });
         }
     }
 );
@@ -1332,34 +1532,49 @@ app.delete(
 app.put(
     "/api/admin/contacts/:id",
     verifyAdmin,
-    (req, res) => {
-        try {
-            const id =
-                Number(req.params.id);
+    async (req, res) => {
 
-            if (!Number.isInteger(id)) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Invalid contact ID"
-                });
+        try {
+
+            const id =
+                Number(
+                    req.params.id
+                );
+
+            if (
+                !Number.isInteger(id)
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Invalid contact ID"
+                    });
             }
 
             const message =
                 String(
-                    req.body.message || ""
+                    req.body.message ||
+                    ""
                 ).trim();
 
             const status =
                 String(
-                    req.body.status || "new"
+                    req.body.status ||
+                    "new"
                 ).trim();
 
             if (!message) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Message cannot be empty"
-                });
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Message cannot be empty"
+                    });
             }
 
             const allowedStatuses = [
@@ -1373,31 +1588,43 @@ app.put(
                     status
                 )
             ) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Invalid contact status"
-                });
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Invalid contact status"
+                    });
             }
 
             const result =
-                db.prepare(`
+                await pool.query(
+                    `
                     UPDATE contacts
-                    SET message = ?,
-                        status = ?
-                    WHERE id = ?
-                `).run(
-                    message,
-                    status,
-                    id
+                    SET
+                        message = $1,
+                        status = $2
+                    WHERE id = $3
+                    `,
+                    [
+                        message,
+                        status,
+                        id
+                    ]
                 );
 
-            if (result.changes === 0) {
-                return res.status(404).json({
-                    success: false,
-                    message:
-                        "Contact message not found"
-                });
+            if (
+                result.rowCount === 0
+            ) {
+
+                return res
+                    .status(404)
+                    .json({
+                        success: false,
+                        message:
+                            "Contact message not found"
+                    });
             }
 
             res.json({
@@ -1407,16 +1634,19 @@ app.put(
             });
 
         } catch (error) {
+
             console.error(
                 "CONTACT UPDATE ERROR:",
                 error
             );
 
-            res.status(500).json({
-                success: false,
-                message:
-                    "Could not update contact message"
-            });
+            res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Could not update contact message"
+                });
         }
     }
 );
@@ -1428,7 +1658,9 @@ app.put(
 app.post(
     "/api/book-pay-later",
     async (req, res) => {
+
         try {
+
             const {
                 name,
                 email,
@@ -1448,44 +1680,59 @@ app.post(
                 !date ||
                 !timeSlot
             ) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Name, email, date, and time are required"
-                });
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Name, email, date, and time are required"
+                    });
             }
 
             // -----------------------------------------------
             // CHECK SLOT
             // -----------------------------------------------
 
-            const existing =
-                db.prepare(`
+            const existingResult =
+                await pool.query(
+                    `
                     SELECT id
                     FROM bookings
-                    WHERE date = ?
-                    AND timeSlot = ?
-                    AND status != 'cancelled'
-                    AND status != 'payment_expired'
-                `).get(
-                    date,
-                    timeSlot
+                    WHERE date = $1
+                    AND timeslot = $2
+                    AND status NOT IN (
+                        'cancelled',
+                        'payment_expired'
+                    )
+                    LIMIT 1
+                    `,
+                    [
+                        date,
+                        timeSlot
+                    ]
                 );
 
-            if (existing) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "This time is already booked. Please select another time."
-                });
+            if (
+                existingResult.rows.length
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "This time is already booked. Please select another time."
+                    });
             }
 
             // -----------------------------------------------
-            // SAVE BOOKING FIRST
+            // SAVE BOOKING
             // -----------------------------------------------
 
             const result =
-                db.prepare(`
+                await pool.query(
+                    `
                     INSERT INTO bookings
                     (
                         name,
@@ -1497,325 +1744,292 @@ app.post(
                         deposit,
                         remaining,
                         date,
-                        timeSlot,
-                        paymentType,
+                        timeslot,
+                        paymenttype,
                         status
                     )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                `).run(
-                    name,
-                    email,
-                    phone || null,
-                    address || null,
-                    service || null,
-                    Number(price) || 0,
-                    Number(deposit) || 0,
-                    Number(remaining) || 0,
-                    date,
-                    timeSlot,
-                    "Pay Later",
-                    "pending"
+                    VALUES (
+                        $1, $2, $3, $4, $5,
+                        $6, $7, $8, $9, $10,
+                        $11, $12
+                    )
+                    RETURNING id
+                    `,
+                    [
+                        name,
+                        email,
+                        phone || null,
+                        address || null,
+                        service || null,
+                        Number(price) || 0,
+                        Number(deposit) || 0,
+                        Number(remaining) || 0,
+                        date,
+                        timeSlot,
+                        "Pay Later",
+                        "pending"
+                    ]
                 );
 
             const bookingId =
-                result.lastInsertRowid;
+                result.rows[0].id;
 
             // -----------------------------------------------
             // CUSTOMER CONFIRMATION
             // -----------------------------------------------
 
-          // -----------------------------------------------
-// CUSTOMER CONFIRMATION
-// -----------------------------------------------
+            console.log(
+                `Sending customer booking confirmation for Booking #${bookingId} to:`,
+                email
+            );
 
-console.log(
-    `Sending customer booking confirmation for Booking #${bookingId} to:`,
-    email
-);
+            const customerEmailSent =
+                await sendEmail({
 
-const customerEmailSent =
-    await sendEmail({
-        to: email,
-        subject:
-            "My DMV Cleaning Services - Booking Received",
-        html: `
-            <div style="font-family:Arial,sans-serif;line-height:1.6">
-                <h2>Booking Received</h2>
+                    to:
+                        email,
 
-                <p>
-                    Hello ${escapeHtml(name)},
-                </p>
+                    subject:
+                        "My DMV Cleaning Services - Booking Received",
 
-                <p>
-                    Thank you for choosing
-                    My DMV Cleaning Services LLC.
-                    Your booking request has been received.
-                </p>
+                    html: `
+                        <div style="font-family:Arial,sans-serif;line-height:1.6">
 
-                <hr>
+                            <h2>
+                                Booking Received
+                            </h2>
 
-                <p>
-                    <strong>Booking ID:</strong>
-                    ${bookingId}
-                </p>
+                            <p>
+                                Hello ${escapeHtml(name)},
+                            </p>
 
-                <p>
-                    <strong>Service:</strong>
-                    ${escapeHtml(service)}
-                </p>
+                            <p>
+                                Thank you for choosing
+                                My DMV Cleaning Services LLC.
+                                Your booking request has been received.
+                            </p>
 
-                <p>
-                    <strong>Date:</strong>
-                    ${escapeHtml(date)}
-                </p>
+                            <hr>
 
-                <p>
-                    <strong>Time:</strong>
-                    ${escapeHtml(timeSlot)}
-                </p>
+                            <p>
+                                <strong>Booking ID:</strong>
+                                ${bookingId}
+                            </p>
 
-                <p>
-                    <strong>Total Price:</strong>
-                    $${Number(price || 0).toFixed(2)}
-                </p>
+                            <p>
+                                <strong>Service:</strong>
+                                ${escapeHtml(service)}
+                            </p>
 
-                <p>
-                    <strong>Deposit:</strong>
-                    $${Number(deposit || 0).toFixed(2)}
-                </p>
+                            <p>
+                                <strong>Date:</strong>
+                                ${escapeHtml(date)}
+                            </p>
 
-                <p>
-                    <strong>Remaining:</strong>
-                    $${Number(remaining || 0).toFixed(2)}
-                </p>
+                            <p>
+                                <strong>Time:</strong>
+                                ${escapeHtml(timeSlot)}
+                            </p>
 
-                <p>
-                    <strong>Payment Type:</strong>
-                    Pay Later
-                </p>
+                            <p>
+                                <strong>Total Price:</strong>
+                                $${Number(
+                                    price || 0
+                                ).toFixed(2)}
+                            </p>
 
-                <p>
-                    <strong>Status:</strong>
-                    Pending Confirmation
-                </p>
+                            <p>
+                                <strong>Deposit:</strong>
+                                $${Number(
+                                    deposit || 0
+                                ).toFixed(2)}
+                            </p>
 
-                <hr>
+                            <p>
+                                <strong>Remaining:</strong>
+                                $${Number(
+                                    remaining || 0
+                                ).toFixed(2)}
+                            </p>
 
-                <p>
-                    We will review your booking and
-                    contact you if anything needs to be
-                    confirmed or changed.
-                </p>
+                            <p>
+                                <strong>Payment Type:</strong>
+                                Pay Later
+                            </p>
 
-                <p>
-                    Thank you for choosing
-                    <strong>My DMV Cleaning Services LLC</strong>.
-                </p>
-            </div>
-        `
-    });
+                            <p>
+                                <strong>Status:</strong>
+                                Pending Confirmation
+                            </p>
 
-console.log(
-    `Customer email result for Booking #${bookingId}:`,
-    customerEmailSent ? "SENT" : "FAILED"
-);
+                            <hr>
 
+                            <p>
+                                We will review your booking and
+                                contact you if anything needs to be
+                                confirmed or changed.
+                            </p>
 
-// -----------------------------------------------
-// ADMIN NOTIFICATION
-// -----------------------------------------------
+                            <p>
+                                Thank you for choosing
+                                <strong>
+                                    My DMV Cleaning Services LLC
+                                </strong>.
+                            </p>
 
-console.log(
-    `Sending admin booking notification for Booking #${bookingId} to:`,
-    ADMIN_EMAIL || "(NO ADMIN EMAIL)"
-);
+                        </div>
+                    `
+                });
 
-const adminEmailSent =
-    await sendEmail({
-        to: ADMIN_EMAIL,
-        subject:
-            `New Cleaning Booking #${bookingId}`,
-        html: `
-            <div style="font-family:Arial,sans-serif;line-height:1.6">
-                <h2>New Cleaning Booking</h2>
+            console.log(
+                `Customer email result for Booking #${bookingId}:`,
+                customerEmailSent
+                    ? "SENT"
+                    : "FAILED"
+            );
 
-                <p>
-                    <strong>Booking ID:</strong>
-                    ${bookingId}
-                </p>
-
-                <p>
-                    <strong>Name:</strong>
-                    ${escapeHtml(name)}
-                </p>
-
-                <p>
-                    <strong>Email:</strong>
-                    ${escapeHtml(email)}
-                </p>
-
-                <p>
-                    <strong>Phone:</strong>
-                    ${escapeHtml(phone)}
-                </p>
-
-                <p>
-                    <strong>Address:</strong>
-                    ${escapeHtml(address)}
-                </p>
-
-                <p>
-                    <strong>Service:</strong>
-                    ${escapeHtml(service)}
-                </p>
-
-                <p>
-                    <strong>Date:</strong>
-                    ${escapeHtml(date)}
-                </p>
-
-                <p>
-                    <strong>Time:</strong>
-                    ${escapeHtml(timeSlot)}
-                </p>
-
-                <p>
-                    <strong>Total:</strong>
-                    $${Number(price || 0).toFixed(2)}
-                </p>
-
-                <p>
-                    <strong>Deposit:</strong>
-                    $${Number(deposit || 0).toFixed(2)}
-                </p>
-
-                <p>
-                    <strong>Remaining:</strong>
-                    $${Number(remaining || 0).toFixed(2)}
-                </p>
-
-                <p>
-                    <strong>Payment Type:</strong>
-                    Pay Later
-                </p>
-
-                <p>
-                    <strong>Status:</strong>
-                    Pending
-                </p>
-            </div>
-        `
-    });
-
-console.log(
-    `Admin email result for Booking #${bookingId}:`,
-    adminEmailSent ? "SENT" : "FAILED"
-);
             // -----------------------------------------------
             // ADMIN NOTIFICATION
             // -----------------------------------------------
 
-            await sendEmail({
-                to: ADMIN_EMAIL,
-                subject:
-                    `New Cleaning Booking #${bookingId}`,
-                html: `
-                    <div style="font-family:Arial,sans-serif;line-height:1.6">
-                        <h2>New Cleaning Booking</h2>
+            console.log(
+                `Sending admin booking notification for Booking #${bookingId} to:`,
+                ADMIN_EMAIL ||
+                "(NO ADMIN EMAIL)"
+            );
 
-                        <p>
-                            <strong>Booking ID:</strong>
-                            ${bookingId}
-                        </p>
+            const adminEmailSent =
+                await sendEmail({
 
-                        <p>
-                            <strong>Name:</strong>
-                            ${escapeHtml(name)}
-                        </p>
+                    to:
+                        ADMIN_EMAIL,
 
-                        <p>
-                            <strong>Email:</strong>
-                            ${escapeHtml(email)}
-                        </p>
+                    subject:
+                        `New Cleaning Booking #${bookingId}`,
 
-                        <p>
-                            <strong>Phone:</strong>
-                            ${escapeHtml(phone)}
-                        </p>
+                    html: `
+                        <div style="font-family:Arial,sans-serif;line-height:1.6">
 
-                        <p>
-                            <strong>Address:</strong>
-                            ${escapeHtml(address)}
-                        </p>
+                            <h2>
+                                New Cleaning Booking
+                            </h2>
 
-                        <p>
-                            <strong>Service:</strong>
-                            ${escapeHtml(service)}
-                        </p>
+                            <p>
+                                <strong>Booking ID:</strong>
+                                ${bookingId}
+                            </p>
 
-                        <p>
-                            <strong>Date:</strong>
-                            ${escapeHtml(date)}
-                        </p>
+                            <p>
+                                <strong>Name:</strong>
+                                ${escapeHtml(name)}
+                            </p>
 
-                        <p>
-                            <strong>Time:</strong>
-                            ${escapeHtml(timeSlot)}
-                        </p>
+                            <p>
+                                <strong>Email:</strong>
+                                ${escapeHtml(email)}
+                            </p>
 
-                        <p>
-                            <strong>Total:</strong>
-                            $${Number(price || 0).toFixed(2)}
-                        </p>
+                            <p>
+                                <strong>Phone:</strong>
+                                ${escapeHtml(phone)}
+                            </p>
 
-                        <p>
-                            <strong>Deposit:</strong>
-                            $${Number(deposit || 0).toFixed(2)}
-                        </p>
+                            <p>
+                                <strong>Address:</strong>
+                                ${escapeHtml(address)}
+                            </p>
 
-                        <p>
-                            <strong>Remaining:</strong>
-                            $${Number(remaining || 0).toFixed(2)}
-                        </p>
+                            <p>
+                                <strong>Service:</strong>
+                                ${escapeHtml(service)}
+                            </p>
 
-                        <p>
-                            <strong>Payment Type:</strong>
-                            Pay Later
-                        </p>
+                            <p>
+                                <strong>Date:</strong>
+                                ${escapeHtml(date)}
+                            </p>
 
-                        <p>
-                            <strong>Status:</strong>
-                            Pending
-                        </p>
-                    </div>
-                `
+                            <p>
+                                <strong>Time:</strong>
+                                ${escapeHtml(timeSlot)}
+                            </p>
+
+                            <p>
+                                <strong>Total:</strong>
+                                $${Number(
+                                    price || 0
+                                ).toFixed(2)}
+                            </p>
+
+                            <p>
+                                <strong>Deposit:</strong>
+                                $${Number(
+                                    deposit || 0
+                                ).toFixed(2)}
+                            </p>
+
+                            <p>
+                                <strong>Remaining:</strong>
+                                $${Number(
+                                    remaining || 0
+                                ).toFixed(2)}
+                            </p>
+
+                            <p>
+                                <strong>Payment Type:</strong>
+                                Pay Later
+                            </p>
+
+                            <p>
+                                <strong>Status:</strong>
+                                Pending
+                            </p>
+
+                        </div>
+                    `
+                });
+
+            console.log(
+                `Admin email result for Booking #${bookingId}:`,
+                adminEmailSent
+                    ? "SENT"
+                    : "FAILED"
+            );
+
+            res.json({
+
+                success: true,
+
+                bookingId,
+
+                emailStatus: {
+                    customer:
+                        customerEmailSent,
+                    admin:
+                        adminEmailSent
+                },
+
+                message:
+                    customerEmailSent &&
+                    adminEmailSent
+                        ? "Booking saved and confirmation emails sent"
+                        : "Booking saved, but one or more confirmation emails could not be sent"
             });
 
-          res.json({
-    success: true,
-    bookingId,
-
-    emailStatus: {
-        customer: customerEmailSent,
-        admin: adminEmailSent
-    },
-
-    message:
-        customerEmailSent && adminEmailSent
-            ? "Booking saved and confirmation emails sent"
-            : "Booking saved, but one or more confirmation emails could not be sent"
-});
-
         } catch (error) {
+
             console.error(
                 "BOOKING ERROR:",
                 error
             );
 
-            res.status(500).json({
-                success: false,
-                message: "Server error"
-            });
+            res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Server error"
+                });
         }
     }
 );
@@ -1827,13 +2041,18 @@ console.log(
 app.post(
     "/api/create-deposit-checkout",
     async (req, res) => {
+
         try {
+
             if (!stripe) {
-                return res.status(500).json({
-                    success: false,
-                    message:
-                        "Stripe is not configured"
-                });
+
+                return res
+                    .status(500)
+                    .json({
+                        success: false,
+                        message:
+                            "Stripe is not configured"
+                    });
             }
 
             const {
@@ -1855,36 +2074,50 @@ app.post(
                 !date ||
                 !timeSlot
             ) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Name, email, date, and time are required"
-                });
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Name, email, date, and time are required"
+                    });
             }
 
             // -----------------------------------------------
             // CHECK SLOT
             // -----------------------------------------------
 
-            const existing =
-                db.prepare(`
+            const existingResult =
+                await pool.query(
+                    `
                     SELECT id
                     FROM bookings
-                    WHERE date = ?
-                    AND timeSlot = ?
-                    AND status != 'cancelled'
-                    AND status != 'payment_expired'
-                `).get(
-                    date,
-                    timeSlot
+                    WHERE date = $1
+                    AND timeslot = $2
+                    AND status NOT IN (
+                        'cancelled',
+                        'payment_expired'
+                    )
+                    LIMIT 1
+                    `,
+                    [
+                        date,
+                        timeSlot
+                    ]
                 );
 
-            if (existing) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Appointment time already booked"
-                });
+            if (
+                existingResult.rows.length
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Appointment time already booked"
+                    });
             }
 
             const depositAmount =
@@ -1893,11 +2126,14 @@ app.post(
             if (
                 depositAmount <= 0
             ) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Invalid deposit amount"
-                });
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Invalid deposit amount"
+                    });
             }
 
             // -----------------------------------------------
@@ -1906,11 +2142,13 @@ app.post(
 
             const session =
                 await stripe.checkout.sessions.create({
+
                     payment_method_types: [
                         "card"
                     ],
 
-                    mode: "payment",
+                    mode:
+                        "payment",
 
                     customer_email:
                         email,
@@ -1923,16 +2161,20 @@ app.post(
                     line_items: [
                         {
                             price_data: {
-                                currency: "usd",
+
+                                currency:
+                                    "usd",
 
                                 product_data: {
+
                                     name:
                                         `${service} Deposit`
                                 },
 
                                 unit_amount:
                                     Math.round(
-                                        depositAmount * 100
+                                        depositAmount *
+                                        100
                                     )
                             },
 
@@ -1949,13 +2191,11 @@ app.post(
 
             // -----------------------------------------------
             // SAVE BOOKING
-            //
-            // DO NOT send "paid" email here.
-            // Stripe has not confirmed payment yet.
             // -----------------------------------------------
 
             const result =
-                db.prepare(`
+                await pool.query(
+                    `
                     INSERT INTO bookings
                     (
                         name,
@@ -1967,27 +2207,37 @@ app.post(
                         deposit,
                         remaining,
                         date,
-                        timeSlot,
-                        paymentType,
-                        stripeSession,
+                        timeslot,
+                        paymenttype,
+                        stripesession,
                         status
                     )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                `).run(
-                    name,
-                    email,
-                    phone || null,
-                    address || null,
-                    service || null,
-                    Number(price) || 0,
-                    depositAmount,
-                    Number(remaining) || 0,
-                    date,
-                    timeSlot,
-                    "Deposit Paid",
-                    session.id,
-                    "pending"
+                    VALUES (
+                        $1, $2, $3, $4, $5,
+                        $6, $7, $8, $9, $10,
+                        $11, $12, $13
+                    )
+                    RETURNING id
+                    `,
+                    [
+                        name,
+                        email,
+                        phone || null,
+                        address || null,
+                        service || null,
+                        Number(price) || 0,
+                        depositAmount,
+                        Number(remaining) || 0,
+                        date,
+                        timeSlot,
+                        "Deposit Paid",
+                        session.id,
+                        "pending"
+                    ]
                 );
+
+            const bookingId =
+                result.rows[0].id;
 
             console.log(
                 "Stripe checkout created:",
@@ -1995,24 +2245,29 @@ app.post(
             );
 
             res.json({
+
                 success: true,
+
                 checkoutUrl:
                     session.url,
-                bookingId:
-                    result.lastInsertRowid
+
+                bookingId
             });
 
         } catch (error) {
+
             console.error(
                 "STRIPE CHECKOUT ERROR:",
                 error
             );
 
-            res.status(500).json({
-                success: false,
-                message:
-                    "Stripe payment failed"
-            });
+            res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Stripe payment failed"
+                });
         }
     }
 );
@@ -2023,23 +2278,51 @@ app.post(
 
 app.get(
     "/api/bookings/:id",
-    (req, res) => {
+    async (req, res) => {
+
         try {
-            const booking =
-                db.prepare(`
-                    SELECT *
+
+            const result =
+                await pool.query(
+                    `
+                    SELECT
+                        id,
+                        name,
+                        email,
+                        phone,
+                        address,
+                        service,
+                        price::double precision AS price,
+                        deposit::double precision AS deposit,
+                        remaining::double precision AS remaining,
+                        date,
+                        timeslot AS "timeSlot",
+                        paymenttype AS "paymentType",
+                        stripesession AS "stripeSession",
+                        stripepaymentintent AS "stripePaymentIntent",
+                        status,
+                        paidat AS "paidAt",
+                        createdat AS "createdAt"
                     FROM bookings
-                    WHERE id = ?
-                `).get(
-                    req.params.id
+                    WHERE id = $1
+                    `,
+                    [
+                        req.params.id
+                    ]
                 );
 
+            const booking =
+                result.rows[0];
+
             if (!booking) {
-                return res.status(404).json({
-                    success: false,
-                    message:
-                        "Booking not found"
-                });
+
+                return res
+                    .status(404)
+                    .json({
+                        success: false,
+                        message:
+                            "Booking not found"
+                    });
             }
 
             res.json({
@@ -2048,15 +2331,19 @@ app.get(
             });
 
         } catch (error) {
+
             console.error(
                 "GET BOOKING ERROR:",
                 error
             );
 
-            res.status(500).json({
-                success: false,
-                message: "Server error"
-            });
+            res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Server error"
+                });
         }
     }
 );
@@ -2067,23 +2354,51 @@ app.get(
 
 app.get(
     "/api/booking-session/:session",
-    (req, res) => {
+    async (req, res) => {
+
         try {
-            const booking =
-                db.prepare(`
-                    SELECT *
+
+            const result =
+                await pool.query(
+                    `
+                    SELECT
+                        id,
+                        name,
+                        email,
+                        phone,
+                        address,
+                        service,
+                        price::double precision AS price,
+                        deposit::double precision AS deposit,
+                        remaining::double precision AS remaining,
+                        date,
+                        timeslot AS "timeSlot",
+                        paymenttype AS "paymentType",
+                        stripesession AS "stripeSession",
+                        stripepaymentintent AS "stripePaymentIntent",
+                        status,
+                        paidat AS "paidAt",
+                        createdat AS "createdAt"
                     FROM bookings
-                    WHERE stripeSession = ?
-                `).get(
-                    req.params.session
+                    WHERE stripesession = $1
+                    `,
+                    [
+                        req.params.session
+                    ]
                 );
 
+            const booking =
+                result.rows[0];
+
             if (!booking) {
-                return res.status(404).json({
-                    success: false,
-                    message:
-                        "Booking not found"
-                });
+
+                return res
+                    .status(404)
+                    .json({
+                        success: false,
+                        message:
+                            "Booking not found"
+                    });
             }
 
             res.json({
@@ -2092,15 +2407,19 @@ app.get(
             });
 
         } catch (error) {
+
             console.error(
                 "BOOKING SESSION ERROR:",
                 error.message
             );
 
-            res.status(500).json({
-                success: false,
-                message: "Server error"
-            });
+            res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Server error"
+                });
         }
     }
 );
@@ -2108,6 +2427,7 @@ app.get(
 // ============================================================
 // DOCUMENT STORAGE
 // ============================================================
+
 const contractsFolder =
     path.join(
         __dirname,
@@ -2116,9 +2436,18 @@ const contractsFolder =
     );
 
 const invoicesFolder =
-    path.join(__dirname, "public", "invoices");
+    path.join(
+        __dirname,
+        "public",
+        "invoices"
+    );
 
-if (!fs.existsSync(contractsFolder)) {
+if (
+    !fs.existsSync(
+        contractsFolder
+    )
+) {
+
     fs.mkdirSync(
         contractsFolder,
         {
@@ -2127,7 +2456,12 @@ if (!fs.existsSync(contractsFolder)) {
     );
 }
 
-if (!fs.existsSync(invoicesFolder)) {
+if (
+    !fs.existsSync(
+        invoicesFolder
+    )
+) {
+
     fs.mkdirSync(
         invoicesFolder,
         {
@@ -2135,35 +2469,65 @@ if (!fs.existsSync(invoicesFolder)) {
         }
     );
 }
+
 // ============================================================
 // SERVE SIGNED CONTRACT PDFs
 // ============================================================
 
-app.get("/contracts/:filename", (req, res) => {
-    const filename = path.basename(req.params.filename);
+app.get(
+    "/contracts/:filename",
+    (req, res) => {
 
-    const filePath = path.join(
-        __dirname,
-        "public",
-        "signed-contracts",
-        filename
-    );
+        const filename =
+            path.basename(
+                req.params.filename
+            );
 
-    console.log("CONTRACT PDF REQUEST:", filename);
-    console.log("CONTRACT PDF PATH:", filePath);
+        const filePath =
+            path.join(
+                __dirname,
+                "public",
+                "signed-contracts",
+                filename
+            );
 
-    if (!fs.existsSync(filePath)) {
-        console.error("CONTRACT PDF NOT FOUND:", filePath);
+        console.log(
+            "CONTRACT PDF REQUEST:",
+            filename
+        );
 
-        return res.status(404).json({
-            success: false,
-            error: "Signed contract PDF not found",
-            filename: filename
-        });
+        console.log(
+            "CONTRACT PDF PATH:",
+            filePath
+        );
+
+        if (
+            !fs.existsSync(
+                filePath
+            )
+        ) {
+
+            console.error(
+                "CONTRACT PDF NOT FOUND:",
+                filePath
+            );
+
+            return res
+                .status(404)
+                .json({
+                    success: false,
+                    error:
+                        "Signed contract PDF not found",
+                    filename
+                });
+        }
+
+        return res.sendFile(
+            filePath
+        );
     }
+);
 
-    return res.sendFile(filePath);
-});
 // ============================================================
 // ADMIN GET BOOKINGS
 // ============================================================
@@ -2171,31 +2535,56 @@ app.get("/contracts/:filename", (req, res) => {
 app.get(
     "/api/admin/bookings",
     verifyAdmin,
-    (req, res) => {
+    async (req, res) => {
+
         try {
-            const bookings =
-                db.prepare(`
-                    SELECT *
+
+            const result =
+                await pool.query(
+                    `
+                    SELECT
+                        id,
+                        name,
+                        email,
+                        phone,
+                        address,
+                        service,
+                        price::double precision AS price,
+                        deposit::double precision AS deposit,
+                        remaining::double precision AS remaining,
+                        date,
+                        timeslot AS "timeSlot",
+                        paymenttype AS "paymentType",
+                        stripesession AS "stripeSession",
+                        stripepaymentintent AS "stripePaymentIntent",
+                        status,
+                        paidat AS "paidAt",
+                        createdat AS "createdAt"
                     FROM bookings
                     ORDER BY id DESC
-                `).all();
+                    `
+                );
 
             res.json({
                 success: true,
-                bookings
+                bookings:
+                    result.rows
             });
 
         } catch (error) {
+
             console.error(
                 "ADMIN BOOKINGS ERROR:",
                 error
             );
 
-            res.status(500).json({
-                success: false,
-                message:
-                    "Could not load bookings"
-            });
+            res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Could not load bookings"
+                });
         }
     }
 );
@@ -2207,8 +2596,10 @@ app.get(
 app.put(
     "/api/admin/bookings/:id/status",
     verifyAdmin,
-    (req, res) => {
+    async (req, res) => {
+
         try {
+
             const allowedStatuses = [
                 "pending",
                 "confirmed",
@@ -2220,7 +2611,8 @@ app.put(
 
             const status =
                 String(
-                    req.body.status || ""
+                    req.body.status ||
+                    ""
                 ).trim();
 
             if (
@@ -2228,29 +2620,40 @@ app.put(
                     status
                 )
             ) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Invalid booking status"
-                });
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Invalid booking status"
+                    });
             }
 
             const result =
-                db.prepare(`
+                await pool.query(
+                    `
                     UPDATE bookings
-                    SET status = ?
-                    WHERE id = ?
-                `).run(
-                    status,
-                    req.params.id
+                    SET status = $1
+                    WHERE id = $2
+                    `,
+                    [
+                        status,
+                        req.params.id
+                    ]
                 );
 
-            if (result.changes === 0) {
-                return res.status(404).json({
-                    success: false,
-                    message:
-                        "Booking not found"
-                });
+            if (
+                result.rowCount === 0
+            ) {
+
+                return res
+                    .status(404)
+                    .json({
+                        success: false,
+                        message:
+                            "Booking not found"
+                    });
             }
 
             res.json({
@@ -2260,16 +2663,19 @@ app.put(
             });
 
         } catch (error) {
+
             console.error(
                 "UPDATE BOOKING STATUS ERROR:",
                 error
             );
 
-            res.status(500).json({
-                success: false,
-                message:
-                    "Could not update booking"
-            });
+            res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Could not update booking"
+                });
         }
     }
 );
@@ -2281,23 +2687,33 @@ app.put(
 app.put(
     "/api/admin/bookings/:id/cancel",
     verifyAdmin,
-    (req, res) => {
+    async (req, res) => {
+
         try {
+
             const result =
-                db.prepare(`
+                await pool.query(
+                    `
                     UPDATE bookings
                     SET status = 'cancelled'
-                    WHERE id = ?
-                `).run(
-                    req.params.id
+                    WHERE id = $1
+                    `,
+                    [
+                        req.params.id
+                    ]
                 );
 
-            if (result.changes === 0) {
-                return res.status(404).json({
-                    success: false,
-                    message:
-                        "Booking not found"
-                });
+            if (
+                result.rowCount === 0
+            ) {
+
+                return res
+                    .status(404)
+                    .json({
+                        success: false,
+                        message:
+                            "Booking not found"
+                    });
             }
 
             res.json({
@@ -2307,16 +2723,19 @@ app.put(
             });
 
         } catch (error) {
+
             console.error(
                 "CANCEL BOOKING ERROR:",
                 error
             );
 
-            res.status(500).json({
-                success: false,
-                message:
-                    "Could not cancel booking"
-            });
+            res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Could not cancel booking"
+                });
         }
     }
 );
@@ -2328,22 +2747,32 @@ app.put(
 app.delete(
     "/api/admin/bookings/:id",
     verifyAdmin,
-    (req, res) => {
+    async (req, res) => {
+
         try {
+
             const result =
-                db.prepare(`
+                await pool.query(
+                    `
                     DELETE FROM bookings
-                    WHERE id = ?
-                `).run(
-                    req.params.id
+                    WHERE id = $1
+                    `,
+                    [
+                        req.params.id
+                    ]
                 );
 
-            if (result.changes === 0) {
-                return res.status(404).json({
-                    success: false,
-                    message:
-                        "Booking not found"
-                });
+            if (
+                result.rowCount === 0
+            ) {
+
+                return res
+                    .status(404)
+                    .json({
+                        success: false,
+                        message:
+                            "Booking not found"
+                    });
             }
 
             res.json({
@@ -2353,16 +2782,19 @@ app.delete(
             });
 
         } catch (error) {
+
             console.error(
                 "DELETE BOOKING ERROR:",
                 error
             );
 
-            res.status(500).json({
-                success: false,
-                message:
-                    "Could not delete booking"
-            });
+            res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Could not delete booking"
+                });
         }
     }
 );
@@ -2374,23 +2806,47 @@ app.delete(
 app.get(
     "/api/admin/invoice/:id",
     verifyAdmin,
-    (req, res) => {
+    async (req, res) => {
+
         try {
-            const booking =
-                db.prepare(`
-                    SELECT *
+
+            const result =
+                await pool.query(
+                    `
+                    SELECT
+                        id,
+                        name,
+                        email,
+                        phone,
+                        address,
+                        service,
+                        price::double precision AS price,
+                        deposit::double precision AS deposit,
+                        remaining::double precision AS remaining,
+                        date,
+                        timeslot AS "timeSlot",
+                        paymenttype AS "paymentType",
+                        status
                     FROM bookings
-                    WHERE id = ?
-                `).get(
-                    req.params.id
+                    WHERE id = $1
+                    `,
+                    [
+                        req.params.id
+                    ]
                 );
 
+            const booking =
+                result.rows[0];
+
             if (!booking) {
-                return res.status(404).json({
-                    success: false,
-                    message:
-                        "Booking not found"
-                });
+
+                return res
+                    .status(404)
+                    .json({
+                        success: false,
+                        message:
+                            "Booking not found"
+                    });
             }
 
             const doc =
@@ -2414,7 +2870,8 @@ app.get(
                 .text(
                     "My DMV Cleaning Services LLC",
                     {
-                        align: "center"
+                        align:
+                            "center"
                     }
                 );
 
@@ -2496,24 +2953,31 @@ app.get(
             doc.text(
                 "Thank you for choosing My DMV Cleaning Services LLC!",
                 {
-                    align: "center"
+                    align:
+                        "center"
                 }
             );
 
             doc.end();
 
         } catch (error) {
+
             console.error(
                 "INVOICE PDF ERROR:",
                 error
             );
 
-            if (!res.headersSent) {
-                res.status(500).json({
-                    success: false,
-                    message:
-                        "Failed to generate invoice"
-                });
+            if (
+                !res.headersSent
+            ) {
+
+                res
+                    .status(500)
+                    .json({
+                        success: false,
+                        message:
+                            "Failed to generate invoice"
+                    });
             }
         }
     }
@@ -2526,8 +2990,10 @@ app.get(
 function signatureDataUrlToBuffer(
     signature
 ) {
+
     if (
-        typeof signature !== "string"
+        typeof signature !==
+        "string"
     ) {
         return null;
     }
@@ -2542,11 +3008,14 @@ function signatureDataUrlToBuffer(
     }
 
     try {
+
         return Buffer.from(
             match[1],
             "base64"
         );
+
     } catch (error) {
+
         return null;
     }
 }
@@ -2558,7 +3027,11 @@ function signatureDataUrlToBuffer(
 function makeSafeFileName(
     value
 ) {
-    return String(value || "contract")
+
+    return String(
+        value ||
+        "contract"
+    )
         .replace(
             /[^a-z0-9]/gi,
             "-"
@@ -2581,8 +3054,16 @@ function makeSafeFileName(
 function formatServices(
     services
 ) {
-    if (Array.isArray(services)) {
-        return services.join(", ");
+
+    if (
+        Array.isArray(
+            services
+        )
+    ) {
+
+        return services.join(
+            ", "
+        );
     }
 
     return String(
@@ -2597,6 +3078,7 @@ function formatServices(
 async function createContractPdf(
     data
 ) {
+
     const safeName =
         makeSafeFileName(
             data.name
@@ -2619,18 +3101,37 @@ async function createContractPdf(
             margin: 50
         });
 
-   console.log("========== CONTRACT PDF DEBUG ==========");
-console.log("contractsFolder:", contractsFolder);
-console.log("fileName:", fileName);
-console.log("filePath:", filePath);
-console.log("========================================");
+    console.log(
+        "========== CONTRACT PDF DEBUG =========="
+    );
 
-const writeStream =
-    fs.createWriteStream(
+    console.log(
+        "contractsFolder:",
+        contractsFolder
+    );
+
+    console.log(
+        "fileName:",
+        fileName
+    );
+
+    console.log(
+        "filePath:",
         filePath
     );
 
-    doc.pipe(writeStream);
+    console.log(
+        "========================================"
+    );
+
+    const writeStream =
+        fs.createWriteStream(
+            filePath
+        );
+
+    doc.pipe(
+        writeStream
+    );
 
     doc
         .fontSize(20)
@@ -2638,7 +3139,8 @@ const writeStream =
         .text(
             "My DMV Cleaning Services LLC",
             {
-                align: "center"
+                align:
+                    "center"
             }
         );
 
@@ -2650,7 +3152,8 @@ const writeStream =
             data.contractType ||
                 "Signed Agreement",
             {
-                align: "center"
+                align:
+                    "center"
             }
         );
 
@@ -2714,7 +3217,7 @@ const writeStream =
     doc.moveDown();
 
     // ========================================================
-    // CONTRACTOR INFORMATION
+    // INDEPENDENT SUBCONTRACTOR INFORMATION
     // ========================================================
 
     if (
@@ -2723,6 +3226,7 @@ const writeStream =
         data.contractType ===
             "Independent Subcontractor Agreement"
     ) {
+
         doc
             .fontSize(13)
             .font("Helvetica-Bold")
@@ -2777,51 +3281,53 @@ const writeStream =
 
         doc.moveDown();
     }
-// ========================================================
-// CLIENT SERVICE INFORMATION
-// ========================================================
 
-if (
-    data.contractType ===
-        "Client Service Agreement" ||
-    data.contractType ===
-        "Service Agreement"
-) {
-    doc
-        .fontSize(13)
-        .font("Helvetica-Bold")
-        .text(
-            "Client Service Information"
-        );
+    // ========================================================
+    // CLIENT SERVICE INFORMATION
+    // ========================================================
 
-    doc.moveDown(0.5);
+    if (
+        data.contractType ===
+            "Client Service Agreement" ||
+        data.contractType ===
+            "Service Agreement"
+    ) {
 
-    doc
-        .fontSize(11)
-        .font("Helvetica")
-        .text(
-            `Service Address: ${
-                data.address || ""
-            }`
-        );
+        doc
+            .fontSize(13)
+            .font("Helvetica-Bold")
+            .text(
+                "Client Service Information"
+            );
 
-    doc.moveDown(0.5);
+        doc.moveDown(0.5);
 
-    doc
-        .font("Helvetica-Bold")
-        .text(
-            "Requested Services:"
-        );
+        doc
+            .fontSize(11)
+            .font("Helvetica")
+            .text(
+                `Service Address: ${
+                    data.address || ""
+                }`
+            );
 
-    doc
-        .font("Helvetica")
-        .text(
-            data.serviceDescription ||
-                ""
-        );
+        doc.moveDown(0.5);
 
-    doc.moveDown();
-}
+        doc
+            .font("Helvetica-Bold")
+            .text(
+                "Requested Services:"
+            );
+
+        doc
+            .font("Helvetica")
+            .text(
+                data.serviceDescription ||
+                    ""
+            );
+
+        doc.moveDown();
+    }
 
     // ========================================================
     // JOB COMPLETION
@@ -2831,6 +3337,7 @@ if (
         data.contractType ===
         "Job Completion Form"
     ) {
+
         doc
             .fontSize(13)
             .font("Helvetica-Bold")
@@ -2879,6 +3386,7 @@ if (
         data.contractType ===
         "Independent Subcontractor Agreement"
     ) {
+
         doc
             .fontSize(13)
             .font("Helvetica-Bold")
@@ -2910,105 +3418,103 @@ if (
         doc.moveDown();
     }
 
-  
-   // ========================================================
-// SIGNATURE
-// ========================================================
-
-doc
-    .fontSize(13)
-    .font("Helvetica-Bold")
-    .text(
-        "Electronic Signature"
-    );
-
-doc.moveDown(0.5);
-
-doc
-    .fontSize(11)
-    .font("Helvetica")
-    .text(
-        `Typed Signature: ${
-            data.typedName || ""
-        }`
-    );
-
-doc.moveDown();
-
-
-const signatureBuffer =
-    signatureDataUrlToBuffer(
-        data.signature
-    );
-
-if (signatureBuffer) {
+    // ========================================================
+    // SIGNATURE
+    // ========================================================
 
     doc
-        .fontSize(11)
+        .fontSize(13)
         .font("Helvetica-Bold")
         .text(
-            "Drawn Signature:"
+            "Electronic Signature"
         );
 
     doc.moveDown(0.5);
 
-    try {
-
-        console.log(
-            "Signature received successfully."
+    doc
+        .fontSize(11)
+        .font("Helvetica")
+        .text(
+            `Typed Signature: ${
+                data.typedName || ""
+            }`
         );
 
-        console.log(
-            "Signature buffer size:",
-            signatureBuffer.length
+    doc.moveDown();
+
+    const signatureBuffer =
+        signatureDataUrlToBuffer(
+            data.signature
         );
 
-        /*
-         * Place the handwritten signature image
-         * directly into the PDF.
-         */
-        doc.image(
-            signatureBuffer,
-            {
-                fit: [
-                    300,
-                    100
-                ],
-                align: "left",
-                valign: "top"
-            }
-        );
+    if (
+        signatureBuffer
+    ) {
 
-        doc.moveDown(1);
+        doc
+            .fontSize(11)
+            .font("Helvetica-Bold")
+            .text(
+                "Drawn Signature:"
+            );
 
-    } catch (error) {
+        doc.moveDown(0.5);
+
+        try {
+
+            console.log(
+                "Signature received successfully."
+            );
+
+            console.log(
+                "Signature buffer size:",
+                signatureBuffer.length
+            );
+
+            doc.image(
+                signatureBuffer,
+                {
+                    fit: [
+                        300,
+                        100
+                    ],
+                    align:
+                        "left",
+                    valign:
+                        "top"
+                }
+            );
+
+            doc.moveDown(1);
+
+        } catch (error) {
+
+            console.error(
+                "Could not place signature in PDF:",
+                error
+            );
+
+            doc
+                .fontSize(10)
+                .font("Helvetica")
+                .text(
+                    "[Drawn signature could not be rendered]"
+                );
+        }
+
+    } else {
 
         console.error(
-            "Could not place signature in PDF:",
-            error
+            "No valid signature buffer was created."
         );
 
         doc
             .fontSize(10)
             .font("Helvetica")
             .text(
-                "[Drawn signature could not be rendered]"
+                "[No drawn signature image was received]"
             );
     }
-
-} else {
-
-    console.error(
-        "No valid signature buffer was created."
-    );
-
-    doc
-        .fontSize(10)
-        .font("Helvetica")
-        .text(
-            "[No drawn signature image was received]"
-        );
-}
 
     // ========================================================
     // LEGAL NOTICE
@@ -3028,6 +3534,7 @@ if (signatureBuffer) {
     doc.text(
         "The typed name and drawn signature above represent the signer's electronic signature."
     );
+
     // ========================================================
     // FOOTER
     // ========================================================
@@ -3040,7 +3547,8 @@ if (signatureBuffer) {
         .text(
             "My DMV Cleaning Services LLC",
             {
-                align: "center"
+                align:
+                    "center"
             }
         );
 
@@ -3050,9 +3558,14 @@ if (signatureBuffer) {
         .text(
             "© 2026 My DMV Cleaning Services LLC. All rights reserved.",
             {
-                align: "center"
+                align:
+                    "center"
             }
         );
+
+    // ========================================================
+    // FINISH PDF
+    // ========================================================
 
     await new Promise(
         (resolve, reject) => {
@@ -3068,13 +3581,19 @@ if (signatureBuffer) {
 
                     console.log(
                         "PDF EXISTS AFTER WRITE:",
-                        fs.existsSync(filePath)
+                        fs.existsSync(
+                            filePath
+                        )
                     );
 
                     console.log(
                         "PDF SIZE:",
-                        fs.existsSync(filePath)
-                            ? fs.statSync(filePath).size
+                        fs.existsSync(
+                            filePath
+                        )
+                            ? fs.statSync(
+                                filePath
+                            ).size
                             : 0
                     );
 
@@ -3099,10 +3618,12 @@ if (signatureBuffer) {
         }
     );
 
-
     return {
+
         fileName,
+
         filePath,
+
         fileUrl:
             `${BACKEND_URL}/contracts/${encodeURIComponent(fileName)}`
     };
@@ -3110,76 +3631,121 @@ if (signatureBuffer) {
 
 // ============================================================
 // SAVE CONTRACT
-// ========================================================================================================================
+// ============================================================
 
-function saveContract(
+async function saveContract(
     data,
     fileUrl
 ) {
+
+    const servicesValue =
+        Array.isArray(
+            data.services
+        )
+            ? JSON.stringify(
+                data.services
+            )
+            : data.services ||
+                null;
+
     const result =
-        db.prepare(`
+        await pool.query(
+            `
             INSERT INTO contracts
             (
-                bookingId,
+                bookingid,
                 name,
                 email,
                 phone,
-                contractType,
-                typedName,
+                contracttype,
+                typedname,
                 signature,
-                pdfUrl,
-                businessName,
+                pdfurl,
+                businessname,
                 address,
                 experience,
                 services,
                 availability,
                 license,
                 insurance,
-                businessType,
-                serviceArea,
-                requirementsConfirmed,
-                agreementAccepted,
-                signedAt,
-                approvalStatus
+                businesstype,
+                servicearea,
+                requirementsconfirmed,
+                agreementaccepted,
+                signedat,
+                approvalstatus
             )
             VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                $1, $2, $3, $4, $5,
+                $6, $7, $8, $9, $10,
+                $11, $12, $13, $14, $15,
+                $16, $17, $18, $19, $20,
+                $21
             )
-        `).run(
-            data.bookingId || null,
-            data.name,
-            data.email,
-            data.phone || null,
-            data.contractType || null,
-            data.typedName || null,
-            data.signature || null,
-            fileUrl,
-            data.businessName || null,
-            data.address || null,
-            data.experience || null,
-            Array.isArray(data.services)
-                ? JSON.stringify(
-                    data.services
-                )
-                : data.services || null,
-            data.availability || null,
-            data.license || null,
-            data.insurance || null,
-            data.businessType || null,
-            data.serviceArea || null,
-            data.requirementsConfirmed
-                ? 1
-                : 0,
-            data.agreementAccepted
-                ? 1
-                : 0,
-            data.signedAt ||
-                new Date().toISOString(),
-            "pending"
+            RETURNING id
+            `,
+            [
+                data.bookingId ||
+                    null,
+
+                data.name,
+
+                data.email,
+
+                data.phone ||
+                    null,
+
+                data.contractType ||
+                    null,
+
+                data.typedName ||
+                    null,
+
+                data.signature ||
+                    null,
+
+                fileUrl,
+
+                data.businessName ||
+                    null,
+
+                data.address ||
+                    null,
+
+                data.experience ||
+                    null,
+
+                servicesValue,
+
+                data.availability ||
+                    null,
+
+                data.license ||
+                    null,
+
+                data.insurance ||
+                    null,
+
+                data.businessType ||
+                    null,
+
+                data.serviceArea ||
+                    null,
+
+                data.requirementsConfirmed ===
+                    true,
+
+                data.agreementAccepted ===
+                    true,
+
+                data.signedAt ||
+                    new Date().toISOString(),
+
+                "pending"
+            ]
         );
 
-    return result.lastInsertRowid;
+    return result.rows[0].id;
 }
 
 // ============================================================
@@ -3189,7 +3755,9 @@ function saveContract(
 app.post(
     "/api/sign-contract",
     async (req, res) => {
+
         try {
+
             const data = {
                 ...req.body
             };
@@ -3205,44 +3773,56 @@ app.post(
                 !data.typedName ||
                 !data.signature
             ) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Please complete all required fields."
-                });
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Please complete all required fields."
+                    });
             }
 
             if (
                 data.contractType !==
                 "Independent Subcontractor Agreement"
             ) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Invalid contract type."
-                });
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Invalid contract type."
+                    });
             }
 
             if (
                 data.agreementAccepted !==
                 true
             ) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "You must accept the agreement."
-                });
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "You must accept the agreement."
+                    });
             }
 
             if (
                 data.requirementsConfirmed !==
                 true
             ) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "You must confirm the subcontractor requirements."
-                });
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "You must confirm the subcontractor requirements."
+                    });
             }
 
             const emailRegex =
@@ -3250,14 +3830,19 @@ app.post(
 
             if (
                 !emailRegex.test(
-                    String(data.email).trim()
+                    String(
+                        data.email
+                    ).trim()
                 )
             ) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Please enter a valid email address."
-                });
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Please enter a valid email address."
+                    });
             }
 
             const signatureBuffer =
@@ -3265,134 +3850,199 @@ app.post(
                     data.signature
                 );
 
-            if (!signatureBuffer) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "A valid drawn signature is required."
-                });
+            if (
+                !signatureBuffer
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "A valid drawn signature is required."
+                    });
             }
 
-           const pdf =
-    await createContractPdf(
-        data
-    );
+            const pdf =
+                await createContractPdf(
+                    data
+                );
 
-console.log("========== SIGN CONTRACT PDF RESULT ==========");
-console.log("PDF FILE NAME:", pdf.fileName);
-console.log("PDF FILE PATH:", pdf.filePath);
-console.log("PDF FILE URL:", pdf.fileUrl);
-console.log("PDF EXISTS FROM SIGN ROUTE:", fs.existsSync(pdf.filePath));
+            console.log(
+                "========== SIGN CONTRACT PDF RESULT =========="
+            );
 
-if (fs.existsSync(pdf.filePath)) {
-    console.log(
-        "PDF SIZE FROM SIGN ROUTE:",
-        fs.statSync(pdf.filePath).size
-    );
-}
+            console.log(
+                "PDF FILE NAME:",
+                pdf.fileName
+            );
 
-console.log(
-    "SIGNED CONTRACT DIRECTORY:",
-    fs.readdirSync(contractsFolder)
-);
+            console.log(
+                "PDF FILE PATH:",
+                pdf.filePath
+            );
 
-console.log("===============================================");
+            console.log(
+                "PDF FILE URL:",
+                pdf.fileUrl
+            );
 
-const contractId =
-    saveContract(
-        data,
-        pdf.fileUrl
-    );
+            console.log(
+                "PDF EXISTS FROM SIGN ROUTE:",
+                fs.existsSync(
+                    pdf.filePath
+                )
+            );
 
-         // ------------------------------------------------
-// ADMIN NOTIFICATION
-// ------------------------------------------------
+            if (
+                fs.existsSync(
+                    pdf.filePath
+                )
+            ) {
 
-await sendEmail({
-    to: ADMIN_EMAIL,
-    subject:
-        `New Independent Subcontractor Agreement #${contractId}`,
-    html: `
-        <div style="font-family:Arial,sans-serif;line-height:1.6">
-            <h2>New Independent Subcontractor Application</h2>
+                console.log(
+                    "PDF SIZE FROM SIGN ROUTE:",
+                    fs.statSync(
+                        pdf.filePath
+                    ).size
+                );
+            }
 
-            <p>
-                <strong>Contract ID:</strong>
-                ${contractId}
-            </p>
+            console.log(
+                "SIGNED CONTRACT DIRECTORY:",
+                fs.readdirSync(
+                    contractsFolder
+                )
+            );
 
-            <p>
-                <strong>Name:</strong>
-                ${escapeHtml(data.name)}
-            </p>
+            console.log(
+                "==============================================="
+            );
 
-            <p>
-                <strong>Business:</strong>
-                ${escapeHtml(data.businessName)}
-            </p>
+            const contractId =
+                await saveContract(
+                    data,
+                    pdf.fileUrl
+                );
 
-            <p>
-                <strong>Email:</strong>
-                ${escapeHtml(data.email)}
-            </p>
+            // ------------------------------------------------
+            // ADMIN NOTIFICATION
+            // ------------------------------------------------
 
-            <p>
-                <strong>Phone:</strong>
-                ${escapeHtml(data.phone)}
-            </p>
+            await sendEmail({
 
-            <p>
-                <strong>Business Type:</strong>
-                ${escapeHtml(data.businessType)}
-            </p>
+                to:
+                    ADMIN_EMAIL,
 
-            <p>
-                <strong>Service Area:</strong>
-                ${escapeHtml(data.serviceArea)}
-            </p>
+                subject:
+                    `New Independent Subcontractor Agreement #${contractId}`,
 
-            <p>
-                <strong>Services:</strong>
-                ${escapeHtml(
-                    formatServices(
-                        data.services
-                    )
-                )}
-            </p>
+                html: `
+                    <div style="font-family:Arial,sans-serif;line-height:1.6">
 
-            <p>
-                <strong>Status:</strong>
-                Pending Review
-            </p>
+                        <h2>
+                            New Independent Subcontractor Application
+                        </h2>
 
-            <p>
-                <strong>Signed PDF:</strong>
-                ${pdf.fileUrl}
-            </p>
+                        <p>
+                            <strong>Contract ID:</strong>
+                            ${contractId}
+                        </p>
 
-            <p>
-                <a href="${pdf.fileUrl}">
-                    View Signed Agreement
-                </a>
-            </p>
-        </div>
-    `
-});
+                        <p>
+                            <strong>Name:</strong>
+                            ${escapeHtml(
+                                data.name
+                            )}
+                        </p>
+
+                        <p>
+                            <strong>Business:</strong>
+                            ${escapeHtml(
+                                data.businessName
+                            )}
+                        </p>
+
+                        <p>
+                            <strong>Email:</strong>
+                            ${escapeHtml(
+                                data.email
+                            )}
+                        </p>
+
+                        <p>
+                            <strong>Phone:</strong>
+                            ${escapeHtml(
+                                data.phone
+                            )}
+                        </p>
+
+                        <p>
+                            <strong>Business Type:</strong>
+                            ${escapeHtml(
+                                data.businessType
+                            )}
+                        </p>
+
+                        <p>
+                            <strong>Service Area:</strong>
+                            ${escapeHtml(
+                                data.serviceArea
+                            )}
+                        </p>
+
+                        <p>
+                            <strong>Services:</strong>
+                            ${escapeHtml(
+                                formatServices(
+                                    data.services
+                                )
+                            )}
+                        </p>
+
+                        <p>
+                            <strong>Status:</strong>
+                            Pending Review
+                        </p>
+
+                        <p>
+                            <strong>Signed PDF:</strong>
+                            ${pdf.fileUrl}
+                        </p>
+
+                        <p>
+                            <a href="${pdf.fileUrl}">
+                                View Signed Agreement
+                            </a>
+                        </p>
+
+                    </div>
+                `
+            });
 
             // ------------------------------------------------
             // APPLICANT CONFIRMATION
             // ------------------------------------------------
 
             await sendEmail({
-                to: data.email,
+
+                to:
+                    data.email,
+
                 subject:
                     "My DMV Cleaning Services - Agreement Received",
+
                 html: `
                     <div style="font-family:Arial,sans-serif;line-height:1.6">
-                        <h2>Agreement Received</h2>
+
+                        <h2>
+                            Agreement Received
+                        </h2>
 
                         <p>
-                            Hello ${escapeHtml(data.name)},
+                            Hello ${escapeHtml(
+                                data.name
+                            )},
                         </p>
 
                         <p>
@@ -3422,10 +4072,11 @@ await sendEmail({
                         </p>
 
                         <p>
-                           <a href="${pdf.fileUrl}">
-                            View Signed Agreement
+                            <a href="${pdf.fileUrl}">
+                                View Signed Agreement
                             </a>
                         </p>
+
                     </div>
                 `
             });
@@ -3436,332 +4087,382 @@ await sendEmail({
             );
 
             res.json({
-                success: true,
+
+                success:
+                    true,
+
                 contractId,
 
                 contract: {
-                    id: contractId,
-                    pdfUrl: pdf.fileUrl
+
+                    id:
+                        contractId,
+
+                    pdfUrl:
+                        pdf.fileUrl
                 },
 
-                file: pdf.fileUrl,
+                file:
+                    pdf.fileUrl,
 
                 message:
                     "Independent Subcontractor Agreement signed successfully and submitted for review."
             });
 
         } catch (error) {
+
             console.error(
                 "SIGN CONTRACT ERROR:",
                 error
             );
 
-            res.status(500).json({
-                success: false,
+            res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Failed to create signed agreement."
+                });
+        }
+    }
+);
+
+// ============================================================
+// SERVICE AGREEMENT SIGNING
+// ============================================================
+
+app.post(
+    "/api/sign-service-agreement",
+    async (req, res) => {
+
+        try {
+
+            const data = {
+
+                ...req.body,
+
+                contractType:
+                    "Service Agreement"
+            };
+
+            if (
+                !data.name ||
+                !data.email ||
+                !data.phone ||
+                !data.typedName ||
+                !data.signature
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Please complete all required fields."
+                    });
+            }
+
+            if (
+                data.agreementAccepted !==
+                true
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "You must accept the Service Agreement."
+                    });
+            }
+
+            const emailRegex =
+                /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (
+                !emailRegex.test(
+                    String(
+                        data.email
+                    ).trim()
+                )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Please enter a valid email address."
+                    });
+            }
+
+            const signatureBuffer =
+                signatureDataUrlToBuffer(
+                    data.signature
+                );
+
+            if (
+                !signatureBuffer
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Please provide a valid handwritten signature."
+                    });
+            }
+
+            // ------------------------------------------------
+            // CREATE SIGNED PDF
+            // ------------------------------------------------
+
+            const pdf =
+                await createContractPdf(
+                    data
+                );
+
+            console.log(
+                "========== SIGN SERVICE AGREEMENT PDF RESULT =========="
+            );
+
+            console.log(
+                "PDF FILE NAME:",
+                pdf.fileName
+            );
+
+            console.log(
+                "PDF FILE PATH:",
+                pdf.filePath
+            );
+
+            console.log(
+                "PDF FILE URL:",
+                pdf.fileUrl
+            );
+
+            console.log(
+                "PDF EXISTS:",
+                fs.existsSync(
+                    pdf.filePath
+                )
+            );
+
+            if (
+                fs.existsSync(
+                    pdf.filePath
+                )
+            ) {
+
+                console.log(
+                    "PDF SIZE:",
+                    fs.statSync(
+                        pdf.filePath
+                    ).size
+                );
+            }
+
+            console.log(
+                "======================================================="
+            );
+
+            // ------------------------------------------------
+            // SAVE CONTRACT
+            // ------------------------------------------------
+
+            const contractId =
+                await saveContract(
+                    data,
+                    pdf.fileUrl
+                );
+
+            // ------------------------------------------------
+            // ADMIN EMAIL
+            // ------------------------------------------------
+
+            try {
+
+                await sendEmail({
+
+                    to:
+                        ADMIN_EMAIL,
+
+                    subject:
+                        "New Service Agreement Signed",
+
+                    html: `
+                        <h2>
+                            New Service Agreement Signed
+                        </h2>
+
+                        <p>
+                            A customer has signed the
+                            Service Agreement.
+                        </p>
+
+                        <hr>
+
+                        <p>
+                            <strong>Name:</strong>
+                            ${escapeHtml(
+                                data.name
+                            )}
+                        </p>
+
+                        <p>
+                            <strong>Email:</strong>
+                            ${escapeHtml(
+                                data.email
+                            )}
+                        </p>
+
+                        <p>
+                            <strong>Phone:</strong>
+                            ${escapeHtml(
+                                data.phone
+                            )}
+                        </p>
+
+                        <p>
+                            <strong>Typed Legal Name:</strong>
+                            ${escapeHtml(
+                                data.typedName
+                            )}
+                        </p>
+
+                        <p>
+                            <strong>Contract:</strong>
+                            Service Agreement
+                        </p>
+
+                        <p>
+                            <strong>Contract ID:</strong>
+                            ${contractId}
+                        </p>
+
+                        <p>
+                            <a href="${pdf.fileUrl}">
+                                View Signed Agreement
+                            </a>
+                        </p>
+                    `
+                });
+
+            } catch (emailError) {
+
+                console.error(
+                    "Service Agreement admin email error:",
+                    emailError
+                );
+            }
+
+            // ------------------------------------------------
+            // CUSTOMER CONFIRMATION EMAIL
+            // ------------------------------------------------
+
+            try {
+
+                await sendEmail({
+
+                    to:
+                        data.email,
+
+                    subject:
+                        "Your My DMV Cleaning Services Agreement",
+
+                    html: `
+                        <h2>
+                            Service Agreement Signed
+                        </h2>
+
+                        <p>
+                            Hello ${escapeHtml(
+                                data.name
+                            )},
+                        </p>
+
+                        <p>
+                            Thank you for signing the
+                            My DMV Cleaning Services LLC
+                            Service Agreement.
+                        </p>
+
+                        <p>
+                            Your signed agreement has been
+                            successfully received.
+                        </p>
+
+                        <p>
+                            <strong>Contract ID:</strong>
+                            ${contractId}
+                        </p>
+
+                        <p>
+                            <a href="${pdf.fileUrl}">
+                                View Your Signed Agreement
+                            </a>
+                        </p>
+
+                        <p>
+                            My DMV Cleaning Services LLC<br>
+                            703-967-0674<br>
+                            mydmvcleaningservice@gmail.com
+                        </p>
+                    `
+                });
+
+            } catch (emailError) {
+
+                console.error(
+                    "Service Agreement customer email error:",
+                    emailError
+                );
+            }
+
+            return res.json({
+
+                success:
+                    true,
+
+                contractId,
+
+                contract: {
+
+                    id:
+                        contractId,
+
+                    pdfUrl:
+                        pdf.fileUrl
+                },
+
+                file:
+                    pdf.fileUrl,
+
                 message:
-                    "Failed to create signed agreement."
+                    "Service Agreement signed successfully."
             });
+
+        } catch (error) {
+
+            console.error(
+                "Service Agreement signing error:",
+                error
+            );
+
+            return res
+                .status(500)
+                .json({
+
+                    success:
+                        false,
+
+                    message:
+                        "Unable to create the Service Agreement. Please try again."
+                });
         }
     }
 );
-// 
-
-/* ============================================================
-   SERVICE AGREEMENT SIGNING
-   Separate from Independent Subcontractor Agreement
-============================================================ */
-
-app.post("/api/sign-service-agreement", async (req, res) => {
-
-    try {
-
-        const data = {
-            ...req.body,
-
-            contractType: "Service Agreement"
-        };
-
-        /* ----------------------------------------------------
-           REQUIRED FIELDS
-        ---------------------------------------------------- */
-
-        if (
-            !data.name ||
-            !data.email ||
-            !data.phone ||
-            !data.typedName ||
-            !data.signature
-        ) {
-
-            return res.status(400).json({
-                success: false,
-                message: "Please complete all required fields."
-            });
-
-        }
-
-        /* ----------------------------------------------------
-           AGREEMENT ACCEPTANCE
-        ---------------------------------------------------- */
-
-        if (data.agreementAccepted !== true) {
-
-            return res.status(400).json({
-                success: false,
-                message: "You must accept the Service Agreement."
-            });
-
-        }
-
-        /* ----------------------------------------------------
-           EMAIL VALIDATION
-        ---------------------------------------------------- */
-
-        const emailRegex =
-            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        if (!emailRegex.test(data.email)) {
-
-            return res.status(400).json({
-                success: false,
-                message: "Please enter a valid email address."
-            });
-
-        }
-
-        /* ----------------------------------------------------
-           SIGNATURE VALIDATION
-        ---------------------------------------------------- */
-
-        const signatureBuffer =
-            signatureDataUrlToBuffer(data.signature);
-
-        if (!signatureBuffer) {
-
-            return res.status(400).json({
-                success: false,
-                message: "Please provide a valid handwritten signature."
-            });
-
-        }
-
-/* ----------------------------------------------------
-   CREATE SIGNED PDF
----------------------------------------------------- */
-
-const pdf =
-    await createContractPdf(data);
-
-console.log("========== SIGN CONTRACT PDF RESULT ==========");
-console.log("PDF FILE NAME:", pdf.fileName);
-console.log("PDF FILE PATH:", pdf.filePath);
-console.log("PDF FILE URL:", pdf.fileUrl);
-
-console.log(
-    "PDF EXISTS FROM SIGN ROUTE:",
-    fs.existsSync(pdf.filePath)
-);
-
-if (fs.existsSync(pdf.filePath)) {
-    console.log(
-        "PDF SIZE FROM SIGN ROUTE:",
-        fs.statSync(pdf.filePath).size
-    );
-}
-
-console.log(
-    "SIGNED CONTRACT DIRECTORY:",
-    fs.readdirSync(contractsFolder)
-);
-
-console.log("===============================================");
-
-/* ----------------------------------------------------
-   SAVE CONTRACT
----------------------------------------------------- */
-
-const contractId =
-    saveContract(
-        data,
-        pdf.fileUrl
-    );
-
-        /* ----------------------------------------------------
-           ADMIN EMAIL
-        ---------------------------------------------------- */
-
-        try {
-
-            await sendEmail({
-
-                to: ADMIN_EMAIL,
-
-                subject:
-                    "New Service Agreement Signed",
-
-                html: `
-                    <h2>New Service Agreement Signed</h2>
-
-                    <p>
-                        A customer has signed the
-                        Service Agreement.
-                    </p>
-
-                    <hr>
-
-                    <p>
-                        <strong>Name:</strong>
-                        ${data.name}
-                    </p>
-
-                    <p>
-                        <strong>Email:</strong>
-                        ${data.email}
-                    </p>
-
-                    <p>
-                        <strong>Phone:</strong>
-                        ${data.phone}
-                    </p>
-
-                    <p>
-                        <strong>Typed Legal Name:</strong>
-                        ${data.typedName}
-                    </p>
-
-                    <p>
-                        <strong>Contract:</strong>
-                        Service Agreement
-                    </p>
-
-                    <p>
-                        <strong>Contract ID:</strong>
-                        ${contractId}
-                    </p>
-
-                    <p>
-                        <a href="${pdf.fileUrl}">
-                            View Signed Agreement
-                        </a>
-                    </p>
-                `
-
-            });
-
-        } catch (emailError) {
-
-            console.error(
-                "Service Agreement admin email error:",
-                emailError
-            );
-
-        }
-
-        /* ----------------------------------------------------
-           CUSTOMER CONFIRMATION EMAIL
-        ---------------------------------------------------- */
-
-        try {
-
-            await sendEmail({
-
-                to: data.email,
-
-                subject:
-                    "Your My DMV Cleaning Services Agreement",
-
-                html: `
-                    <h2>Service Agreement Signed</h2>
-
-                    <p>
-                        Hello ${data.name},
-                    </p>
-
-                    <p>
-                        Thank you for signing the
-                        My DMV Cleaning Services LLC
-                        Service Agreement.
-                    </p>
-
-                    <p>
-                        Your signed agreement has been
-                        successfully received.
-                    </p>
-
-                    <p>
-                        <strong>Contract ID:</strong>
-                        ${contractId}
-                    </p>
-
-                    <p>
-                      <a href="${pdf.fileUrl}">
-                            View Your Signed Agreement
-                        </a>
-                    </p>
-
-                    <p>
-                        My DMV Cleaning Services LLC<br>
-                        703-967-0674<br>
-                        mydmvcleaningservice@gmail.com
-                    </p>
-                `
-
-            });
-
-        } catch (emailError) {
-
-            console.error(
-                "Service Agreement customer email error:",
-                emailError
-            );
-
-        }
-
-        /* ----------------------------------------------------
-           RESPONSE
-        ---------------------------------------------------- */
-
-        return res.json({
-
-            success: true,
-
-            contractId,
-
-            contract: {
-
-                id: contractId,
-
-                pdfUrl: pdf.fileUrl
-
-            },
-
-            file: pdf.fileUrl,
-
-            message:
-                "Service Agreement signed successfully."
-
-        });
-
-    } catch (error) {
-
-        console.error(
-            "Service Agreement signing error:",
-            error
-        );
-
-        return res.status(500).json({
-
-            success: false,
-
-            message:
-                "Unable to create the Service Agreement. Please try again."
-
-        });
-
-    }
-
-});
-// 
 
 // ============================================================
 // LEGACY CONTRACT ROUTE
@@ -3770,7 +4471,9 @@ const contractId =
 app.post(
     "/api/contracts",
     async (req, res) => {
+
         try {
+
             const data = {
                 ...req.body
             };
@@ -3781,11 +4484,14 @@ app.post(
                 !data.typedName ||
                 !data.signature
             ) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Name, email, typed signature, and drawn signature are required."
-                });
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Name, email, typed signature, and drawn signature are required."
+                    });
             }
 
             const signatureBuffer =
@@ -3793,12 +4499,17 @@ app.post(
                     data.signature
                 );
 
-            if (!signatureBuffer) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "A valid PNG signature is required."
-                });
+            if (
+                !signatureBuffer
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "A valid PNG signature is required."
+                    });
             }
 
             const pdf =
@@ -3807,18 +4518,25 @@ app.post(
                 );
 
             const contractId =
-                saveContract(
+                await saveContract(
                     data,
                     pdf.fileUrl
                 );
 
             await sendEmail({
-                to: ADMIN_EMAIL,
+
+                to:
+                    ADMIN_EMAIL,
+
                 subject:
                     `Signed Contract #${contractId}`,
+
                 html: `
                     <div style="font-family:Arial,sans-serif;line-height:1.6">
-                        <h2>Signed Contract Submitted</h2>
+
+                        <h2>
+                            Signed Contract Submitted
+                        </h2>
 
                         <p>
                             <strong>Contract ID:</strong>
@@ -3827,55 +4545,75 @@ app.post(
 
                         <p>
                             <strong>Name:</strong>
-                            ${escapeHtml(data.name)}
+                            ${escapeHtml(
+                                data.name
+                            )}
                         </p>
 
                         <p>
                             <strong>Email:</strong>
-                            ${escapeHtml(data.email)}
+                            ${escapeHtml(
+                                data.email
+                            )}
                         </p>
 
                         <p>
                             <strong>Contract Type:</strong>
-                            ${escapeHtml(data.contractType)}
+                            ${escapeHtml(
+                                data.contractType
+                            )}
                         </p>
 
                         <p>
-                           <a href="${pdf.fileUrl}">
+                            <a href="${pdf.fileUrl}">
                                 View Signed Contract
                             </a>
                         </p>
+
                     </div>
                 `
             });
 
             res.json({
-                success: true,
+
+                success:
+                    true,
+
                 contractId,
-                file: pdf.fileUrl,
+
+                file:
+                    pdf.fileUrl,
+
                 contract: {
-                    id: contractId,
-                    pdfUrl: pdf.fileUrl
+
+                    id:
+                        contractId,
+
+                    pdfUrl:
+                        pdf.fileUrl
                 },
+
                 message:
                     "Signed contract PDF created successfully."
             });
 
         } catch (error) {
+
             console.error(
                 "CONTRACT PDF ERROR:",
                 error
             );
 
-            res.status(500).json({
-                success: false,
-                message:
-                    "Failed to create signed contract PDF."
-            });
+            res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Failed to create signed contract PDF."
+                });
         }
     }
 );
-
 
 // ============================================================
 // ADMIN GET ALL CONTRACTS
@@ -3884,20 +4622,49 @@ app.post(
 app.get(
     "/api/admin/contracts",
     verifyAdmin,
-    (req, res) => {
+    async (req, res) => {
 
         try {
 
-            const contracts =
-                db.prepare(`
-                    SELECT *
+            const result =
+                await pool.query(
+                    `
+                    SELECT
+                        id,
+                        bookingid AS "bookingId",
+                        name,
+                        email,
+                        phone,
+                        contracttype AS "contractType",
+                        typedname AS "typedName",
+                        signature,
+                        pdfurl AS "pdfUrl",
+                        businessname AS "businessName",
+                        address,
+                        experience,
+                        services,
+                        availability,
+                        license,
+                        insurance,
+                        businesstype AS "businessType",
+                        servicearea AS "serviceArea",
+                        requirementsconfirmed AS "requirementsConfirmed",
+                        agreementaccepted AS "agreementAccepted",
+                        signedat AS "signedAt",
+                        approvalstatus AS "approvalStatus",
+                        createdat AS "createdAt"
                     FROM contracts
                     ORDER BY id DESC
-                `).all();
+                    `
+                );
 
             return res.json({
-                success: true,
-                contracts
+
+                success:
+                    true,
+
+                contracts:
+                    result.rows
             });
 
         } catch (error) {
@@ -3907,12 +4674,13 @@ app.get(
                 error
             );
 
-            return res.status(500).json({
-                success: false,
-                message:
-                    "Could not load contracts"
-            });
-
+            return res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Could not load contracts"
+                });
         }
     }
 );
@@ -3928,32 +4696,68 @@ app.post(
 
         try {
 
-            const contract = db.prepare(`
-                SELECT *
-                FROM contracts
-                WHERE id = ?
-            `).get(req.params.id);
+            const result =
+                await pool.query(
+                    `
+                    SELECT
+                        id,
+                        bookingid AS "bookingId",
+                        name,
+                        email,
+                        phone,
+                        contracttype AS "contractType",
+                        typedname AS "typedName",
+                        signature,
+                        pdfurl AS "pdfUrl",
+                        businessname AS "businessName",
+                        address,
+                        experience,
+                        services,
+                        availability,
+                        license,
+                        insurance,
+                        businesstype AS "businessType",
+                        servicearea AS "serviceArea",
+                        requirementsconfirmed AS "requirementsConfirmed",
+                        agreementaccepted AS "agreementAccepted",
+                        signedat AS "signedAt",
+                        approvalstatus AS "approvalStatus",
+                        createdat AS "createdAt"
+                    FROM contracts
+                    WHERE id = $1
+                    `,
+                    [
+                        req.params.id
+                    ]
+                );
+
+            const contract =
+                result.rows[0];
 
             if (!contract) {
 
-                return res.status(404).json({
-                    success: false,
-                    message: "Contract not found."
-                });
-
+                return res
+                    .status(404)
+                    .json({
+                        success: false,
+                        message:
+                            "Contract not found."
+                    });
             }
 
             if (
                 !contract.signature ||
-                typeof contract.signature !== "string"
+                typeof contract.signature !==
+                    "string"
             ) {
 
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "This contract does not contain a stored signature."
-                });
-
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "This contract does not contain a stored signature."
+                    });
             }
 
             console.log(
@@ -3961,20 +4765,49 @@ app.post(
                 contract.id
             );
 
-            const pdf = await createContractPdf({
-                ...contract,
-                contractType:
-                    contract.contractType ||
-                    "Independent Subcontractor Agreement"
-            });
+            let services =
+                contract.services;
 
-            db.prepare(`
+            if (
+                typeof services ===
+                    "string"
+            ) {
+
+                try {
+
+                    services =
+                        JSON.parse(
+                            services
+                        );
+
+                } catch (error) {
+
+                    // Leave it as a string.
+                }
+            }
+
+            const pdf =
+                await createContractPdf({
+
+                    ...contract,
+
+                    services,
+
+                    contractType:
+                        contract.contractType ||
+                        "Independent Subcontractor Agreement"
+                });
+
+            await pool.query(
+                `
                 UPDATE contracts
-                SET pdfUrl = ?
-                WHERE id = ?
-            `).run(
-                pdf.fileUrl,
-                contract.id
+                SET pdfurl = $1
+                WHERE id = $2
+                `,
+                [
+                    pdf.fileUrl,
+                    contract.id
+                ]
             );
 
             console.log(
@@ -3983,10 +4816,19 @@ app.post(
             );
 
             return res.json({
-                success: true,
-                contractId: contract.id,
-                pdfUrl: pdf.fileUrl,
-                file: pdf.fileUrl,
+
+                success:
+                    true,
+
+                contractId:
+                    contract.id,
+
+                pdfUrl:
+                    pdf.fileUrl,
+
+                file:
+                    pdf.fileUrl,
+
                 message:
                     "Signed PDF regenerated successfully."
             });
@@ -3998,94 +4840,17 @@ app.post(
                 error
             );
 
-            return res.status(500).json({
-                success: false,
-                message:
-                    "Failed to regenerate signed PDF."
-            });
-
+            return res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Failed to regenerate signed PDF."
+                });
         }
     }
 );
-// 
-// ============================================================
-// ADMIN GET DOCUMENTS
-// ============================================================
-//
-// The admin Documents page uses /api/admin/documents.
-// Signed agreements are stored in the existing contracts table.
-// This route provides the document list without creating
-// a separate documents table.
-// ============================================================
 
-app.get(
-    "/api/admin/documents",
-    verifyAdmin,
-    (req, res) => {
-        try {
-            const documents =
-                db.prepare(`
-                    SELECT
-                        id,
-                        bookingId,
-                        name,
-                        email,
-                        phone,
-                        contractType,
-                        typedName,
-                        signature,
-                        pdfUrl,
-                        businessName,
-                        address,
-                        experience,
-                        services,
-                        availability,
-                        license,
-                        insurance,
-                        businessType,
-                        serviceArea,
-                        requirementsConfirmed,
-                        agreementAccepted,
-                        signedAt,
-                        approvalStatus,
-                        createdAt
-                    FROM contracts
-                    ORDER BY id DESC
-                `).all();
-
-            const formattedDocuments =
-                documents.map((document) => ({
-                    ...document,
-
-                    file:
-                        document.pdfUrl || "",
-
-                    documentType:
-                        document.contractType ||
-                        "Signed Document"
-                }));
-
-            return res.json({
-                success: true,
-                documents:
-                    formattedDocuments
-            });
-
-        } catch (error) {
-            console.error(
-                "GET ADMIN DOCUMENTS ERROR:",
-                error
-            );
-
-            return res.status(500).json({
-                success: false,
-                message:
-                    "Could not load documents"
-            });
-        }
-    }
-);
-// 
 // ============================================================
 // ADMIN GET ONE CONTRACT
 // ============================================================
@@ -4093,41 +4858,132 @@ app.get(
 app.get(
     "/api/admin/contracts/:id",
     verifyAdmin,
-    (req, res) => {
-        try {
-            const contract =
-                db.prepare(`
-                    SELECT *
-                    FROM contracts
-                    WHERE id = ?
-                `).get(
-                    req.params.id
-                );
+    async (req, res) => {
 
-            if (!contract) {
-                return res.status(404).json({
-                    success: false,
-                    message:
-                        "Contract not found"
-                });
+        try {
+
+            const id = Number(req.params.id);
+
+            if (!Number.isInteger(id) || id <= 0) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message: "Invalid contract ID"
+                    });
             }
 
-            res.json({
+            const result =
+                await pool.query(
+                    `
+                    SELECT
+                        c.id,
+                        c.bookingid AS "bookingId",
+                        c.name,
+                        c.email,
+                        c.phone,
+                        c.contracttype AS "contractType",
+                        c.typedname AS "typedName",
+                        c.signature,
+                        c.pdfurl AS "pdfUrl",
+                        c.businessname AS "businessName",
+                        c.address,
+                        c.experience,
+                        c.services,
+                        c.availability,
+                        c.license,
+                        c.insurance,
+                        c.businesstype AS "businessType",
+                        c.servicearea AS "serviceArea",
+                        c.requirementsconfirmed AS "requirementsConfirmed",
+                        c.agreementaccepted AS "agreementAccepted",
+                        c.signedat AS "signedAt",
+                        c.approvalstatus AS "approvalStatus",
+                        c.createdat AS "createdAt",
+
+                        b.service AS service,
+                        b.date AS date,
+                        b.timeslot AS "timeSlot"
+
+                    FROM contracts c
+
+                    LEFT JOIN bookings b
+                        ON b.id = c.bookingid
+
+                    WHERE c.id = $1
+
+                    LIMIT 1
+                    `,
+                    [id]
+                );
+
+            if (!result.rows.length) {
+
+                return res
+                    .status(404)
+                    .json({
+                        success: false,
+                        message: "Contract not found"
+                    });
+            }
+
+            const contract =
+                result.rows[0];
+
+            // Safely convert services JSON into an array
+            if (
+                typeof contract.services === "string"
+            ) {
+
+                try {
+
+                    const parsed =
+                        JSON.parse(
+                            contract.services
+                        );
+
+                    if (
+                        Array.isArray(parsed)
+                    ) {
+
+                        contract.services =
+                            parsed;
+                    }
+
+                } catch (_) {
+
+                    // Leave the original string
+                    // if it is not valid JSON.
+                }
+            }
+
+            return res.json({
+
                 success: true,
+
                 contract
+
             });
 
         } catch (error) {
+
             console.error(
-                "GET CONTRACT ERROR:",
+                "GET ONE CONTRACT ERROR:",
                 error
             );
 
-            res.status(500).json({
-                success: false,
-                message:
-                    "Could not load contract"
-            });
+            return res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Could not load contract",
+                    error:
+                        process.env.NODE_ENV === "development"
+                            ? error.message
+                            : undefined
+                });
         }
     }
 );
@@ -4139,8 +4995,10 @@ app.get(
 app.put(
     "/api/admin/contracts/:id/status",
     verifyAdmin,
-    (req, res) => {
+    async (req, res) => {
+
         try {
+
             const allowedStatuses = [
                 "pending",
                 "approved",
@@ -4149,7 +5007,8 @@ app.put(
 
             const status =
                 String(
-                    req.body.status || ""
+                    req.body.status ||
+                    ""
                 ).trim();
 
             if (
@@ -4157,48 +5016,65 @@ app.put(
                     status
                 )
             ) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Invalid contract status"
-                });
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Invalid contract status"
+                    });
             }
 
             const result =
-                db.prepare(`
+                await pool.query(
+                    `
                     UPDATE contracts
-                    SET approvalStatus = ?
-                    WHERE id = ?
-                `).run(
-                    status,
-                    req.params.id
+                    SET approvalstatus = $1
+                    WHERE id = $2
+                    `,
+                    [
+                        status,
+                        req.params.id
+                    ]
                 );
 
-            if (result.changes === 0) {
-                return res.status(404).json({
-                    success: false,
-                    message:
-                        "Contract not found"
-                });
+            if (
+                result.rowCount === 0
+            ) {
+
+                return res
+                    .status(404)
+                    .json({
+                        success: false,
+                        message:
+                            "Contract not found"
+                    });
             }
 
             res.json({
-                success: true,
+
+                success:
+                    true,
+
                 message:
                     "Contract status updated"
             });
 
         } catch (error) {
+
             console.error(
                 "UPDATE CONTRACT STATUS ERROR:",
                 error
             );
 
-            res.status(500).json({
-                success: false,
-                message:
-                    "Could not update contract status"
-            });
+            res
+                .status(500)
+                .json({
+                    success: false,
+                    message:
+                        "Could not update contract status"
+                });
         }
     }
 );
@@ -4210,24 +5086,36 @@ app.put(
 app.get(
     "/api/health",
     (req, res) => {
+
         res.json({
-            success: true,
-            status: "OK",
+
+            success:
+                true,
+
+            status:
+                "OK",
+
             service:
                 "My DMV Cleaning Services LLC",
+
+            database:
+                "Supabase PostgreSQL",
+
             stripeConfigured:
                 Boolean(
                     process.env.STRIPE_SECRET_KEY
                 ),
+
             emailConfigured:
                 Boolean(
-                    process.env.EMAIL_USER &&
-                    process.env.EMAIL_PASS
+                    process.env.RESEND_API_KEY
                 ),
+
             webhookConfigured:
                 Boolean(
                     process.env.STRIPE_WEBHOOK_SECRET
                 ),
+
             time:
                 new Date().toISOString()
         });
@@ -4241,8 +5129,12 @@ app.get(
 app.get(
     "/api/test",
     (req, res) => {
+
         res.json({
-            success: true,
+
+            success:
+                true,
+
             message:
                 "My DMV Cleaning Services API is working"
         });
@@ -4256,6 +5148,7 @@ app.get(
 app.get(
     "/",
     (req, res) => {
+
         res.sendFile(
             path.join(
                 __dirname,
@@ -4274,12 +5167,13 @@ app.get(
     "/documents/independent-subcontractor-agreement.html",
     (req, res) => {
 
-        const filePath = path.join(
-            __dirname,
-            "public",
-            "documents",
-            "independent-subcontractor-agreement.html"
-        );
+        const filePath =
+            path.join(
+                __dirname,
+                "public",
+                "documents",
+                "independent-subcontractor-agreement.html"
+            );
 
         console.log(
             "Agreement requested:",
@@ -4288,20 +5182,29 @@ app.get(
 
         console.log(
             "Agreement exists:",
-            fs.existsSync(filePath)
+            fs.existsSync(
+                filePath
+            )
         );
 
-        if (!fs.existsSync(filePath)) {
-            return res.status(404).send(
-                "Agreement file not found"
-            );
+        if (
+            !fs.existsSync(
+                filePath
+            )
+        ) {
+
+            return res
+                .status(404)
+                .send(
+                    "Agreement file not found"
+                );
         }
 
-        res.sendFile(filePath);
+        res.sendFile(
+            filePath
+        );
     }
 );
-
-
 
 // ============================================================
 // 404
@@ -4316,11 +5219,15 @@ app.use(
             req.originalUrl
         );
 
-        res.status(404).json({
-            success: false,
-            error: "Route not found",
-            path: req.originalUrl
-        });
+        res
+            .status(404)
+            .json({
+                success: false,
+                error:
+                    "Route not found",
+                path:
+                    req.originalUrl
+            });
     }
 );
 
@@ -4336,14 +5243,22 @@ app.use(
             error
         );
 
-        if (res.headersSent) {
-            return next(error);
+        if (
+            res.headersSent
+        ) {
+
+            return next(
+                error
+            );
         }
 
-        res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
+        res
+            .status(500)
+            .json({
+                success: false,
+                message:
+                    "Internal server error"
+            });
     }
 );
 
@@ -4351,51 +5266,76 @@ app.use(
 // START SERVER
 // ============================================================
 
-app.listen(
-    PORT,
-    () => {
-        console.log(
-            "============================================================"
+async function startServer() {
+
+    const databaseConnected =
+        await testDatabaseConnection();
+
+    if (!databaseConnected) {
+
+        console.error(
+            "WARNING: Server is starting, but Supabase PostgreSQL connection failed."
         );
 
-        console.log(
-            `My DMV Cleaning Services running on port ${PORT}`
-        );
-
-        console.log(
-            `Local: http://127.0.0.1:${PORT}`
-        );
-
-        console.log(
-            `Frontend: ${FRONTEND_URL}`
-        );
-
-        console.log(
-            `Email: ${
-                process.env.EMAIL_USER
-                    ? "configured"
-                    : "NOT configured"
-            }`
-        );
-
-        console.log(
-            `Stripe: ${
-                process.env.STRIPE_SECRET_KEY
-                    ? "configured"
-                    : "NOT configured"
-            }`
-        );
-
-        console.log(
-            `Stripe Webhook: ${
-                process.env.STRIPE_WEBHOOK_SECRET
-                    ? "configured"
-                    : "NOT configured"
-            }`
-        );
-
-        console.log(
-            "============================================================"
-        );
     }
-);
+
+    app.listen(
+        PORT,
+        () => {
+
+            console.log(
+                "============================================================"
+            );
+
+            console.log(
+                `My DMV Cleaning Services running on port ${PORT}`
+            );
+
+            console.log(
+                `Local: http://127.0.0.1:${PORT}`
+            );
+
+            console.log(
+                `Frontend: ${FRONTEND_URL}`
+            );
+
+            console.log(
+                `Database: ${
+                    databaseConnected
+                        ? "Supabase PostgreSQL connected"
+                        : "NOT connected"
+                }`
+            );
+
+            console.log(
+                `Email: ${
+                    process.env.RESEND_API_KEY
+                        ? "configured"
+                        : "NOT configured"
+                }`
+            );
+
+            console.log(
+                `Stripe: ${
+                    process.env.STRIPE_SECRET_KEY
+                        ? "configured"
+                        : "NOT configured"
+                }`
+            );
+
+            console.log(
+                `Stripe Webhook: ${
+                    process.env.STRIPE_WEBHOOK_SECRET
+                        ? "configured"
+                        : "NOT configured"
+                }`
+            );
+
+            console.log(
+                "============================================================"
+            );
+        }
+    );
+}
+
+startServer();

@@ -4,12 +4,12 @@
 
 <head>
 
+```
 <meta charset="UTF-8">
 
 <meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
-
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
 >
 
 <title>
@@ -20,6 +20,7 @@ content="width=device-width, initial-scale=1.0"
     rel="stylesheet"
     href="../css/legal.css"
 >
+```
 
 </head>
 
@@ -58,11 +59,9 @@ content="width=device-width, initial-scale=1.0"
     📝 Sign Your Document
 </h1>
 
-
 <p class="effective fade">
     Please complete the information below to sign your document.
 </p>
-
 
 
 <div class="sign-box">
@@ -124,7 +123,6 @@ content="width=device-width, initial-scale=1.0"
     >
 
 
-
     <!-- ======================================================
          CONTRACT TYPE
     ======================================================= -->
@@ -146,6 +144,10 @@ content="width=device-width, initial-scale=1.0"
             Client Service Agreement
         </option>
 
+        <option value="Service Agreement">
+            Service Agreement
+        </option>
+
         <option value="Non-Binding Agreement">
             Non-Binding Agreement
         </option>
@@ -155,7 +157,6 @@ content="width=device-width, initial-scale=1.0"
         </option>
 
     </select>
-
 
 
     <!-- ======================================================
@@ -176,7 +177,6 @@ content="width=device-width, initial-scale=1.0"
         ></div>
 
     </div>
-
 
 
     <!-- ======================================================
@@ -276,7 +276,6 @@ content="width=device-width, initial-scale=1.0"
     </div>
 
 
-
     <!-- ======================================================
          CLIENT SERVICE SECTION
     ======================================================= -->
@@ -318,7 +317,6 @@ content="width=device-width, initial-scale=1.0"
     </div>
 
 
-
     <!-- ======================================================
          JOB COMPLETION SECTION
     ======================================================= -->
@@ -357,7 +355,6 @@ content="width=device-width, initial-scale=1.0"
         ></textarea>
 
     </div>
-
 
 
     <!-- ======================================================
@@ -425,7 +422,6 @@ content="width=device-width, initial-scale=1.0"
         aria-live="polite"
     ></div>
 
-
 </div>
 ```
 
@@ -463,17 +459,13 @@ content="width=device-width, initial-scale=1.0"
 
 <script>
 
-
 /* ============================================================
    GLOBAL VARIABLES
 ============================================================ */
 
 var canvas = null;
-
 var ctx = null;
-
 var drawing = false;
-
 
 
 /* ============================================================
@@ -487,7 +479,6 @@ document.addEventListener(
         canvas =
             document.getElementById("canvas");
 
-
         if (!canvas) {
 
             console.error(
@@ -495,13 +486,10 @@ document.addEventListener(
             );
 
             return;
-
         }
-
 
         ctx =
             canvas.getContext("2d");
-
 
         if (!ctx) {
 
@@ -510,28 +498,19 @@ document.addEventListener(
             );
 
             return;
-
         }
 
-
         ctx.lineWidth = 2;
-
         ctx.lineCap = "round";
-
         ctx.lineJoin = "round";
-
         ctx.strokeStyle = "#000000";
 
-
         setupSignature();
-
         setupContractType();
-
         updateContractSections();
 
     }
 );
-
 
 
 /* ============================================================
@@ -543,11 +522,8 @@ function getPosition(event) {
     var rect =
         canvas.getBoundingClientRect();
 
-
     var clientX;
-
     var clientY;
-
 
     if (
         event.touches &&
@@ -560,9 +536,7 @@ function getPosition(event) {
         clientY =
             event.touches[0].clientY;
 
-    }
-
-    else {
+    } else {
 
         clientX =
             event.clientX;
@@ -571,7 +545,6 @@ function getPosition(event) {
             event.clientY;
 
     }
-
 
     return {
 
@@ -590,7 +563,6 @@ function getPosition(event) {
 }
 
 
-
 /* ============================================================
    START DRAWING
 ============================================================ */
@@ -599,16 +571,12 @@ function startDrawing(event) {
 
     event.preventDefault();
 
-
     drawing = true;
-
 
     var position =
         getPosition(event);
 
-
     ctx.beginPath();
-
 
     ctx.moveTo(
         position.x,
@@ -618,7 +586,6 @@ function startDrawing(event) {
 }
 
 
-
 /* ============================================================
    DRAW
 ============================================================ */
@@ -626,29 +593,22 @@ function startDrawing(event) {
 function draw(event) {
 
     if (!drawing) {
-
         return;
-
     }
-
 
     event.preventDefault();
 
-
     var position =
         getPosition(event);
-
 
     ctx.lineTo(
         position.x,
         position.y
     );
 
-
     ctx.stroke();
 
 }
-
 
 
 /* ============================================================
@@ -658,23 +618,16 @@ function draw(event) {
 function stopDrawing(event) {
 
     if (event) {
-
         event.preventDefault();
-
     }
-
 
     drawing = false;
 
-
     if (ctx) {
-
         ctx.beginPath();
-
     }
 
 }
-
 
 
 /* ============================================================
@@ -682,7 +635,6 @@ function stopDrawing(event) {
 ============================================================ */
 
 function setupSignature() {
-
 
     /* --------------------------------------------------------
        MOUSE
@@ -693,24 +645,20 @@ function setupSignature() {
         startDrawing
     );
 
-
     canvas.addEventListener(
         "mousemove",
         draw
     );
-
 
     canvas.addEventListener(
         "mouseup",
         stopDrawing
     );
 
-
     canvas.addEventListener(
         "mouseleave",
         stopDrawing
     );
-
 
 
     /* --------------------------------------------------------
@@ -721,39 +669,35 @@ function setupSignature() {
         "touchstart",
         startDrawing,
         {
-            passive:false
+            passive: false
         }
     );
-
 
     canvas.addEventListener(
         "touchmove",
         draw,
         {
-            passive:false
+            passive: false
         }
     );
-
 
     canvas.addEventListener(
         "touchend",
         stopDrawing,
         {
-            passive:false
+            passive: false
         }
     );
-
 
     canvas.addEventListener(
         "touchcancel",
         stopDrawing,
         {
-            passive:false
+            passive: false
         }
     );
 
 }
-
 
 
 /* ============================================================
@@ -763,11 +707,8 @@ function setupSignature() {
 function clearCanvas() {
 
     if (!canvas || !ctx) {
-
         return;
-
     }
-
 
     ctx.clearRect(
         0,
@@ -779,7 +720,6 @@ function clearCanvas() {
 }
 
 
-
 /* ============================================================
    CHECK SIGNATURE
 ============================================================ */
@@ -787,25 +727,17 @@ function clearCanvas() {
 function hasSignature() {
 
     if (!canvas) {
-
         return false;
-
     }
 
-
     var blankCanvas =
-        document.createElement(
-            "canvas"
-        );
-
+        document.createElement("canvas");
 
     blankCanvas.width =
         canvas.width;
 
-
     blankCanvas.height =
         canvas.height;
-
 
     return (
         canvas.toDataURL("image/png") !==
@@ -813,7 +745,6 @@ function hasSignature() {
     );
 
 }
-
 
 
 /* ============================================================
@@ -827,13 +758,9 @@ function setupContractType() {
             "contractType"
         );
 
-
     if (!contractType) {
-
         return;
-
     }
-
 
     contractType.addEventListener(
         "change",
@@ -841,7 +768,6 @@ function setupContractType() {
     );
 
 }
-
 
 
 /* ============================================================
@@ -855,30 +781,25 @@ function updateContractSections() {
             "contractType"
         );
 
-
     var contractorSection =
         document.getElementById(
             "contractorSection"
         );
-
 
     var clientSection =
         document.getElementById(
             "clientSection"
         );
 
-
     var jobCompletionSection =
         document.getElementById(
             "jobCompletionSection"
         );
 
-
     var documentDescription =
         document.getElementById(
             "documentDescription"
         );
-
 
     if (
         !contractType ||
@@ -887,23 +808,17 @@ function updateContractSections() {
         !jobCompletionSection ||
         !documentDescription
     ) {
-
         return;
-
     }
-
 
     contractorSection.style.display =
         "none";
 
-
     clientSection.style.display =
         "none";
 
-
     jobCompletionSection.style.display =
         "none";
-
 
 
     /* ========================================================
@@ -918,7 +833,6 @@ function updateContractSections() {
         contractorSection.style.display =
             "block";
 
-
         documentDescription.innerHTML =
             "<strong>" +
             "Independent Contractor Agreement" +
@@ -928,7 +842,6 @@ function updateContractSections() {
             "before signing this document.";
 
     }
-
 
 
     /* ========================================================
@@ -943,7 +856,6 @@ function updateContractSections() {
         clientSection.style.display =
             "block";
 
-
         documentDescription.innerHTML =
             "<strong>" +
             "Client Service Agreement" +
@@ -954,6 +866,26 @@ function updateContractSections() {
 
     }
 
+
+    /* ========================================================
+       SERVICE AGREEMENT
+    ======================================================== */
+
+    else if (
+        contractType.value ===
+        "Service Agreement"
+    ) {
+
+        documentDescription.innerHTML =
+            "<strong>" +
+            "Service Agreement" +
+            "</strong>" +
+            "<br><br>" +
+            "Please review the service information and " +
+            "complete the required fields before signing " +
+            "this document.";
+
+    }
 
 
     /* ========================================================
@@ -977,7 +909,6 @@ function updateContractSections() {
     }
 
 
-
     /* ========================================================
        JOB COMPLETION
     ======================================================== */
@@ -989,7 +920,6 @@ function updateContractSections() {
 
         jobCompletionSection.style.display =
             "block";
-
 
         documentDescription.innerHTML =
             "<strong>" +
@@ -1004,7 +934,6 @@ function updateContractSections() {
 }
 
 
-
 /* ============================================================
    SUBMIT CONTRACT
 ============================================================ */
@@ -1014,12 +943,10 @@ async function submitContract() {
     var msg =
         document.getElementById("msg");
 
-
     var submitButton =
         document.getElementById(
             "submitButton"
         );
-
 
 
     /* ========================================================
@@ -1032,13 +959,11 @@ async function submitContract() {
             .value
             .trim();
 
-
     var businessName =
         document
             .getElementById("businessName")
             .value
             .trim();
-
 
     var email =
         document
@@ -1046,13 +971,11 @@ async function submitContract() {
             .value
             .trim();
 
-
     var phone =
         document
             .getElementById("phone")
             .value
             .trim();
-
 
 
     /* ========================================================
@@ -1064,13 +987,11 @@ async function submitContract() {
             .getElementById("contractType")
             .value;
 
-
     var typedName =
         document
             .getElementById("typedName")
             .value
             .trim();
-
 
 
     /* ========================================================
@@ -1094,14 +1015,12 @@ async function submitContract() {
     }
 
 
-
     /* ========================================================
        EMAIL VALIDATION
     ======================================================== */
 
     var emailPattern =
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 
     if (
         !emailPattern.test(email)
@@ -1116,7 +1035,6 @@ async function submitContract() {
         return;
 
     }
-
 
 
     /* ========================================================
@@ -1136,7 +1054,6 @@ async function submitContract() {
     }
 
 
-
     /* ========================================================
        SIGNATURE IMAGE
     ======================================================== */
@@ -1145,7 +1062,6 @@ async function submitContract() {
         canvas.toDataURL(
             "image/png"
         );
-
 
 
     /* ========================================================
@@ -1157,41 +1073,31 @@ async function submitContract() {
             "experience"
         );
 
-
     var servicesElement =
         document.getElementById(
             "services"
         );
-
 
     var availabilityElement =
         document.getElementById(
             "availability"
         );
 
-
     var licenseElement =
         document.getElementById(
             "license"
         );
-
 
     var insuranceElement =
         document.getElementById(
             "insurance"
         );
 
-
     var experience = "";
-
     var services = [];
-
     var availability = "";
-
     var license = "";
-
     var insurance = "";
-
 
     if (experienceElement) {
 
@@ -1200,7 +1106,6 @@ async function submitContract() {
 
     }
 
-
     if (servicesElement) {
 
         services =
@@ -1208,14 +1113,11 @@ async function submitContract() {
                 servicesElement.selectedOptions
             ).map(
                 function (option) {
-
                     return option.value;
-
                 }
             );
 
     }
-
 
     if (availabilityElement) {
 
@@ -1224,7 +1126,6 @@ async function submitContract() {
 
     }
 
-
     if (licenseElement) {
 
         license =
@@ -1232,14 +1133,12 @@ async function submitContract() {
 
     }
 
-
     if (insuranceElement) {
 
         insurance =
             insuranceElement.value.trim();
 
     }
-
 
 
     /* ========================================================
@@ -1251,17 +1150,13 @@ async function submitContract() {
             "address"
         );
 
-
     var serviceDescriptionElement =
         document.getElementById(
             "serviceDescription"
         );
 
-
     var address = "";
-
     var serviceDescription = "";
-
 
     if (addressElement) {
 
@@ -1270,14 +1165,12 @@ async function submitContract() {
 
     }
 
-
     if (serviceDescriptionElement) {
 
         serviceDescription =
             serviceDescriptionElement.value.trim();
 
     }
-
 
 
     /* ========================================================
@@ -1289,17 +1182,13 @@ async function submitContract() {
             "jobDescription"
         );
 
-
     var completionNotesElement =
         document.getElementById(
             "completionNotes"
         );
 
-
     var jobDescription = "";
-
     var completionNotes = "";
-
 
     if (jobDescriptionElement) {
 
@@ -1308,14 +1197,12 @@ async function submitContract() {
 
     }
 
-
     if (completionNotesElement) {
 
         completionNotes =
             completionNotesElement.value.trim();
 
     }
-
 
 
     /* ========================================================
@@ -1362,7 +1249,6 @@ async function submitContract() {
     };
 
 
-
     /* ========================================================
        SUBMITTING MESSAGE
     ======================================================== */
@@ -1372,7 +1258,6 @@ async function submitContract() {
 
     msg.style.color =
         "#38bdf8";
-
 
     if (submitButton) {
 
@@ -1385,7 +1270,6 @@ async function submitContract() {
     }
 
 
-
     /* ========================================================
        SEND DATA TO SERVER
 
@@ -1396,7 +1280,6 @@ async function submitContract() {
        https://mydmv-cleaning-backend-live.onrender.com
 
        MATCHES SERVER:
-
        app.post("/api/contracts", ...)
     ======================================================== */
 
@@ -1415,15 +1298,12 @@ async function submitContract() {
             await fetch(
                 API + "/api/contracts",
                 {
-
                     method:
                         "POST",
 
                     headers: {
-
                         "Content-Type":
                             "application/json"
-
                     },
 
                     body:
@@ -1433,14 +1313,12 @@ async function submitContract() {
             );
 
 
-
         /* ====================================================
            SERVER RESPONSE
         ==================================================== */
 
         var result =
             await response.json();
-
 
 
         /* ====================================================
@@ -1458,7 +1336,6 @@ async function submitContract() {
         }
 
 
-
         /* ====================================================
            SUCCESS
         ==================================================== */
@@ -1472,7 +1349,6 @@ async function submitContract() {
             "#22c55e";
 
 
-
         /* ====================================================
            VIEW SIGNED DOCUMENT
         ==================================================== */
@@ -1484,22 +1360,31 @@ async function submitContract() {
                     ? result.file
                     : API + result.file;
 
-
             msg.innerHTML +=
                 "<br><br>" +
 
                 "<a " +
+
                 "href=\"" +
                 pdfURL +
                 "\" " +
+
                 "target=\"_blank\" " +
+
                 "rel=\"noopener noreferrer\" " +
+
                 "style=\"" +
+
                 "display:inline-block;" +
+
                 "padding:10px 16px;" +
+
                 "border-radius:8px;" +
+
                 "text-decoration:none;" +
+
                 "\"" +
+
                 ">" +
 
                 "📄 View Signed Document" +
@@ -1507,7 +1392,6 @@ async function submitContract() {
                 "</a>";
 
         }
-
 
 
         /* ====================================================
@@ -1518,29 +1402,23 @@ async function submitContract() {
             .getElementById("name")
             .value = "";
 
-
         document
             .getElementById("businessName")
             .value = "";
-
 
         document
             .getElementById("email")
             .value = "";
 
-
         document
             .getElementById("phone")
             .value = "";
-
 
         document
             .getElementById("typedName")
             .value = "";
 
-
         clearCanvas();
-
 
 
     } catch (error) {
@@ -1550,7 +1428,6 @@ async function submitContract() {
             error
         );
 
-
         msg.innerHTML =
             "❌ " +
             (
@@ -1558,10 +1435,8 @@ async function submitContract() {
                 "Unable to submit the document. Please try again."
             );
 
-
         msg.style.color =
             "#ef4444";
-
 
 
     } finally {
@@ -1579,7 +1454,6 @@ async function submitContract() {
     }
 
 }
-
 
 </script>
 

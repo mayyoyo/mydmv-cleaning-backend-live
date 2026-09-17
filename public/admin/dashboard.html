@@ -1,1688 +1,955 @@
-```html
 <!DOCTYPE html>
+
 <html lang="en">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | My DMV Cleaning Services LLC</title>
 
-<meta charset="UTF-8">
-
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
-
-<title>
-    Admin Dashboard | My DMV Cleaning Services LLC
-</title>
-
-
+```
 <style>
-
-/* ============================================================
-   DASHBOARD
-============================================================ */
-
-*{
-    box-sizing:border-box;
-}
-
-
-body{
-
-    margin:0;
-
-    font-family:Arial,sans-serif;
-
-    background:#0f172a;
-
-    color:white;
-
-    display:flex;
-
-}
-
-
-/* ============================================================
-   SIDEBAR
-============================================================ */
-
-.sidebar{
-
-    width:240px;
-
-    height:100vh;
-
-    background:#020617;
-
-    padding:25px;
-
-    position:fixed;
-
-    left:0;
-
-    top:0;
-
-    overflow-y:auto;
-
-}
-
-
-.sidebar h2{
-
-    text-align:center;
-
-    margin-bottom:30px;
-
-    color:#38bdf8;
-
-}
-
-
-.sidebar a{
-
-    display:block;
-
-    padding:12px;
-
-    margin:10px 0;
-
-    border-radius:8px;
-
-    text-decoration:none;
-
-    color:#cbd5e1;
-
-    font-size:15px;
-
-    transition:.3s;
-
-}
-
-
-.sidebar a:hover{
-
-    background:#1e293b;
-
-    color:white;
-
-}
-
-
-.sidebar hr{
-
-    border:0;
-
-    border-top:1px solid #334155;
-
-    margin:20px 0;
-
-}
-
-
-/* ============================================================
-   MAIN
-============================================================ */
-
-.main{
-
-    margin-left:240px;
-
-    padding:30px;
-
-    width:calc(100% - 240px);
-
-}
-
-
-.main h1{
-
-    margin-bottom:30px;
-
-}
-
-
-/* ============================================================
-   CARDS
-============================================================ */
-
-.cards{
-
-    display:grid;
-
-    grid-template-columns:
-        repeat(4,1fr);
-
-    gap:20px;
-
-    margin-bottom:30px;
-
-}
-
-
-.card{
-
-    background:#1e293b;
-
-    padding:25px;
-
-    border-radius:15px;
-
-    text-align:center;
-
-    box-shadow:
-        0 5px 15px rgba(0,0,0,.3);
-
-}
-
-
-.card h3{
-
-    color:#cbd5e1;
-
-}
-
-
-.card p{
-
-    font-size:35px;
-
-    font-weight:bold;
-
-    margin:10px 0;
-
-    color:#38bdf8;
-
-}
-
-
-/* ============================================================
-   SECTIONS
-============================================================ */
-
-.dashboard-section{
-
-    margin-bottom:40px;
-
-}
-
-
-.dashboard-section h2{
-
-    margin-bottom:20px;
-
-    color:#38bdf8;
-
-}
-
-
-/* ============================================================
-   SEARCH
-============================================================ */
-
-.search-box{
-
-    display:flex;
-
-    gap:10px;
-
-    margin-bottom:20px;
-
-    flex-wrap:wrap;
-
-}
-
-
-.search-box input{
-
-    padding:11px 14px;
-
-    border:none;
-
-    border-radius:8px;
-
-    min-width:260px;
-
-    font-size:14px;
-
-}
-
-
-.search-box button{
-
-    border:none;
-
-    padding:10px 16px;
-
-    border-radius:8px;
-
-    background:#2563eb;
-
-    color:white;
-
-    font-weight:bold;
-
-    cursor:pointer;
-
-}
-
-
-/* ============================================================
-   TABLE
-============================================================ */
-
-.table-container{
-
-    width:100%;
-
-    overflow-x:auto;
-
-}
-
-
-table{
-
-    width:100%;
-
-    border-collapse:collapse;
-
-    background:#020617;
-
-    border-radius:12px;
-
-    overflow:hidden;
-
-}
-
-
-thead{
-
-    background:#1e293b;
-
-}
-
-
-th{
-
-    padding:15px;
-
-    text-align:left;
-
-    font-size:14px;
-
-    white-space:nowrap;
-
-}
-
-
-td{
-
-    padding:12px;
-
-    border-bottom:
-        1px solid #1e293b;
-
-    font-size:14px;
-
-    white-space:nowrap;
-
-}
-
-
-tbody tr:hover{
-
-    background:#1e293b;
-
-}
-
-
-/* ============================================================
-   STATUS
-============================================================ */
-
-.badge{
-
-    padding:6px 12px;
-
-    border-radius:20px;
-
-    font-size:12px;
-
-    font-weight:bold;
-
-    display:inline-block;
-
-}
-
-
-.badge.paid{
-
-    background:#dcfce7;
-
-    color:#166534;
-
-}
-
-
-.badge.pending{
-
-    background:#fef3c7;
-
-    color:#92400e;
-
-}
-
-
-.badge.cancelled{
-
-    background:#fee2e2;
-
-    color:#991b1b;
-
-}
-
-
-/* ============================================================
-   BUTTONS
-============================================================ */
-
-button{
-
-    border:none;
-
-    padding:8px 14px;
-
-    border-radius:8px;
-
-    color:white;
-
-    font-weight:bold;
-
-    cursor:pointer;
-
-    margin:3px;
-
-    transition:.3s;
-
-    font-size:13px;
-
-}
-
-
-.paid-btn{
-
-    background:#16a34a;
-
-}
-
-
-.pending-btn{
-
-    background:#f59e0b;
-
-}
-
-
-.cancel-btn{
-
-    background:#ef4444;
-
-}
-
-
-.delete-btn{
-
-    background:#7f1d1d;
-
-}
-
-
-.invoice-btn{
-
-    background:#2563eb;
-
-    color:white;
-
-    padding:7px 12px;
-
-    border-radius:7px;
-
-    text-decoration:none;
-
-    display:inline-block;
-
-    font-weight:bold;
-
-}
-
-
-.contract-btn{
-
-    background:#9333ea;
-
-    color:white;
-
-    padding:7px 12px;
-
-    border-radius:7px;
-
-    text-decoration:none;
-
-    display:inline-block;
-
-    font-weight:bold;
-
-}
-
-
-.pdf-btn{
-
-    background:#0891b2;
-
-    color:white;
-
-    padding:7px 12px;
-
-    border-radius:7px;
-
-    text-decoration:none;
-
-    display:inline-block;
-
-    font-weight:bold;
-
-}
-
-
-/* ============================================================
-   MESSAGE
-============================================================ */
-
-.message{
-
-    padding:12px;
-
-    border-radius:8px;
-
-    margin-bottom:15px;
-
-    display:none;
-
-}
-
-
-.message.error{
-
-    display:block;
-
-    background:#fee2e2;
-
-    color:#991b1b;
-
-}
-
-
-.message.success{
-
-    display:block;
-
-    background:#dcfce7;
-
-    color:#166534;
-
-}
-
-
-/* ============================================================
-   MOBILE
-============================================================ */
-
-@media(max-width:1000px){
-
-    body{
-
-        display:block;
-
+    * {
+        box-sizing: border-box;
     }
 
-
-    .sidebar{
-
-        position:relative;
-
-        width:100%;
-
-        height:auto;
-
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #0f172a;
+        color: #fff;
+        display: flex;
     }
 
-
-    .main{
-
-        margin-left:0;
-
-        width:100%;
-
-        padding:15px;
-
+    .sidebar {
+        width: 240px;
+        height: 100vh;
+        background: #020617;
+        padding: 25px;
+        position: fixed;
+        left: 0;
+        top: 0;
+        overflow-y: auto;
     }
 
-
-    .cards{
-
-        grid-template-columns:1fr;
-
+    .sidebar h2 {
+        text-align: center;
+        margin: 0 0 30px;
+        color: #38bdf8;
     }
 
-
-    table{
-
-        min-width:1100px;
-
+    .sidebar a {
+        display: block;
+        padding: 12px;
+        margin: 10px 0;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #cbd5e1;
+        font-size: 15px;
+        transition: 0.3s;
     }
 
-}
+    .sidebar a:hover {
+        background: #1e293b;
+        color: #fff;
+    }
 
+    .sidebar hr {
+        border: 0;
+        border-top: 1px solid #334155;
+        margin: 20px 0;
+    }
 
+    .main {
+        margin-left: 240px;
+        padding: 30px;
+        width: calc(100% - 240px);
+    }
 
-/* ADMIN ACTION BUTTON COLORS */
+    .main h1 {
+        margin: 0 0 30px;
+    }
 
-.paid-btn,
-.contact-view-btn,
-.pdf-btn{
-    background:#16a34a;
-    color:#fff;
-    border:none;
-    border-radius:8px;
-    padding:8px 12px;
-    font-weight:700;
-    cursor:pointer;
-}
+    .cards {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 30px;
+    }
 
-.pending-btn{
-    background:#eab308;
-    color:#111;
-    border:none;
-    border-radius:8px;
-    padding:8px 12px;
-    font-weight:700;
-    cursor:pointer;
-}
+    .card {
+        background: #1e293b;
+        padding: 25px;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
 
-.cancel-btn,
-.contact-edit-btn{
-    background:#f97316;
-    color:#fff;
-    border:none;
-    border-radius:8px;
-    padding:8px 12px;
-    font-weight:700;
-    cursor:pointer;
-}
+    .card h3 {
+        color: #cbd5e1;
+        margin: 0;
+    }
 
-.delete-btn,
-.contact-delete-btn,
-.contract-delete-btn{
-    background:#dc2626;
-    color:#fff;
-    border:none;
-    border-radius:8px;
-    padding:8px 12px;
-    font-weight:700;
-    cursor:pointer;
-}
+    .card p {
+        font-size: 35px;
+        font-weight: bold;
+        margin: 10px 0 0;
+        color: #38bdf8;
+    }
 
-.invoice-btn{
-    display:inline-block;
-    background:#7c3aed;
-    color:#fff !important;
-    border:none;
-    border-radius:8px;
-    padding:8px 12px;
-    font-weight:700;
-    text-decoration:none;
-}
+    .dashboard-section {
+        margin-bottom: 40px;
+    }
 
-.paid-btn:hover,
-.pending-btn:hover,
-.cancel-btn:hover,
-.delete-btn:hover,
-.contact-view-btn:hover,
-.contact-edit-btn:hover,
-.contact-delete-btn:hover,
-.contract-delete-btn:hover,
-.invoice-btn:hover,
-.pdf-btn:hover{
-    opacity:.82;
-    transform:translateY(-1px);
-}
+    .dashboard-section h2 {
+        margin-bottom: 20px;
+        color: #38bdf8;
+    }
 
-.booking-actions,
-.contact-actions,
-.contract-actions{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    align-items:center;
-}
+    .search-box {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
 
+    .search-box input {
+        padding: 11px 14px;
+        border: none;
+        border-radius: 8px;
+        min-width: 260px;
+        font-size: 14px;
+    }
+
+    .search-box button {
+        padding: 10px 16px;
+        border-radius: 8px;
+        background: #2563eb;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #020617;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    thead {
+        background: #1e293b;
+    }
+
+    th {
+        padding: 15px;
+        text-align: left;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    td {
+        padding: 12px;
+        border-bottom: 1px solid #1e293b;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    tbody tr:hover {
+        background: #1e293b;
+    }
+
+    .badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        display: inline-block;
+    }
+
+    .badge.paid {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .badge.pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge.cancelled {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    button {
+        border: none;
+        padding: 8px 14px;
+        border-radius: 8px;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+        margin: 3px;
+        transition: 0.3s;
+        font-size: 13px;
+    }
+
+    button:hover {
+        opacity: 0.85;
+        transform: translateY(-1px);
+    }
+
+    .paid-btn {
+        background: #16a34a;
+    }
+
+    .pending-btn {
+        background: #eab308;
+        color: #111;
+    }
+
+    .cancel-btn {
+        background: #f97316;
+    }
+
+    .delete-btn,
+    .contact-delete-btn {
+        background: #dc2626;
+    }
+
+    .invoice-btn,
+    .pdf-btn {
+        display: inline-block;
+        color: #fff !important;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-weight: 700;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    .invoice-btn {
+        background: #7c3aed;
+    }
+
+    .pdf-btn {
+        background: #0891b2;
+    }
+
+    .contract-details-btn {
+        background: #2563eb;
+    }
+
+    .contact-view-btn {
+        background: #16a34a;
+    }
+
+    .contact-edit-btn {
+        background: #f97316;
+    }
+
+    .booking-actions,
+    .contact-actions,
+    .contract-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        align-items: center;
+    }
+
+    .message {
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        display: none;
+    }
+
+    .message.error {
+        display: block;
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .message.success {
+        display: block;
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.78);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        padding: 20px;
+    }
+
+    .modal.show {
+        display: flex;
+    }
+
+    .modal-content {
+        width: min(950px, 100%);
+        max-height: 90vh;
+        overflow-y: auto;
+        background: #0f172a;
+        border: 1px solid #334155;
+        border-radius: 16px;
+        padding: 25px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #334155;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+        margin: 0;
+        color: #38bdf8;
+    }
+
+    .modal-close {
+        background: #dc2626;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .detail-card {
+        background: #020617;
+        border: 1px solid #1e293b;
+        border-radius: 10px;
+        padding: 15px;
+    }
+
+    .detail-card.full {
+        grid-column: 1 / -1;
+    }
+
+    .detail-label {
+        color: #94a3b8;
+        font-size: 12px;
+        text-transform: uppercase;
+        margin-bottom: 7px;
+    }
+
+    .detail-value {
+        color: #fff;
+        word-break: break-word;
+        white-space: pre-wrap;
+    }
+
+    .detail-actions {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #334155;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .signature-image {
+        max-width: 400px;
+        max-height: 180px;
+        background: #fff;
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    .contact-edit-message {
+        width: 300px;
+        min-height: 100px;
+        padding: 8px;
+    }
+
+    .contact-edit-status {
+        padding: 8px;
+        border-radius: 6px;
+    }
+
+    @media (max-width: 1000px) {
+        body {
+            display: block;
+        }
+
+        .sidebar {
+            position: relative;
+            width: 100%;
+            height: auto;
+        }
+
+        .main {
+            margin-left: 0;
+            width: 100%;
+            padding: 15px;
+        }
+
+        .cards {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        table {
+            min-width: 1100px;
+        }
+
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .detail-card.full {
+            grid-column: auto;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .cards {
+            grid-template-columns: 1fr;
+        }
+
+        .main {
+            padding: 10px;
+        }
+
+        .modal {
+            padding: 10px;
+        }
+
+        .modal-content {
+            padding: 15px;
+        }
+    }
 </style>
+```
 
 </head>
 
-
 <body>
 
-
-<!-- ============================================================
-     SIDEBAR
-============================================================ -->
-
+```
 <aside class="sidebar">
+    <h2>🧼 DMV Admin</h2>
 
-    <h2>
-        🧼 DMV Admin
-    </h2>
-
-
-    <a href="../index.html">
-    🏠 Home
-</a>
-
-<a href="../booking.html">
-    📅 Booking
-</a>
-
-<a href="#dashboard">
-        📊 Dashboard
-    </a>
-
-
-    <a href="#bookings">
-        📅 Bookings
-    </a>
-
-
-    <a href="#contracts">
-        📄 Contracts
-    </a>
-
-
-    <a href="#invoices">
-        🧾 Invoices
-    </a>
-
+    <a href="../index.html">🏠 Home</a>
+    <a href="../booking.html">📅 Booking</a>
+    <a href="#dashboard">📊 Dashboard</a>
+    <a href="#bookings">📅 Bookings</a>
+    <a href="#contracts">📄 Contracts</a>
+    <a href="#contacts">💬 Contacts</a>
+    <a href="#invoices">🧾 Invoices</a>
 
     <hr>
 
+    <a href="/admin/documents.html">📁 Documents</a>
+    <a href="login.html">🔐 Admin Login</a>
 
-    <a href="/admin/documents.html">
-        📁 Documents
-    </a>
-
-
-    <a href="login.html">
-        🔐 Admin Login
-    </a>
-
-
-    <a
-        href="#"
-        onclick="logout(); return false;"
-    >
+    <a href="#" onclick="logout(); return false;">
         🚪 Logout
     </a>
-
 </aside>
-
-
-<!-- ============================================================
-     MAIN
-============================================================ -->
 
 <main class="main">
 
+    <h1 id="dashboard">
+        🧼 My DMV Cleaning Services LLC
+        <br>
+        Admin Dashboard
+    </h1>
 
-<h1 id="dashboard">
-    🧼 My DMV Cleaning Services LLC
-    <br>
-    Admin Dashboard
-</h1>
+    <div id="globalMessage" class="message"></div>
 
+    <div class="cards">
 
-<div
-    id="globalMessage"
-    class="message"
-></div>
+        <div class="card">
+            <h3>Total</h3>
+            <p id="totalCount">0</p>
+        </div>
 
+        <div class="card">
+            <h3>Paid</h3>
+            <p id="paidCount">0</p>
+        </div>
 
-<!-- ============================================================
-     STAT CARDS
-============================================================ -->
+        <div class="card">
+            <h3>Pending</h3>
+            <p id="pendingCount">0</p>
+        </div>
 
-<div class="cards">
-
-
-    <div class="card">
-
-        <h3>
-            Total
-        </h3>
-
-        <p id="totalCount">
-            0
-        </p>
-
-    </div>
-
-
-    <div class="card">
-
-        <h3>
-            Paid
-        </h3>
-
-        <p id="paidCount">
-            0
-        </p>
+        <div class="card">
+            <h3>Cancelled</h3>
+            <p id="cancelledCount">0</p>
+        </div>
 
     </div>
 
+    <section id="bookings" class="dashboard-section">
 
-    <div class="card">
+        <h2>📅 Bookings</h2>
 
-        <h3>
-            Pending
-        </h3>
+        <div class="table-container">
 
-        <p id="pendingCount">
-            0
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Service</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Total</th>
+                        <th>Deposit</th>
+                        <th>Remaining</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Invoice</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="bookingsBody">
+                    <tr>
+                        <td colspan="14">
+                            Loading bookings...
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+    <section id="contracts" class="dashboard-section">
+
+        <h2>📄 Contracts & PDFs</h2>
+
+        <div class="search-box">
+
+            <input
+                type="text"
+                id="searchContracts"
+                placeholder="Search contracts..."
+                oninput="filterContracts()"
+            >
+
+            <button
+                type="button"
+                onclick="downloadAllPDFs()"
+            >
+                📥 Open All PDFs
+            </button>
+
+        </div>
+
+        <div class="table-container">
+
+            <table id="contractsTable">
+
+                <thead>
+                    <tr>
+                        <th>Contract ID</th>
+                        <th>Booking ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Service</th>
+                        <th>Date</th>
+                        <th>Details</th>
+                        <th>Contract PDF</th>
+                        <th>Invoice PDF</th>
+                    </tr>
+                </thead>
+
+                <tbody id="contractsBody">
+                    <tr>
+                        <td colspan="9">
+                            Loading contracts...
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+    <section id="contacts" class="dashboard-section">
+
+        <h2>💬 Contact Messages</h2>
+
+        <p>
+            Messages submitted through the website contact form.
         </p>
 
-    </div>
+        <div class="table-container">
 
+            <table>
 
-    <div class="card">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Message</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
 
-        <h3>
-            Cancelled
-        </h3>
+                <tbody id="contactsBody">
+                    <tr>
+                        <td colspan="7">
+                            Loading messages...
+                        </td>
+                    </tr>
+                </tbody>
 
-        <p id="cancelledCount">
-            0
+            </table>
+
+        </div>
+
+    </section>
+
+    <section id="invoices" class="dashboard-section">
+
+        <h2>🧾 Invoices</h2>
+
+        <p>
+            Invoice PDFs can be opened from the Bookings
+            or Contracts sections above.
         </p>
 
-    </div>
-
-
-</div>
-
-
-<!-- ============================================================
-     BOOKINGS
-============================================================ -->
-
-<section
-    id="bookings"
-    class="dashboard-section"
->
-
-<h2>
-    📅 Bookings
-</h2>
-
-
-<div
-    id="bookingMessage"
-    class="message"
-></div>
-
-
-<div class="table-container">
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>
-ID
-</th>
-
-<th>
-Name
-</th>
-
-<th>
-Email
-</th>
-
-<th>
-Phone
-</th>
-
-<th>
-Service
-</th>
-
-<th>
-Date
-</th>
-
-<th>
-Time
-</th>
-
-<th>
-Total
-</th>
-
-<th>
-Deposit
-</th>
-
-<th>
-Remaining
-</th>
-
-<th>
-Payment
-</th>
-
-<th>
-Status
-</th>
-
-<th>
-Invoice
-</th>
-
-<th>
-Actions
-</th>
-
-</tr>
-
-</thead>
-
-
-<tbody id="bookingsBody">
-
-<tr>
-
-<td colspan="14">
-Loading bookings...
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-</div>
-
-</section>
-
-
-<!-- ============================================================
-     CONTRACTS
-============================================================ -->
-
-<section
-    id="contracts"
-    class="dashboard-section"
->
-
-<h2>
-    📄 Contracts & PDFs
-</h2>
-
-
-<div class="search-box">
-
-<input
-
-    type="text"
-
-    id="searchContracts"
-
-    placeholder="Search contracts..."
-
-    onkeyup="filterContracts()"
-
->
-
-
-<button
-    type="button"
-    onclick="downloadAllPDFs()"
->
-    📥 Download All PDFs
-</button>
-
-</div>
-
-
-<div
-    id="contractsMessage"
-    class="message"
-></div>
-
-
-<div class="table-container">
-
-<table id="contractsTable">
-
-<thead>
-
-<tr>
-
-<th>
-Booking ID
-</th>
-
-<th>
-Name
-</th>
-
-<th>
-Email
-</th>
-
-<th>
-Service
-</th>
-
-<th>
-Date
-</th>
-
-<th>
-Contract PDF
-</th>
-
-<th>
-Invoice PDF
-</th>
-
-</tr>
-
-</thead>
-
-
-<tbody id="contractsBody">
-
-<tr>
-
-<td colspan="7">
-Loading contracts...
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-</div>
-
-</section>
-
-
-<!-- ============================================================
-     INVOICES
-============================================================ -->
-
-<section
-    
-<section id="contacts" class="dashboard-section">
-
-<h2>💬 Contact Messages</h2>
-
-<p>Messages submitted through the website contact form.</p>
-
-<div class="table-container">
-
-<table>
-
-<thead>
-<tr>
-<th>ID</th>
-<th>Name</th>
-<th>Email</th>
-<th>Phone</th>
-<th>Message</th>
-<th>Status</th>
-</tr>
-</thead>
-
-<tbody id="contactsBody">
-
-<tr>
-<td colspan="6">Loading messages...</td>
-</tr>
-
-</tbody>
-
-</table>
-
-</div>
-
-</section>
-
-id="invoices"
-    class="dashboard-section"
->
-
-<h2>
-    🧾 Invoices
-</h2>
-
-
-<p>
-    Click an invoice button in the bookings table
-    to open the PDF invoice.
-</p>
-
-
-</section>
-
+    </section>
 
 </main>
 
+<div
+    id="contractDetailsModal"
+    class="modal"
+    onclick="handleModalBackgroundClick(event)"
+>
+
+    <div
+        class="modal-content"
+        onclick="event.stopPropagation()"
+    >
+
+        <div class="modal-header">
+
+            <h2>📄 Contract Details</h2>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeContractDetails()"
+            >
+                ✕
+            </button>
+
+        </div>
+
+        <div id="contractDetailsContent">
+            Loading contract details...
+        </div>
+
+    </div>
+
+</div>
 
 <script>
 
-/* ============================================================
-   API CONFIGURATION
-============================================================ */
+    /* ============================================================
+       API
+    ============================================================ */
 
-const API =
-    window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1"
-
-        ?
-
-        "http://localhost:5000"
-
-        :
-
-        "https://mydmv-cleaning-backend-live.onrender.com";
+    const API =
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+            ? "http://127.0.0.1:5000"
+            : "https://mydmv-cleaning-backend-live.onrender.com";
 
 
-/* ============================================================
-   ADMIN TOKEN
-============================================================ */
+    /* ============================================================
+       TOKEN
+    ============================================================ */
 
-function getAdminToken(){
+    function getAdminToken() {
 
-    return (
-        localStorage.getItem("adminToken") ||
-        localStorage.getItem("token")
-    );
-
-}
-
-
-/* ============================================================
-   AUTH HEADER
-============================================================ */
-
-function authHeaders(){
-
-    const token =
-        getAdminToken();
-
-
-    return {
-
-        "Authorization":
-            "Bearer " + token,
-
-        "Content-Type":
-            "application/json"
-
-    };
-
-}
-
-
-/* ============================================================
-   HTML ESCAPE
-============================================================ */
-
-function escapeHTML(value){
-
-    return String(value ?? "")
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
-
-}
-
-
-/* ============================================================
-   MESSAGE
-============================================================ */
-
-function showMessage(
-    elementId,
-    text,
-    type="success"
-){
-
-    const element =
-        document.getElementById(
-            elementId
+        return (
+            localStorage.getItem("adminToken") ||
+            localStorage.getItem("token")
         );
 
-
-    if(!element){
-        return;
     }
 
 
-    element.className =
-        "message " + type;
+    /* ============================================================
+       LOGOUT
+    ============================================================ */
+
+    function logout() {
+
+        localStorage.removeItem("adminToken");
+        localStorage.removeItem("token");
+
+        window.location.href = "login.html";
+
+    }
 
 
-    element.textContent =
-        text;
+    /* ============================================================
+       AUTHENTICATED REQUEST
+    ============================================================ */
 
-}
+    async function apiFetch(endpoint, options = {}) {
 
+        const token = getAdminToken();
 
-/* ============================================================
-   LOAD BOOKINGS
-============================================================ */
+        if (!token) {
 
+            logout();
 
+            throw new Error("No admin token.");
 
-
-/* ============================================================
-   CONTACT ACTION FUNCTIONS
-============================================================ */
-
-let currentEditingContact = null;
-
-function viewContact(id){
-
-    const rows = document.querySelectorAll("#contactsBody tr");
-
-    for(const row of rows){
-
-        const cells = row.querySelectorAll("td");
-
-        if(cells.length < 6){
-            continue;
         }
 
-        if(cells[0].textContent.trim() === String(id)){
+        const headers = {
+            ...(options.headers || {}),
+            "Authorization": "Bearer " + token
+        };
 
-            alert(
-                "Name: " + cells[1].textContent.trim() +
-                "\n\nEmail: " + cells[2].textContent.trim() +
-                "\n\nPhone: " + cells[3].textContent.trim() +
-                "\n\nMessage:\n" + cells[4].textContent.trim() +
-                "\n\nStatus: " + cells[5].textContent.trim()
+        const requestOptions = {
+            ...options,
+            headers
+        };
+
+        if (
+            requestOptions.body &&
+            typeof requestOptions.body !== "string"
+        ) {
+
+            requestOptions.headers["Content-Type"] =
+                "application/json";
+
+            requestOptions.body =
+                JSON.stringify(requestOptions.body);
+
+        }
+
+        const response =
+            await fetch(
+                API + endpoint,
+                requestOptions
             );
 
-            return;
+        if (response.status === 401) {
+
+            logout();
+
+            throw new Error(
+                "Your admin session has expired. Please log in again."
+            );
+
         }
+
+        return response;
+
     }
-}
 
 
-function editContact(id){
+    /* ============================================================
+       ESCAPE HTML
+    ============================================================ */
 
-    const rows = document.querySelectorAll("#contactsBody tr");
+    function escapeHTML(value) {
 
-    for(const row of rows){
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
 
-        const cells = row.querySelectorAll("td");
+    }
 
-        if(cells.length < 7){
-            continue;
+
+    /* ============================================================
+       NORMALIZE PDF URL
+    ============================================================ */
+
+    function normalizePDFUrl(file) {
+
+        if (!file) {
+            return "";
         }
 
-        if(cells[0].textContent.trim() === String(id)){
+        const value = String(file).trim();
 
-            currentEditingContact = id;
+        if (!value) {
+            return "";
+        }
 
-            const message =
-                cells[4].textContent.trim();
+        if (/^https?:\/\//i.test(value)) {
+            return value;
+        }
+
+        if (value.startsWith("/contracts/")) {
+            return API + value;
+        }
+
+        if (value.startsWith("contracts/")) {
+            return API + "/" + value;
+        }
+
+        if (value.startsWith("/public/")) {
+
+            return (
+                API +
+                value.replace("/public", "")
+            );
+
+        }
+
+        return (
+            API +
+            "/" +
+            value.replace(/^\/+/, "")
+        );
+
+    }
+
+
+    /* ============================================================
+       UPDATE STATISTICS
+    ============================================================ */
+
+    function updateStats(bookings) {
+
+        let paid = 0;
+        let pending = 0;
+        let cancelled = 0;
+
+        bookings.forEach(booking => {
 
             const status =
-                cells[5].textContent.trim();
+                String(
+                    booking.status || "pending"
+                ).toLowerCase();
 
-            cells[4].innerHTML =
-                '<textarea class="contact-edit-message">' +
-                escapeHTML(message) +
-                '</textarea>';
+            if (status === "paid") {
 
-            cells[5].innerHTML =
-                '<select class="contact-edit-status">' +
-                '<option value="new">New</option>' +
-                '<option value="read">Read</option>' +
-                '<option value="replied">Replied</option>' +
-                '</select>';
+                paid++;
 
-            cells[5]
-                .querySelector("select")
-                .value = status;
+            } else if (status === "cancelled") {
 
-            cells[6].innerHTML =
-                '<button type="button" class="contact-save-btn" ' +
-                'onclick="saveContact(' + id + ')">' +
-                '💾 Save</button>' +
+                cancelled++;
 
-                '<button type="button" class="contact-cancel-btn" ' +
-                'onclick="cancelContact()">' +
-                '❌ Cancel</button>';
+            } else {
 
-            return;
-        }
-    }
-}
+                pending++;
 
-
-function cancelContact(){
-
-    currentEditingContact = null;
-
-    loadContacts();
-}
-
-
-async function saveContact(id){
-
-    const row = Array.from(
-        document.querySelectorAll("#contactsBody tr")
-    ).find(row => {
-
-        const firstCell = row.querySelector("td");
-
-        return firstCell &&
-            firstCell.textContent.trim() === String(id);
-
-    });
-
-    if(!row){
-        return;
-    }
-
-    const message =
-        row.querySelector(".contact-edit-message").value.trim();
-
-    const status =
-        row.querySelector(".contact-edit-status").value;
-
-    try{
-
-        const response = await fetch(
-            API + "/api/admin/contacts/" + id,
-            {
-                method:"PUT",
-                headers:authHeaders(),
-                body:JSON.stringify({
-                    message,
-                    status
-                })
             }
-        );
 
-        const data = await response.json();
+        });
 
-        if(response.status === 401){
+        document.getElementById("totalCount").textContent =
+            bookings.length;
 
-            logout();
+        document.getElementById("paidCount").textContent =
+            paid;
+
+        document.getElementById("pendingCount").textContent =
+            pending;
+
+        document.getElementById("cancelledCount").textContent =
+            cancelled;
+
+    }
+
+
+    /* ============================================================
+       LOAD BOOKINGS
+    ============================================================ */
+
+    async function loadBookings() {
+
+        const tbody =
+            document.getElementById("bookingsBody");
+
+        if (!tbody) {
             return;
-
         }
 
-        if(!response.ok){
+        try {
 
-            throw new Error(
-                data.message ||
-                "Could not update contact message"
-            );
+            const response =
+                await apiFetch(
+                    "/api/admin/bookings"
+                );
 
-        }
+            const data =
+                await response.json();
 
-        currentEditingContact = null;
+            if (!response.ok) {
 
-        await loadContacts();
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    "Could not load bookings."
+                );
 
-    }catch(error){
-
-        console.error(
-            "CONTACT UPDATE ERROR:",
-            error
-        );
-
-        alert(
-            error.message ||
-            "Could not update contact message"
-        );
-
-    }
-}
-
-
-async function deleteContact(id){
-
-    if(!confirm(
-        "Are you sure you want to permanently delete this contact message?"
-    )){
-        return;
-    }
-
-    try{
-
-        const response = await fetch(
-            API + "/api/admin/contacts/" + id,
-            {
-                method:"DELETE",
-                headers:authHeaders()
             }
-        );
 
-        const data = await response.json();
+            const bookings =
+                data.bookings || [];
 
-        if(response.status === 401){
+            updateStats(bookings);
 
-            logout();
-            return;
+            tbody.innerHTML = "";
 
-        }
+            if (!bookings.length) {
 
-        if(!response.ok){
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="14">
+                            No bookings found.
+                        </td>
+                    </tr>
+                `;
 
-            throw new Error(
-                data.message ||
-                "Could not delete contact message"
-            );
+                return;
+            }
 
-        }
-
-        await loadContacts();
-
-    }catch(error){
-
-        console.error(
-            "CONTACT DELETE ERROR:",
-            error
-        );
-
-        alert(
-            error.message ||
-            "Could not delete contact message"
-        );
-
-    }
-}
-
-
-async function loadContacts(){
-
-    const tbody =
-        document.getElementById("contactsBody");
-
-    if(!tbody){
-        return;
-    }
-
-    try{
-
-        const response =
-            await fetch(
-                API + "/api/admin/contacts",
-                {
-                    method:"GET",
-                    headers:authHeaders()
-                }
-            );
-
-        const data =
-            await response.json();
-
-        if(response.status === 401){
-
-            logout();
-            return;
-
-        }
-
-        if(!response.ok){
-
-            throw new Error(
-                data.message ||
-                "Could not load contacts"
-            );
-
-        }
-
-        const contacts =
-            data.contacts || [];
-
-        tbody.innerHTML = "";
-
-        if(contacts.length === 0){
-
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="6">
-                        No contact messages found.
-                    </td>
-                </tr>
-            `;
-
-            return;
-
-        }
-
-        contacts.forEach(contact => {
-
-        const row =
-            document.createElement("tr");
-
-        row.innerHTML = `
-
-            <td>\${escapeHTML(contact.id)}</td>
-
-            <td>\${escapeHTML(
-                contact.name || "-"
-            )}</td>
-
-            <td>\${escapeHTML(
-                contact.email || "-"
-            )}</td>
-
-            <td>\${escapeHTML(
-                contact.phone || "-"
-            )}</td>
-
-            <td>\${escapeHTML(
-                contact.message || "-"
-            )}</td>
-
-            <td>\${escapeHTML(
-                contact.status || "new"
-            )}</td>
-
-            <td class="contact-actions">
-
-                <button
-                    type="button"
-                    class="contact-view-btn"
-                    onclick="viewContact(${contact.id})"
-                >
-                    👁️ View
-                </button>
-
-                <button
-                    type="button"
-                    class="contact-edit-btn"
-                    onclick="editContact(${contact.id})"
-                >
-                    ✏️ Edit
-                </button>
-
-                <button
-                    type="button"
-                    class="contact-delete-btn"
-                    onclick="deleteContact(${contact.id})"
-                >
-                    🗑️ Delete
-                </button>
-
-            </td>
-
-        `;
-
-        tbody.appendChild(row);
-
-    });
-
-    }catch(error){
-
-        console.error(
-            "CONTACT LOAD ERROR:",
-            error
-        );
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="6">
-                    ❌ ${escapeHTML(error.message)}
-                </td>
-            </tr>
-        `;
-
-    }
-
-}
-
-async function loadBookings(){
-
-    const tbody =
-        document.getElementById(
-            "bookingsBody"
-        );
-
-
-    const token =
-        getAdminToken();
-
-
-    if(!token){
-
-        tbody.innerHTML = `
-
-            <tr>
-
-                <td colspan="14">
-
-                    ❌ Please log in first.
-
-                </td>
-
-            </tr>
-
-        `;
-
-        return;
-
-    }
-
-
-    try{
-
-        const response =
-            await fetch(
-                API +
-                "/api/admin/bookings",
-                {
-                    method:"GET",
-
-                    headers:
-                        authHeaders()
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if(response.status === 401){
-
-            logout();
-
-            return;
-
-        }
-
-
-        if(!response.ok){
-
-            throw new Error(
-                data.message ||
-                "Could not load bookings"
-            );
-
-        }
-
-
-        const bookings =
-            data.bookings || [];
-
-
-        updateStats(bookings);
-
-
-        tbody.innerHTML = "";
-
-
-        if(bookings.length === 0){
-
-            tbody.innerHTML = `
-
-                <tr>
-
-                    <td colspan="14">
-
-                        No bookings found.
-
-                    </td>
-
-                </tr>
-
-            `;
-
-            return;
-
-        }
-
-
-        bookings.forEach(
-            booking => {
+            bookings.forEach(booking => {
 
                 const row =
-                    document.createElement(
-                        "tr"
-                    );
-
+                    document.createElement("tr");
 
                 const status =
                     String(
-                        booking.status ||
-                        "pending"
+                        booking.status || "pending"
                     ).toLowerCase();
-
 
                 const statusClass =
                     status === "paid"
@@ -1691,57 +958,37 @@ async function loadBookings(){
                             ? "cancelled"
                             : "pending";
 
-
-                const invoiceURL =
-                    API +
-                    "/api/admin/invoice/" +
-                    encodeURIComponent(
-                        booking.id
-                    );
-
+                const id =
+                    Number(booking.id);
 
                 row.innerHTML = `
 
                     <td>
-                        ${escapeHTML(
-                            booking.id
-                        )}
+                        ${escapeHTML(booking.id)}
                     </td>
 
                     <td>
-                        ${escapeHTML(
-                            booking.name
-                        )}
+                        ${escapeHTML(booking.name)}
                     </td>
 
                     <td>
-                        ${escapeHTML(
-                            booking.email
-                        )}
+                        ${escapeHTML(booking.email)}
                     </td>
 
                     <td>
-                        ${escapeHTML(
-                            booking.phone
-                        )}
+                        ${escapeHTML(booking.phone)}
                     </td>
 
                     <td>
-                        ${escapeHTML(
-                            booking.service
-                        )}
+                        ${escapeHTML(booking.service)}
                     </td>
 
                     <td>
-                        ${escapeHTML(
-                            booking.date
-                        )}
+                        ${escapeHTML(booking.date)}
                     </td>
 
                     <td>
-                        ${escapeHTML(
-                            booking.timeSlot
-                        )}
+                        ${escapeHTML(booking.timeSlot)}
                     </td>
 
                     <td>
@@ -1764,660 +1011,505 @@ async function loadBookings(){
 
                     <td>
                         ${escapeHTML(
-                            booking.paymentType ||
-                            "-"
+                            booking.paymentType || "-"
                         )}
                     </td>
 
                     <td>
-
-                        <span
-                            class="badge ${statusClass}"
-                        >
+                        <span class="badge ${statusClass}">
                             ${escapeHTML(
-                                booking.status ||
-                                "pending"
+                                booking.status || "pending"
                             )}
                         </span>
-
                     </td>
 
                     <td>
-
-                        <a
-                            href="${invoiceURL}"
-                            target="_blank"
-                            rel="noopener"
+                        <button
+                            type="button"
                             class="invoice-btn"
+                            onclick="openInvoicePDF(${id})"
                         >
                             🧾 PDF
-                        </a>
-
+                        </button>
                     </td>
 
-                    <td>
+                    <td class="booking-actions">
 
                         <button
+                            type="button"
                             class="paid-btn"
-                            onclick="approveBooking(${booking.id})"
+                            onclick="approveBooking(${id})"
                         >
                             Paid
                         </button>
 
                         <button
+                            type="button"
                             class="pending-btn"
-                            onclick="pendingBooking(${booking.id})"
+                            onclick="pendingBooking(${id})"
                         >
                             Pending
                         </button>
 
                         <button
+                            type="button"
                             class="cancel-btn"
-                            onclick="cancelBooking(${booking.id})"
+                            onclick="cancelBooking(${id})"
                         >
                             Cancel
                         </button>
 
                         <button
+                            type="button"
                             class="delete-btn"
-                            onclick="deleteBooking(${booking.id})"
+                            onclick="deleteBooking(${id})"
                         >
                             Delete
                         </button>
 
                     </td>
-
                 `;
-
 
                 tbody.appendChild(row);
 
-            }
-        );
+            });
 
+        } catch (error) {
 
-    }catch(error){
-
-        console.error(
-            "BOOKING LOAD ERROR:",
-            error
-        );
-
-
-        tbody.innerHTML = `
-
-            <tr>
-
-                <td colspan="14">
-
-                    ❌ ${escapeHTML(
-                        error.message
-                    )}
-
-                </td>
-
-            </tr>
-
-        `;
-
-    }
-
-}
-
-
-/* ============================================================
-   UPDATE STATISTICS
-============================================================ */
-
-function updateStats(bookings){
-
-    let paid = 0;
-
-    let pending = 0;
-
-    let cancelled = 0;
-
-
-    bookings.forEach(
-        booking => {
-
-            const status =
-                String(
-                    booking.status ||
-                    "pending"
-                ).toLowerCase();
-
-
-            if(status === "paid"){
-
-                paid++;
-
-            }else if(
-                status === "cancelled"
-            ){
-
-                cancelled++;
-
-            }else{
-
-                pending++;
-
-            }
-
-        }
-    );
-
-
-    document.getElementById(
-        "totalCount"
-    ).textContent =
-        bookings.length;
-
-
-    document.getElementById(
-        "paidCount"
-    ).textContent =
-        paid;
-
-
-    document.getElementById(
-        "pendingCount"
-    ).textContent =
-        pending;
-
-
-    document.getElementById(
-        "cancelledCount"
-    ).textContent =
-        cancelled;
-
-}
-
-
-/* ============================================================
-   UPDATE BOOKING STATUS
-============================================================ */
-
-async function updateBookingStatus(
-    id,
-    status
-){
-
-    try{
-
-        const response =
-            await fetch(
-
-                API +
-                "/api/admin/bookings/" +
-                encodeURIComponent(id) +
-                "/status",
-
-                {
-
-                    method:"PUT",
-
-                    headers:
-                        authHeaders(),
-
-                    body:
-                        JSON.stringify({
-                            status
-                        })
-
-                }
-
+            console.error(
+                "BOOKING LOAD ERROR:",
+                error
             );
-
-
-        const data =
-            await response.json();
-
-
-        if(response.status === 401){
-
-            logout();
-
-            return;
-
-        }
-
-
-        if(!response.ok){
-
-            throw new Error(
-                data.message ||
-                "Status update failed"
-            );
-
-        }
-
-
-        await loadBookings();
-
-
-    }catch(error){
-
-        alert(
-            error.message
-        );
-
-    }
-
-}
-
-
-/* ============================================================
-   PAID
-============================================================ */
-
-function approveBooking(id){
-
-    updateBookingStatus(
-        id,
-        "paid"
-    );
-
-}
-
-
-/* ============================================================
-   PENDING
-============================================================ */
-
-function pendingBooking(id){
-
-    updateBookingStatus(
-        id,
-        "pending"
-    );
-
-}
-
-
-/* ============================================================
-   CANCEL
-============================================================ */
-
-async function cancelBooking(id){
-
-    if(
-        !confirm(
-            "Cancel this booking?"
-        )
-    ){
-
-        return;
-
-    }
-
-
-    try{
-
-        const response =
-            await fetch(
-
-                API +
-                "/api/admin/bookings/" +
-                encodeURIComponent(id) +
-                "/cancel",
-
-                {
-
-                    method:"PUT",
-
-                    headers:
-                        authHeaders()
-
-                }
-
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if(!response.ok){
-
-            throw new Error(
-                data.message ||
-                "Cancellation failed"
-            );
-
-        }
-
-
-        await loadBookings();
-
-
-    }catch(error){
-
-        alert(
-            error.message
-        );
-
-    }
-
-}
-
-
-/* ============================================================
-   DELETE
-============================================================ */
-
-async function deleteBooking(id){
-
-    if(
-        !confirm(
-            "Delete this booking permanently?"
-        )
-    ){
-
-        return;
-
-    }
-
-
-    try{
-
-        const response =
-            await fetch(
-
-                API +
-                "/api/admin/bookings/" +
-                encodeURIComponent(id),
-
-                {
-
-                    method:"DELETE",
-
-                    headers:
-                        authHeaders()
-
-                }
-
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if(!response.ok){
-
-            throw new Error(
-                data.message ||
-                "Delete failed"
-            );
-
-        }
-
-
-        await loadBookings();
-
-
-    }catch(error){
-
-        alert(
-            error.message
-        );
-
-    }
-
-}
-
-
-/* ============================================================
-   LOAD CONTRACTS
-============================================================ */
-
-async function loadContracts(){
-
-    const tbody =
-        document.getElementById(
-            "contractsBody"
-        );
-
-
-    if(!tbody){
-        return;
-    }
-
-
-    const token =
-        getAdminToken();
-
-
-    if(!token){
-
-        tbody.innerHTML = `
-
-            <tr>
-
-                <td colspan="7">
-
-                    ❌ Please log in first.
-
-                </td>
-
-            </tr>
-
-        `;
-
-        return;
-
-    }
-
-
-    try{
-
-        const response =
-            await fetch(
-
-                API +
-                "/api/admin/contracts",
-
-                {
-
-                    method:"GET",
-
-                    headers:
-                        authHeaders()
-
-                }
-
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if(response.status === 401){
-
-            logout();
-
-            return;
-
-        }
-
-
-        if(!response.ok){
-
-            throw new Error(
-                data.message ||
-                "Could not load contracts"
-            );
-
-        }
-
-
-        const contracts =
-            data.contracts || [];
-
-
-        tbody.innerHTML = "";
-
-
-        if(
-            contracts.length === 0
-        ){
 
             tbody.innerHTML = `
-
                 <tr>
-
-                    <td colspan="7">
-
-                        No contracts found.
-
+                    <td colspan="14">
+                        ❌ ${escapeHTML(error.message)}
                     </td>
-
                 </tr>
-
             `;
-
-            return;
 
         }
 
+    }
 
-        contracts.forEach(
-            contract => {
+
+    /* ============================================================
+       OPEN INVOICE PDF
+    ============================================================ */
+
+    async function openInvoicePDF(id) {
+
+        const popup =
+            window.open(
+                "",
+                "_blank"
+            );
+
+        if (!popup) {
+
+            alert(
+                "Please allow pop-ups for the admin dashboard."
+            );
+
+            return;
+        }
+
+        popup.document.write(
+            "<p style='font-family:Arial;padding:30px;'>Loading invoice...</p>"
+        );
+
+        try {
+
+            const response =
+                await apiFetch(
+                    "/api/admin/invoice/" +
+                    encodeURIComponent(id)
+                );
+
+            if (!response.ok) {
+
+                let message =
+                    "Could not open invoice PDF.";
+
+                try {
+
+                    const data =
+                        await response.json();
+
+                    message =
+                        data.message ||
+                        data.error ||
+                        message;
+
+                } catch (_) {}
+
+                throw new Error(message);
+
+            }
+
+            const blob =
+                await response.blob();
+
+            const url =
+                URL.createObjectURL(blob);
+
+            popup.location.href = url;
+
+            setTimeout(() => {
+
+                URL.revokeObjectURL(url);
+
+            }, 60000);
+
+        } catch (error) {
+
+            console.error(
+                "INVOICE PDF ERROR:",
+                error
+            );
+
+            popup.close();
+
+            alert(
+                error.message ||
+                "Could not open invoice PDF."
+            );
+
+        }
+
+    }
+
+
+    /* ============================================================
+       UPDATE BOOKING STATUS
+    ============================================================ */
+
+    async function updateBookingStatus(id, status) {
+
+        try {
+
+            const response =
+                await apiFetch(
+                    "/api/admin/bookings/" +
+                    encodeURIComponent(id) +
+                    "/status",
+                    {
+                        method: "PUT",
+                        body: {
+                            status: status
+                        }
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    "Status update failed."
+                );
+
+            }
+
+            await loadBookings();
+
+        } catch (error) {
+
+            console.error(
+                "BOOKING STATUS ERROR:",
+                error
+            );
+
+            alert(
+                error.message ||
+                "Status update failed."
+            );
+
+        }
+
+    }
+
+
+    function approveBooking(id) {
+
+        updateBookingStatus(
+            id,
+            "paid"
+        );
+
+    }
+
+
+    function pendingBooking(id) {
+
+        updateBookingStatus(
+            id,
+            "pending"
+        );
+
+    }
+
+
+    /* ============================================================
+       CANCEL BOOKING
+    ============================================================ */
+
+    async function cancelBooking(id) {
+
+        if (
+            !confirm(
+                "Cancel this booking?"
+            )
+        ) {
+            return;
+        }
+
+        try {
+
+            const response =
+                await apiFetch(
+                    "/api/admin/bookings/" +
+                    encodeURIComponent(id) +
+                    "/cancel",
+                    {
+                        method: "PUT"
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    "Cancellation failed."
+                );
+
+            }
+
+            await loadBookings();
+
+        } catch (error) {
+
+            console.error(
+                "CANCEL BOOKING ERROR:",
+                error
+            );
+
+            alert(
+                error.message ||
+                "Cancellation failed."
+            );
+
+        }
+
+    }
+
+
+    /* ============================================================
+       DELETE BOOKING
+    ============================================================ */
+
+    async function deleteBooking(id) {
+
+        if (
+            !confirm(
+                "Delete this booking permanently?"
+            )
+        ) {
+            return;
+        }
+
+        try {
+
+            const response =
+                await apiFetch(
+                    "/api/admin/bookings/" +
+                    encodeURIComponent(id),
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    "Delete failed."
+                );
+
+            }
+
+            await loadBookings();
+
+        } catch (error) {
+
+            console.error(
+                "DELETE BOOKING ERROR:",
+                error
+            );
+
+            alert(
+                error.message ||
+                "Delete failed."
+            );
+
+        }
+
+    }
+
+
+    /* ============================================================
+       LOAD CONTRACTS
+    ============================================================ */
+
+    async function loadContracts() {
+
+        const tbody =
+            document.getElementById(
+                "contractsBody"
+            );
+
+        if (!tbody) {
+            return;
+        }
+
+        try {
+
+            const response =
+                await apiFetch(
+                    "/api/admin/contracts"
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    "Could not load contracts."
+                );
+
+            }
+
+            const contracts =
+                data.contracts || [];
+
+            tbody.innerHTML = "";
+
+            if (!contracts.length) {
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9">
+                            No contracts found.
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+            contracts.forEach(contract => {
 
                 const row =
-                    document.createElement(
-                        "tr"
-                    );
+                    document.createElement("tr");
 
+                const contractId =
+                    Number(contract.id);
 
                 const bookingId =
-                    contract.bookingId ||
-                    contract.booking_id ||
-                    contract.id ||
-                    "";
+                    Number(
+                        contract.bookingId ||
+                        contract.booking_id ||
+                        0
+                    );
 
-
-                const name =
-                    contract.name ||
-                    "-";
-
-
-                const email =
-                    contract.email ||
-                    "-";
-
-
-                const service =
-                    contract.service ||
-                    "-";
-
-
-                const date =
-                    contract.date ||
-                    "-";
-
-
-                const file =
+                const pdfFile =
+                    contract.pdfUrl ||
+                    contract.pdfurl ||
                     contract.file ||
                     contract.filename ||
                     "";
 
-
-                let contractURL = "";
-
-
-                if(file){
-
-                    if(
-                        file.startsWith(
-                            "http://"
-                        ) ||
-                        file.startsWith(
-                            "https://"
-                        )
-                    ){
-
-                        contractURL =
-                            file;
-
-                    }else{
-
-                        contractURL =
-                            API +
-                            "/" +
-                            file.replace(
-                                /^\/+/,
-                                ""
-                            );
-
-                    }
-
-                }
-
-
-                const invoiceURL =
-                    API +
-                    "/api/admin/invoice/" +
-                    encodeURIComponent(
-                        bookingId
-                    );
-
+                const pdfURL =
+                    normalizePDFUrl(pdfFile);
 
                 row.innerHTML = `
 
                     <td>
+                        ${escapeHTML(contract.id)}
+                    </td>
+
+                    <td>
                         ${escapeHTML(
-                            bookingId
+                            bookingId || "-"
                         )}
                     </td>
 
                     <td>
                         ${escapeHTML(
-                            name
+                            contract.name || "-"
                         )}
                     </td>
 
                     <td>
                         ${escapeHTML(
-                            email
+                            contract.email || "-"
                         )}
                     </td>
 
                     <td>
                         ${escapeHTML(
-                            service
+                            contract.service || "-"
                         )}
                     </td>
 
                     <td>
                         ${escapeHTML(
-                            date
+                            contract.date || "-"
                         )}
+                    </td>
+
+                    <td>
+
+                        <button
+                            type="button"
+                            class="contract-details-btn"
+                            onclick="viewContractDetails(${contractId})"
+                        >
+                            👁️ View Details
+                        </button>
+
                     </td>
 
                     <td>
 
                         ${
-                            contractURL
-
-                            ?
-
-                            `
-                            <a
-                                href="${contractURL}"
-                                target="_blank"
-                                rel="noopener"
-                                class="pdf-btn"
-                            >
-                                📄 View PDF
-                            </a>
-                            `
-
-                            :
-
-                            "No PDF"
+                            pdfURL
+                                ? `
+                                    <a
+                                        href="${escapeHTML(pdfURL)}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="pdf-btn"
+                                    >
+                                        📄 View PDF
+                                    </a>
+                                `
+                                : "No PDF"
                         }
 
                     </td>
@@ -2426,371 +1518,1225 @@ async function loadContracts(){
 
                         ${
                             bookingId
-
-                            ?
-
-                            `
-                            <a
-                                href="${invoiceURL}"
-                                target="_blank"
-                                rel="noopener"
-                                class="invoice-btn"
-                            >
-                                🧾 Invoice
-                            </a>
-
-                        <button type="button" class="contract-delete-btn" onclick="deleteContractPDF(${contract.id})">🗑️ Delete PDF</button>
-                            `
-
-                            :
-
-                            "No Invoice"
+                                ? `
+                                    <button
+                                        type="button"
+                                        class="invoice-btn"
+                                        onclick="openInvoicePDF(${bookingId})"
+                                    >
+                                        🧾 Invoice
+                                    </button>
+                                `
+                                : "No Invoice"
                         }
 
                     </td>
-
                 `;
-
 
                 tbody.appendChild(row);
 
+            });
+
+            filterContracts();
+
+        } catch (error) {
+
+            console.error(
+                "CONTRACT LOAD ERROR:",
+                error
+            );
+
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="9">
+                        ❌ ${escapeHTML(error.message)}
+                    </td>
+                </tr>
+            `;
+
+        }
+
+    }
+
+
+    /* ============================================================
+       VIEW CONTRACT DETAILS
+    ============================================================ */
+
+    async function viewContractDetails(id) {
+
+        const modal =
+            document.getElementById(
+                "contractDetailsModal"
+            );
+
+        const content =
+            document.getElementById(
+                "contractDetailsContent"
+            );
+
+        if (!modal || !content) {
+            return;
+        }
+
+        modal.classList.add("show");
+
+        content.innerHTML = `
+            <div class="detail-card">
+                Loading contract details...
+            </div>
+        `;
+
+        try {
+
+            const response =
+                await apiFetch(
+                    "/api/admin/contracts/" +
+                    encodeURIComponent(id)
+                );
+
+            const data =
+                await response.json();
+
+            if (
+                !response.ok ||
+                !data.success
+            ) {
+
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    "Could not load contract details."
+                );
+
             }
-        );
+
+            renderContractDetails(
+                data.contract
+            );
+
+        } catch (error) {
+
+            console.error(
+                "VIEW CONTRACT DETAILS ERROR:",
+                error
+            );
+
+            content.innerHTML = `
+                <div class="detail-card">
+                    <div class="detail-value">
+                        ❌ ${escapeHTML(
+                            error.message ||
+                            "Could not load contract details."
+                        )}
+                    </div>
+                </div>
+            `;
+
+        }
+
+    }
 
 
-    }catch(error){
+    /* ============================================================
+       RENDER CONTRACT DETAILS
+    ============================================================ */
 
-        console.error(
-            "CONTRACT LOAD ERROR:",
-            error
-        );
+    function renderContractDetails(contract) {
 
+        const content =
+            document.getElementById(
+                "contractDetailsContent"
+            );
 
-        tbody.innerHTML = `
+        if (!content) {
+            return;
+        }
 
-            <tr>
+        let services =
+            contract.services;
 
-                <td colspan="7">
+        if (typeof services === "string") {
 
-                    ❌ ${escapeHTML(
-                        error.message
-                    )}
+            try {
 
-                </td>
+                const parsed =
+                    JSON.parse(services);
 
-            </tr>
+                if (Array.isArray(parsed)) {
+                    services = parsed;
+                }
 
+            } catch (_) {}
+
+        }
+
+        if (Array.isArray(services)) {
+
+            services =
+                services
+                    .map(item => {
+
+                        if (
+                            typeof item === "object" &&
+                            item !== null
+                        ) {
+
+                            return Object.entries(item)
+                                .map(
+                                    ([key, value]) =>
+                                        `${key}: ${value}`
+                                )
+                                .join(", ");
+
+                        }
+
+                        return String(item);
+
+                    })
+                    .join("\n");
+
+        }
+
+        if (!services) {
+            services = "-";
+        }
+
+        const pdfURL =
+            normalizePDFUrl(
+                contract.pdfUrl ||
+                contract.pdfurl ||
+                ""
+            );
+
+        const signature =
+            contract.signature || "";
+
+        const signatureHTML =
+            signature &&
+            (
+                signature.startsWith("data:image/") ||
+                signature.startsWith("http://") ||
+                signature.startsWith("https://")
+            )
+                ? `
+                    <img
+                        src="${escapeHTML(signature)}"
+                        alt="Contract Signature"
+                        class="signature-image"
+                    >
+                `
+                : escapeHTML(
+                    signature || "-"
+                );
+
+        content.innerHTML = `
+
+            <div class="details-grid">
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        Contract ID
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(contract.id)}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        Booking ID
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            contract.bookingId || "-"
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        Full Name
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            contract.name || "-"
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        Email
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            contract.email || "-"
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        Phone
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            contract.phone || "-"
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        Contract Type
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            contract.contractType || "-"
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        Typed Name
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            contract.typedName || "-"
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        Business Name
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            contract.businessName || "-"
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card full">
+                    <div class="detail-label">
+                        Address
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            contract.address || "-"
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        Business Type
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            contract.businessType || "-"
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        Service Area
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            contract.serviceArea || "-"
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card full">
+                    <div class="detail-label">
+                        Services
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(services)}
+                    </div>
+                </div>
+
+                <div class="detail-card full">
+                    <div class="detail-label">
+                        Experience
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            contract.experience || "-"
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        Availability
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            contract.availability || "-"
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        License
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            contract.license || "-"
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        Insurance
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            contract.insurance || "-"
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        Approval Status
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            contract.approvalStatus || "-"
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        Requirements Confirmed
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            String(
+                                contract.requirementsConfirmed ??
+                                "-"
+                            )
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        Agreement Accepted
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            String(
+                                contract.agreementAccepted ??
+                                "-"
+                            )
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        Signed At
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            contract.signedAt || "-"
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        Created At
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            contract.createdAt || "-"
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        Service
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            contract.service || "-"
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        Booking Date
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            contract.date || "-"
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        Booking Time
+                    </div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            contract.timeSlot || "-"
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail-card full">
+                    <div class="detail-label">
+                        Signature
+                    </div>
+                    <div class="detail-value">
+                        ${signatureHTML}
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="detail-actions">
+
+                ${
+                    pdfURL
+                        ? `
+                            <a
+                                href="${escapeHTML(pdfURL)}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="pdf-btn"
+                            >
+                                📄 Open Signed PDF
+                            </a>
+                        `
+                        : ""
+                }
+
+                ${
+                    contract.bookingId
+                        ? `
+                            <button
+                                type="button"
+                                class="invoice-btn"
+                                onclick="openInvoicePDF(${Number(
+                                    contract.bookingId
+                                )})"
+                            >
+                                🧾 Open Invoice
+                            </button>
+                        `
+                        : ""
+                }
+
+                <button
+                    type="button"
+                    class="modal-close"
+                    onclick="closeContractDetails()"
+                >
+                    Close
+                </button>
+
+            </div>
         `;
 
     }
 
-}
 
+    /* ============================================================
+       CLOSE CONTRACT DETAILS
+    ============================================================ */
 
-/* ============================================================
-   SEARCH CONTRACTS
-============================================================ */
+    function closeContractDetails() {
 
-function filterContracts(){
+        const modal =
+            document.getElementById(
+                "contractDetailsModal"
+            );
 
-    const input =
-        document.getElementById(
-            "searchContracts"
-        );
+        if (modal) {
+            modal.classList.remove("show");
+        }
 
-
-    const table =
-        document.getElementById(
-            "contractsTable"
-        );
-
-
-    if(!input || !table){
-        return;
     }
 
 
-    const search =
-        input.value
-            .toLowerCase()
-            .trim();
+    /* ============================================================
+       MODAL BACKGROUND CLICK
+    ============================================================ */
+
+    function handleModalBackgroundClick(event) {
+
+        if (
+            event.target &&
+            event.target.id ===
+            "contractDetailsModal"
+        ) {
+
+            closeContractDetails();
+
+        }
+
+    }
 
 
-    const rows =
-        table.querySelectorAll(
-            "tbody tr"
-        );
+    /* ============================================================
+       SEARCH CONTRACTS
+    ============================================================ */
 
+    function filterContracts() {
 
-    rows.forEach(
-        row => {
+        const input =
+            document.getElementById(
+                "searchContracts"
+            );
+
+        const table =
+            document.getElementById(
+                "contractsTable"
+            );
+
+        if (!input || !table) {
+            return;
+        }
+
+        const search =
+            input.value
+                .toLowerCase()
+                .trim();
+
+        const rows =
+            table.querySelectorAll(
+                "tbody tr"
+            );
+
+        rows.forEach(row => {
 
             const text =
                 row.innerText
                     .toLowerCase();
-
 
             row.style.display =
                 text.includes(search)
                     ? ""
                     : "none";
 
-        }
-    );
-
-}
-
-
-/* ============================================================
-   DOWNLOAD ALL CONTRACT PDFs
-============================================================ */
-
-async function downloadAllPDFs(){
-
-    const token =
-        getAdminToken();
-
-
-    if(!token){
-
-        alert(
-            "Please log in first."
-        );
-
-        return;
+        });
 
     }
 
 
-    try{
+    /* ============================================================
+       OPEN ALL CONTRACT PDFs
+    ============================================================ */
 
-        const response =
-            await fetch(
+    async function downloadAllPDFs() {
 
-                API +
-                "/api/admin/contracts",
+        try {
 
-                {
+            const response =
+                await apiFetch(
+                    "/api/admin/contracts"
+                );
 
-                    method:"GET",
+            const data =
+                await response.json();
 
-                    headers:
-                        authHeaders()
+            if (!response.ok) {
 
-                }
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    "Could not load contracts."
+                );
 
-            );
+            }
 
+            const contracts =
+                data.contracts || [];
 
-        const data =
-            await response.json();
+            if (!contracts.length) {
 
+                alert(
+                    "No contract PDFs found."
+                );
 
-        if(!response.ok){
+                return;
+            }
 
-            throw new Error(
-                data.message ||
-                "Could not load contracts"
-            );
+            let opened = 0;
 
-        }
-
-
-        const contracts =
-            data.contracts || [];
-
-
-        if(
-            contracts.length === 0
-        ){
-
-            alert(
-                "No contract PDFs found."
-            );
-
-            return;
-
-        }
-
-
-        contracts.forEach(
-            contract => {
+            contracts.forEach(contract => {
 
                 const file =
+                    contract.pdfUrl ||
+                    contract.pdfurl ||
                     contract.file ||
                     contract.filename ||
                     "";
 
+                const url =
+                    normalizePDFUrl(file);
 
-                if(!file){
-                    return;
-                }
+                if (url) {
 
+                    window.open(
+                        url,
+                        "_blank"
+                    );
 
-                let url;
-
-
-                if(
-                    file.startsWith(
-                        "http://"
-                    ) ||
-                    file.startsWith(
-                        "https://"
-                    )
-                ){
-
-                    url = file;
-
-                }else{
-
-                    url =
-                        API +
-                        "/" +
-                        file.replace(
-                            /^\/+/,
-                            ""
-                        );
+                    opened++;
 
                 }
 
+            });
 
-                window.open(
-                    url,
-                    "_blank"
+            if (!opened) {
+
+                alert(
+                    "No contract PDFs were found."
                 );
 
             }
-        );
 
+        } catch (error) {
 
-    }catch(error){
+            console.error(
+                "OPEN ALL PDF ERROR:",
+                error
+            );
 
-        console.error(
-            "PDF DOWNLOAD ERROR:",
-            error
-        );
+            alert(
+                error.message ||
+                "Could not open PDFs."
+            );
 
-
-        alert(
-            error.message ||
-            "Could not download PDFs."
-        );
-
-    }
-
-}
-
-
-/* ============================================================
-   LOGOUT
-============================================================ */
-
-function logout(){
-
-    localStorage.removeItem(
-        "adminToken"
-    );
-
-    localStorage.removeItem(
-        "token"
-    );
-
-
-    window.location.href =
-        "login.html";
-
-}
-
-
-/* ============================================================
-   LOAD DASHBOARD
-============================================================ */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function(){
-
-        loadBookings();
-
-        loadContracts();
-        loadContacts();
+        }
 
     }
-);
 
 
+    /* ============================================================
+       CONTACTS
+    ============================================================ */
 
-/* ============================================================
-   CONTACT ACTION FUNCTIONS - GLOBAL ACCESS
-============================================================ */
-
-window.viewContact = viewContact;
-window.editContact = editContact;
-window.saveContact = saveContact;
-window.cancelContact = cancelContact;
-window.deleteContact = deleteContact;
-window.approveBooking = approveBooking;
-window.pendingBooking = pendingBooking;
-window.cancelBooking = cancelBooking;
-window.deleteBooking = deleteBooking;
-window.deleteContractPDF = deleteContractPDF;
+    let currentEditingContact = null;
 
 
-/* ============================================================
-DELETE CONTRACT PDF
-============================================================ */
+    function viewContact(id) {
 
-async function deleteContractPDF(id){
+        const rows =
+            document.querySelectorAll(
+                "#contactsBody tr"
+            );
 
-    if(!confirm("Are you sure you want to permanently delete this contract PDF?")){
-        return;
-    }
+        for (const row of rows) {
 
-    try{
+            const cells =
+                row.querySelectorAll("td");
 
-        const response = await fetch(
-            API + "/api/admin/contracts/" + id,
-            {
-                method:"DELETE",
-                headers:authHeaders()
+            if (cells.length < 7) {
+                continue;
             }
-        );
 
-        const data = await response.json();
+            if (
+                cells[0].textContent.trim() ===
+                String(id)
+            ) {
 
-        if(response.status === 401){
-            logout();
+                alert(
+                    "Name: " +
+                    cells[1].textContent.trim() +
+
+                    "\n\nEmail: " +
+                    cells[2].textContent.trim() +
+
+                    "\n\nPhone: " +
+                    cells[3].textContent.trim() +
+
+                    "\n\nMessage:\n" +
+                    cells[4].textContent.trim() +
+
+                    "\n\nStatus: " +
+                    cells[5].textContent.trim()
+                );
+
+                return;
+            }
+
+        }
+
+    }
+
+
+    function editContact(id) {
+
+        if (currentEditingContact !== null) {
             return;
         }
 
-        if(!response.ok){
-            throw new Error(
-                data.message ||
-                "Could not delete contract PDF"
+        const rows =
+            document.querySelectorAll(
+                "#contactsBody tr"
             );
+
+        for (const row of rows) {
+
+            const cells =
+                row.querySelectorAll("td");
+
+            if (cells.length < 7) {
+                continue;
+            }
+
+            if (
+                cells[0].textContent.trim() ===
+                String(id)
+            ) {
+
+                currentEditingContact = id;
+
+                const message =
+                    cells[4].textContent.trim();
+
+                const status =
+                    cells[5].textContent.trim();
+
+                cells[4].innerHTML = `
+                    <textarea
+                        class="contact-edit-message"
+                    >${escapeHTML(message)}</textarea>
+                `;
+
+                cells[5].innerHTML = `
+                    <select
+                        class="contact-edit-status"
+                    >
+                        <option value="new">New</option>
+                        <option value="read">Read</option>
+                        <option value="replied">Replied</option>
+                    </select>
+                `;
+
+                cells[5]
+                    .querySelector("select")
+                    .value = status;
+
+                cells[6].innerHTML = `
+                    <button
+                        type="button"
+                        onclick="saveContact(${Number(id)})"
+                    >
+                        💾 Save
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="cancelContact()"
+                    >
+                        ❌ Cancel
+                    </button>
+                `;
+
+                return;
+            }
+
         }
 
-        alert("Contract PDF deleted successfully.");
-        await loadContracts();
+    }
 
-    }catch(error){
 
-        console.error(
-            "CONTRACT PDF DELETE ERROR:",
-            error
-        );
+    function cancelContact() {
 
-        alert(
-            error.message ||
-            "Could not delete contract PDF."
-        );
+        currentEditingContact = null;
+
+        loadContacts();
 
     }
-}
-</script>
 
+
+    async function saveContact(id) {
+
+        const row =
+            Array.from(
+                document.querySelectorAll(
+                    "#contactsBody tr"
+                )
+            ).find(row => {
+
+                const firstCell =
+                    row.querySelector("td");
+
+                return (
+                    firstCell &&
+                    firstCell.textContent.trim() ===
+                    String(id)
+                );
+
+            });
+
+        if (!row) {
+            return;
+        }
+
+        const messageField =
+            row.querySelector(
+                ".contact-edit-message"
+            );
+
+        const statusField =
+            row.querySelector(
+                ".contact-edit-status"
+            );
+
+        if (!messageField || !statusField) {
+            return;
+        }
+
+        const message =
+            messageField.value.trim();
+
+        const status =
+            statusField.value;
+
+        try {
+
+            const response =
+                await apiFetch(
+                    "/api/admin/contacts/" +
+                    encodeURIComponent(id),
+                    {
+                        method: "PUT",
+                        body: {
+                            message: message,
+                            status: status
+                        }
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    "Could not update contact message."
+                );
+
+            }
+
+            currentEditingContact = null;
+
+            await loadContacts();
+
+        } catch (error) {
+
+            console.error(
+                "CONTACT UPDATE ERROR:",
+                error
+            );
+
+            alert(
+                error.message ||
+                "Could not update contact message."
+            );
+
+        }
+
+    }
+
+
+    async function deleteContact(id) {
+
+        if (
+            !confirm(
+                "Are you sure you want to permanently delete this contact message?"
+            )
+        ) {
+            return;
+        }
+
+        try {
+
+            const response =
+                await apiFetch(
+                    "/api/admin/contacts/" +
+                    encodeURIComponent(id),
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    "Could not delete contact message."
+                );
+
+            }
+
+            await loadContacts();
+
+        } catch (error) {
+
+            console.error(
+                "CONTACT DELETE ERROR:",
+                error
+            );
+
+            alert(
+                error.message ||
+                "Could not delete contact message."
+            );
+
+        }
+
+    }
+
+
+    async function loadContacts() {
+
+        const tbody =
+            document.getElementById(
+                "contactsBody"
+            );
+
+        if (!tbody) {
+            return;
+        }
+
+        try {
+
+            const response =
+                await apiFetch(
+                    "/api/admin/contacts"
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    "Could not load contacts."
+                );
+
+            }
+
+            const contacts =
+                data.contacts || [];
+
+            tbody.innerHTML = "";
+
+            if (!contacts.length) {
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7">
+                            No contact messages found.
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+            contacts.forEach(contact => {
+
+                const row =
+                    document.createElement("tr");
+
+                row.innerHTML = `
+
+                    <td>
+                        ${escapeHTML(contact.id)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            contact.name || "-"
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            contact.email || "-"
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            contact.phone || "-"
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            contact.message || "-"
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            contact.status || "new"
+                        )}
+                    </td>
+
+                    <td class="contact-actions">
+
+                        <button
+                            type="button"
+                            class="contact-view-btn"
+                            onclick="viewContact(${Number(contact.id)})"
+                        >
+                            👁️ View
+                        </button>
+
+                        <button
+                            type="button"
+                            class="contact-edit-btn"
+                            onclick="editContact(${Number(contact.id)})"
+                        >
+                            ✏️ Edit
+                        </button>
+
+                        <button
+                            type="button"
+                            class="contact-delete-btn"
+                            onclick="deleteContact(${Number(contact.id)})"
+                        >
+                            🗑️ Delete
+                        </button>
+
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "CONTACT LOAD ERROR:",
+                error
+            );
+
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7">
+                        ❌ ${escapeHTML(error.message)}
+                    </td>
+                </tr>
+            `;
+
+        }
+
+    }
+
+
+    /* ============================================================
+       GLOBAL FUNCTIONS
+    ============================================================ */
+
+    window.viewContractDetails =
+        viewContractDetails;
+
+    window.closeContractDetails =
+        closeContractDetails;
+
+    window.handleModalBackgroundClick =
+        handleModalBackgroundClick;
+
+    window.openInvoicePDF =
+        openInvoicePDF;
+
+    window.filterContracts =
+        filterContracts;
+
+    window.downloadAllPDFs =
+        downloadAllPDFs;
+
+    window.viewContact =
+        viewContact;
+
+    window.editContact =
+        editContact;
+
+    window.saveContact =
+        saveContact;
+
+    window.cancelContact =
+        cancelContact;
+
+    window.deleteContact =
+        deleteContact;
+
+    window.approveBooking =
+        approveBooking;
+
+    window.pendingBooking =
+        pendingBooking;
+
+    window.cancelBooking =
+        cancelBooking;
+
+    window.deleteBooking =
+        deleteBooking;
+
+    window.logout =
+        logout;
+
+
+    /* ============================================================
+       START DASHBOARD
+    ============================================================ */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            if (!getAdminToken()) {
+
+                window.location.href =
+                    "login.html";
+
+                return;
+            }
+
+            loadBookings();
+            loadContracts();
+            loadContacts();
+
+        }
+    );
+
+</script>
+```
 
 </body>
-
 </html>
-```

@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-
+```
 <title>Documents | My DMV Cleaning Services</title>
 
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="../css/documents.css">
-
+```
 
 </head>
 
@@ -18,7 +19,7 @@
 
 <header class="navbar">
 
-
+```
 <div class="logo">
     🧼 My DMV Cleaning Services LLC
 </div>
@@ -58,13 +59,13 @@
     </a>
 
 </nav>
-
+```
 
 </header>
 
 <main class="container">
 
-
+```
 <h1>
     📄 Company Documents
 </h1>
@@ -87,27 +88,19 @@
 
     <div class="grid">
 
-        <a
-            href="../documents/sign-contract.html?type=Client%20Contract"
-        >
+        <a href="../documents/sign-contract.html?type=Client%20Contract">
             📄 Client Contract
         </a>
 
-        <a
-            href="../documents/sign-contract.html?type=Service%20Agreement"
-        >
+        <a href="../documents/sign-contract.html?type=Service%20Agreement">
             📄 Service Agreement
         </a>
 
-        <a
-            href="../documents/sign-contract.html?type=Non-Binding%20Agreement"
-        >
+        <a href="../documents/sign-contract.html?type=Non-Binding%20Agreement">
             📄 Non-Binding Agreement
         </a>
 
-        <a
-            href="../documents/sign-contract.html?type=Job%20Completion%20Form"
-        >
+        <a href="../documents/sign-contract.html?type=Job%20Completion%20Form">
             ✅ Job Completion Form
         </a>
 
@@ -128,9 +121,7 @@
 
     <div class="grid">
 
-        <a
-            href="../documents/independent-subcontractor-agreement.html"
-        >
+        <a href="../documents/independent-subcontractor-agreement.html">
             👷 Independent Subcontractor Agreement
         </a>
 
@@ -192,7 +183,7 @@
     </div>
 
 </section>
-
+```
 
 </main>
 
@@ -206,7 +197,7 @@
     aria-hidden="true"
 >
 
-
+```
 <div class="modal-content">
 
     <div class="modal-header">
@@ -231,7 +222,7 @@
     </div>
 
 </div>
-
+```
 
 </div>
 
@@ -241,7 +232,7 @@
 
 <footer class="footer">
 
-
+```
 <div class="footer-links">
 
     <a href="../legal/privacy.html">
@@ -256,15 +247,11 @@
         💰 Refund
     </a>
 
-    <a
-        href="../documents/sign-contract.html?type=Client%20Contract"
-    >
+    <a href="../documents/sign-contract.html?type=Client%20Contract">
         📄 Client Contract
     </a>
 
-    <a
-        href="../documents/independent-subcontractor-agreement.html"
-    >
+    <a href="../documents/independent-subcontractor-agreement.html">
         👷 Independent Subcontractor Agreement
     </a>
 
@@ -277,7 +264,7 @@
 <p class="copy">
     © 2026 My DMV Cleaning Services LLC
 </p>
-
+```
 
 </footer>
 
@@ -304,16 +291,19 @@ document
     .querySelectorAll("#navLinks a")
     .forEach(function (link) {
 
-        link.addEventListener("click", function () {
+        link.addEventListener(
+            "click",
+            function () {
 
-            const nav =
-                document.getElementById("navLinks");
+                const nav =
+                    document.getElementById("navLinks");
 
-            if (nav) {
-                nav.classList.remove("active");
+                if (nav) {
+                    nav.classList.remove("active");
+                }
+
             }
-
-        });
+        );
 
     });
 
@@ -331,7 +321,10 @@ const API =
         : "https://mydmv-cleaning-backend-live.onrender.com";
 
 
-console.log("Documents API:", API);
+console.log(
+    "Documents API:",
+    API
+);
 
 
 /* ============================================================
@@ -376,7 +369,9 @@ function formatDate(value) {
                 date.getTime()
             )
         ) {
+
             return escapeHTML(value);
+
         }
 
         return date.toLocaleString(
@@ -395,6 +390,7 @@ function formatDate(value) {
         return escapeHTML(value);
 
     }
+
 }
 
 
@@ -410,7 +406,9 @@ function formatBoolean(value) {
         value === "1" ||
         value === "true"
     ) {
+
         return "Yes";
+
     }
 
     return "No";
@@ -432,13 +430,17 @@ function statusHTML(status) {
         "status-pending";
 
     if (normalized === "approved") {
+
         className =
             "status-approved";
+
     }
 
     if (normalized === "rejected") {
+
         className =
             "status-rejected";
+
     }
 
     return `
@@ -455,9 +457,12 @@ function statusHTML(status) {
 
 function getAdminToken() {
 
-    return localStorage.getItem(
-        "adminToken"
+    return (
+        localStorage.getItem("adminToken") ||
+        localStorage.getItem("token") ||
+        ""
     );
+
 }
 
 
@@ -506,14 +511,16 @@ function normalizeDocumentUrl(file) {
 
        https://mydmvcleaningservice.comhttps://mydmv-cleaning-backend-live.onrender.com/contracts/file.pdf
 
-       We keep the actual Render backend URL.
+       Keep the actual Render backend URL.
     */
 
     const backendMarker =
         "https://mydmv-cleaning-backend-live.onrender.com";
 
+
     const backendIndex =
         url.indexOf(backendMarker);
+
 
     if (backendIndex > 0) {
 
@@ -521,6 +528,7 @@ function normalizeDocumentUrl(file) {
             url.substring(
                 backendIndex
             );
+
     }
 
 
@@ -529,7 +537,8 @@ function normalizeDocumentUrl(file) {
     */
 
     const duplicateMarker =
-        `${backendMarker}${backendMarker}`;
+        backendMarker + backendMarker;
+
 
     while (
         url.startsWith(
@@ -576,6 +585,7 @@ function normalizeDocumentUrl(file) {
     */
 
     return `${API}/${url}`;
+
 }
 
 
@@ -594,6 +604,7 @@ async function loadSubmittedDocuments() {
         return;
     }
 
+
     container.innerHTML = `
         <div class="loading">
             Loading submitted documents...
@@ -605,6 +616,7 @@ async function loadSubmittedDocuments() {
 
         const token =
             getAdminToken();
+
 
         if (!token) {
 
@@ -622,6 +634,7 @@ async function loadSubmittedDocuments() {
 
         const endpoint =
             `${API}/api/admin/documents`;
+
 
         console.log(
             "Loading documents from:",
@@ -661,6 +674,10 @@ async function loadSubmittedDocuments() {
                 "adminToken"
             );
 
+            localStorage.removeItem(
+                "token"
+            );
+
             container.innerHTML = `
                 <div class="error">
                     Your admin session has expired.
@@ -686,11 +703,13 @@ async function loadSubmittedDocuments() {
             throw new Error(
                 `HTTP ${response.status}`
             );
+
         }
 
 
         const result =
             await response.json();
+
 
         console.log(
             "Admin documents response:",
@@ -762,6 +781,7 @@ async function loadSubmittedDocuments() {
             "Could not load submitted documents:",
             error
         );
+
 
         container.innerHTML = `
             <div class="error">
@@ -904,17 +924,21 @@ function renderDocumentCard(document) {
                 ${
                     pdfUrl
                         ? `
+
                             <button
                                 type="button"
                                 onclick="openPDF('${escapeHTML(pdfUrl)}')"
                             >
                                 📄 Open PDF
                             </button>
+
                           `
                         : `
+
                             <span class="error">
                                 PDF not available
                             </span>
+
                           `
                 }
 
@@ -962,6 +986,7 @@ function openPDF(file) {
         file
     );
 
+
     console.log(
         "Opening normalized PDF:",
         url
@@ -988,6 +1013,7 @@ async function showDetails(id) {
             "detailsModal"
         );
 
+
     const content =
         document.getElementById(
             "detailsContent"
@@ -998,12 +1024,15 @@ async function showDetails(id) {
         !modal ||
         !content
     ) {
+
         return;
+
     }
 
 
     const token =
         requireAdminToken();
+
 
     if (!token) {
         return;
@@ -1013,6 +1042,7 @@ async function showDetails(id) {
     modal.classList.add(
         "active"
     );
+
 
     modal.setAttribute(
         "aria-hidden",
@@ -1055,6 +1085,10 @@ async function showDetails(id) {
                 "adminToken"
             );
 
+            localStorage.removeItem(
+                "token"
+            );
+
             content.innerHTML = `
                 <div class="error">
                     Your admin session has expired.
@@ -1080,6 +1114,7 @@ async function showDetails(id) {
             throw new Error(
                 `HTTP ${response.status}`
             );
+
         }
 
 
@@ -1105,6 +1140,7 @@ async function showDetails(id) {
             "Could not load document details:",
             error
         );
+
 
         content.innerHTML = `
             <div class="error">
@@ -1183,9 +1219,41 @@ function renderDetails(contract) {
         "-";
 
 
-    const services =
+    let services =
         contract.services ||
         "-";
+
+
+    /*
+       PostgreSQL may return services as JSON text.
+       Convert it to readable text.
+    */
+
+    if (
+        typeof services === "string"
+    ) {
+
+        try {
+
+            const parsed =
+                JSON.parse(services);
+
+            if (
+                Array.isArray(parsed)
+            ) {
+
+                services =
+                    parsed.join(", ");
+
+            }
+
+        } catch (error) {
+
+            // Keep original string.
+
+        }
+
+    }
 
 
     const availability =
@@ -1342,17 +1410,21 @@ function renderDetails(contract) {
             ${
                 pdfUrl
                     ? `
+
                         <button
                             type="button"
                             onclick="openPDF('${escapeHTML(pdfUrl)}')"
                         >
                             📄 Open Signed PDF
                         </button>
+
                       `
                     : `
+
                         <p class="error">
                             Signed PDF is not available.
                         </p>
+
                       `
             }
 
@@ -1374,7 +1446,7 @@ function renderDetails(contract) {
 
         </div>
 
-    ;
+    `;
 
 }
 
@@ -1391,6 +1463,7 @@ async function updateStatus(
     const token =
         requireAdminToken();
 
+
     if (!token) {
         return;
     }
@@ -1402,12 +1475,12 @@ async function updateStatus(
             : "reject";
 
 
-  const confirmed =
-    window.confirm(
-        "Are you sure you want to " +
-        action +
-        " this document?"
-    );
+    const confirmed =
+        window.confirm(
+            "Are you sure you want to " +
+            action +
+            " this document?"
+        );
 
 
     if (!confirmed) {
@@ -1449,6 +1522,10 @@ async function updateStatus(
 
             localStorage.removeItem(
                 "adminToken"
+            );
+
+            localStorage.removeItem(
+                "token"
             );
 
             alert(
@@ -1522,6 +1599,7 @@ async function updateStatus(
             "Could not update document status:",
             error
         );
+
 
         alert(
             `Unable to ${action} document: ${error.message}`

@@ -11,7 +11,9 @@
 
 <link rel="stylesheet" href="../css/legal.css">
 
-<script defer src="../js/legal.js"></script>
+<!-- legal.js intentionally disabled because this page has its own signature/submission logic -->
+
+<!-- <script defer src="../js/legal.js"></script> -->
 
 </head>
 
@@ -668,7 +670,7 @@ required
 id="pad"
 width="400"
 height="150"
-style="border:1px solid #ccc; max-width:100%; background:#fff;"
+style="border:1px solid #ccc; max-width:100%; background:#ffffff; touch-action:none;"
 
 > </canvas>
 
@@ -769,6 +771,55 @@ let hasDrawnSignature = false;
 
 
 /* ============================================================
+   INITIALIZE SIGNATURE CANVAS
+============================================================ */
+
+/*
+   The CSS background is not part of the PNG created by
+   canvas.toDataURL().
+
+   Therefore we explicitly paint the canvas white so the
+   generated PNG contains a real white background.
+*/
+
+function initializeSignatureCanvas() {
+
+    signatureContext.clearRect(
+        0,
+        0,
+        signatureCanvas.width,
+        signatureCanvas.height
+    );
+
+    signatureContext.fillStyle =
+        "#ffffff";
+
+    signatureContext.fillRect(
+        0,
+        0,
+        signatureCanvas.width,
+        signatureCanvas.height
+    );
+
+    signatureContext.strokeStyle =
+        "#000000";
+
+    signatureContext.lineWidth =
+        2;
+
+    signatureContext.lineCap =
+        "round";
+
+    signatureContext.lineJoin =
+        "round";
+
+}
+
+
+initializeSignatureCanvas();
+
+
+/* ============================================================
    SIGNATURE PAD
 ============================================================ */
 
@@ -863,12 +914,6 @@ function drawSignature(event) {
         getPosition(event);
 
 
-    signatureContext.lineTo(
-        position.x,
-        position.y
-    );
-
-
     signatureContext.strokeStyle =
         "#000000";
 
@@ -880,6 +925,13 @@ function drawSignature(event) {
 
     signatureContext.lineJoin =
         "round";
+
+
+    signatureContext.lineTo(
+        position.x,
+        position.y
+    );
+
 
     signatureContext.stroke();
 
@@ -912,12 +964,7 @@ function stopDrawing() {
 
 function clearSignature() {
 
-    signatureContext.clearRect(
-        0,
-        0,
-        signatureCanvas.width,
-        signatureCanvas.height
-    );
+    initializeSignatureCanvas();
 
     hasDrawnSignature = false;
 
@@ -1028,8 +1075,6 @@ function normalizeAddress(value) {
        Prevent accidental duplicate address values such as:
 
        9030 Fox Grape Ln, 9030 Fox Grape Ln
-
-       from being submitted.
     */
 
     const parts =
@@ -1104,7 +1149,10 @@ function normalizePhone(value) {
         String(value || "")
             .replace(/\D/g, "");
 
-    if (digits.length === 11 && digits.charAt(0) === "1") {
+    if (
+        digits.length === 11 &&
+        digits.charAt(0) === "1"
+    ) {
 
         return (
             "(" +
@@ -1140,6 +1188,7 @@ function normalizePhone(value) {
 ============================================================ */
 
 async function submitContract() {
+    console.log("SIGN-CONTRACT: submitContract() started");
 
     try {
 
@@ -1305,8 +1354,15 @@ async function submitContract() {
             );
 
 
+        /*
+           Make sure the actual PNG contains the signature.
+        */
+
         if (
             !signature ||
+            !signature.startsWith(
+                "data:image/png;base64,"
+            ) ||
             signature.length < 1000
         ) {
 
@@ -1372,30 +1428,28 @@ async function submitContract() {
         }
 
 
-        /* ================= SEND TO SERVER ================= */
 
-        const response =
-            await fetch(
-                "/api/sign-contract",
-                {
+     /* ================= SEND TO SERVER ================= */
 
-                    method: "POST",
+        console.log("SIGN-CONTRACT: about to send request", data);
+const response =
+    await fetch(
+        "/api/sign-contract",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type":
+                    "application/json"
+            },
+            body:
+                JSON.stringify(data)
+        }
+    );
 
-                    headers: {
+console.log("SIGN-CONTRACT HTTP STATUS:", response.status);
+console.log("SIGN-CONTRACT RESPONSE OK:", response.ok);
 
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-                        JSON.stringify(data)
-
-                }
-            );
-
-
-        /* ================= READ RESPONSE ================= */
+/* ================= READ RESPONSE ================= */
 
         let result;
 
@@ -1432,6 +1486,11 @@ async function submitContract() {
             );
 
 
+            /*
+               The backend already returns the complete absolute
+               PDF URL. Do NOT prepend the Render URL again.
+            */
+
             if (
                 result.contract &&
                 result.contract.pdfUrl
@@ -1452,20 +1511,23 @@ async function submitContract() {
 
             }
 
-            return;
-
         }
 
 
         /* ================= SERVER ERROR ================= */
 
-        alert(
-            result.message ||
-            result.error ||
-            "Unable to submit the Independent Subcontractor Agreement."
-        );
+        else {
+
+            alert(
+                result.message ||
+                result.error ||
+                "Unable to submit the Independent Subcontractor Agreement."
+            );
+
+        }
 
     }
+
 
     catch (error) {
 
@@ -1480,6 +1542,7 @@ async function submitContract() {
         );
 
     }
+
 
     finally {
 
