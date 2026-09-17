@@ -763,11 +763,9 @@ async function sendEmail({
         return false;
     }
 }
-// 
 
-// ============================================================
-// EMAIL TEST
-// ============================================================
+
+
 // ============================================================
 // EMAIL TEST
 // ============================================================
@@ -3101,6 +3099,7 @@ if (signatureBuffer) {
         }
     );
 
+
     return {
         fileName,
         filePath,
@@ -3877,10 +3876,46 @@ app.post(
     }
 );
 
+
 // ============================================================
-// ADMIN GET CONTRACTS
+// ADMIN GET ALL CONTRACTS
 // ============================================================
 
+app.get(
+    "/api/admin/contracts",
+    verifyAdmin,
+    (req, res) => {
+
+        try {
+
+            const contracts =
+                db.prepare(`
+                    SELECT *
+                    FROM contracts
+                    ORDER BY id DESC
+                `).all();
+
+            return res.json({
+                success: true,
+                contracts
+            });
+
+        } catch (error) {
+
+            console.error(
+                "GET ADMIN CONTRACTS ERROR:",
+                error
+            );
+
+            return res.status(500).json({
+                success: false,
+                message:
+                    "Could not load contracts"
+            });
+
+        }
+    }
+);
 
 // ============================================================
 // REGENERATE SIGNED CONTRACT PDF
