@@ -1,515 +1,932 @@
-/* ================= RESET ================= */
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial, Helvetica, sans-serif;
+/* ============================================================
+   MY DMV CLEANING SERVICES LLC
+   SHARED LEGAL, DOCUMENT & SIGN CONTRACT PAGE STYLES
+   ============================================================ */
+
+:root {
+    --legal-bg: #f5f6f2;
+    --legal-surface: #ffffff;
+    --legal-text: #18201d;
+    --legal-muted: #626b65;
+    --legal-green: #315b3c;
+    --legal-green-dark: #24452e;
+    --legal-green-light: #eaf1e8;
+    --legal-border: rgba(24, 32, 29, 0.12);
+    --legal-shadow: 0 18px 50px rgba(24, 32, 29, 0.07);
+    --legal-radius: 20px;
 }
 
+/* RESET */
 
-body{
-
-    background:#0b1220;
-
-    color:#e5e7eb;
-
-    min-height:100vh;
-
+* {
+    box-sizing: border-box;
 }
 
-
-
-/* ================= NAV ================= */
-
-
-.legal-nav{
-
-    position:fixed;
-
-    top:0;
-
-    left:0;
-
-    width:100%;
-
-    background:#0f172a;
-
-    padding:18px 30px;
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    z-index:1000;
-
-    border-bottom:1px solid #1e293b;
-
+html {
+    scroll-behavior: smooth;
 }
 
-
-
-.legal-nav a{
-
-    color:#cbd5e1;
-
-    text-decoration:none;
-
-    font-weight:bold;
-
-    transition:.3s;
-
+body.legal-page,
+body {
+    margin: 0;
+    font-family: Inter, Arial, Helvetica, sans-serif;
+    color: var(--legal-text);
 }
 
-
-
-.legal-nav a:hover{
-
-    color:#22c55e;
-
+body.legal-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background:
+        radial-gradient(
+            circle at 12% 12%,
+            rgba(49, 91, 60, 0.06),
+            transparent 34%
+        ),
+        var(--legal-bg);
+    line-height: 1.65;
 }
 
-
-
-
-
-/* ================= PAGE CONTAINER ================= */
-
-
-.container{
-
-
-    max-width:900px;
-
-    margin:0 auto;
-
-    padding:120px 25px 50px;
-
-    background:#111827;
-
-    min-height:100vh;
-
-    border-radius:20px;
-
-
-    box-shadow:
-
-    0 15px 40px rgba(0,0,0,.5);
-
-
+a {
+    color: var(--legal-green);
+    text-underline-offset: 3px;
 }
 
-
-
-
-
-/* ================= HEADINGS ================= */
-
-
-.container h1{
-
-
-    text-align:center;
-
-    font-size:36px;
-
-    margin-bottom:15px;
-
-    color:white;
-
-
+a:hover {
+    color: var(--legal-green-dark);
 }
-
-
-
-.container h2{
-
-
-    margin-top:35px;
-
-    margin-bottom:12px;
-
-    color:#38bdf8;
-
-    font-size:22px;
-
-
-}
-
-
-
-.container p{
-
-
-    color:#cbd5e1;
-
-    line-height:1.8;
-
-    margin-bottom:15px;
-
-
-}
-
-
-
-.container ul{
-
-
-    margin-left:25px;
-
-    color:#cbd5e1;
-
-    line-height:1.8;
-
-
-}
-
-
-
-.container li{
-
-    margin-bottom:8px;
-
-}
-
-
-
-
-
-/* ================= EFFECT ================= */
-
-
-.fade{
-
-
-    animation:fadeIn .8s ease;
-
-}
-
-
-
-@keyframes fadeIn{
-
-
-from{
-
-opacity:0;
-
-transform:translateY(20px);
-
-}
-
-
-to{
-
-opacity:1;
-
-transform:translateY(0);
-
-}
-
-
-}
-
-
-
-
-
-/* ================= BUTTONS ================= */
-
 
 button,
-.legal-btn{
-
-
-    margin-top:25px;
-
-    padding:14px 25px;
-
-    border:none;
-
-    border-radius:12px;
-
-    background:#22c55e;
-
-    color:white;
-
-    font-size:16px;
-
-    font-weight:bold;
-
-    cursor:pointer;
-
-    transition:.3s;
-
-
-}
-
-
-
-button:hover,
-.legal-btn:hover{
-
-
-    background:#16a34a;
-
-    transform:translateY(-3px);
-
-
-}
-
-
-
-
-
-/* ================= INPUTS ================= */
-
-
 input,
-textarea,
-select{
-
-
-    width:100%;
-
-    padding:13px;
-
-    margin:10px 0;
-
-    border-radius:10px;
-
-    border:1px solid #334155;
-
-    background:#0f172a;
-
-    color:white;
-
-    font-size:15px;
-
-
+select,
+textarea {
+    font: inherit;
 }
 
-
-
-textarea{
-
-    min-height:120px;
-
-    resize:vertical;
-
+button,
+a,
+input,
+select,
+textarea {
+    -webkit-tap-highlight-color: transparent;
 }
 
-
-
-
-
-/* ================= SIGN BOX ================= */
-
-
-#signBox{
-
-
-    margin-top:30px;
-
-    padding:25px;
-
-    background:#0f172a;
-
-    border-radius:15px;
-
-    border:1px solid #334155;
-
-
+:focus-visible {
+    outline: 3px solid rgba(49, 91, 60, 0.45);
+    outline-offset: 3px;
 }
 
-
-
-
-canvas{
-
-
-    width:100%;
-
-    max-width:400px;
-
-    height:150px;
-
-    background:white;
-
-    border-radius:10px;
-
-    margin:15px 0;
-
-}
-
-
-
-
-
-/* ================= FOOTER ================= */
-
-
-.legal-footer{
-
-
-    background:#020617;
-
-    padding:25px;
-
-    display:flex;
-
-    justify-content:center;
-
-    flex-wrap:wrap;
-
-    gap:20px;
-
-    border-top:1px solid #1e293b;
-
-
-}
-
-
-
-.legal-footer a{
-
-
-    color:#94a3b8;
-
-    text-decoration:none;
-
-    font-weight:bold;
-
-    transition:.3s;
-
-
-}
-
-
-
-.legal-footer a:hover{
-
-
-    color:#22c55e;
-
-
-}
-
-
-
-
-
-/* ================= MOBILE ================= */
-
-
-@media(max-width:768px){
-
-
-.container{
-
-
-    margin:20px;
-
-    padding:100px 20px 40px;
-
-
-}
-
-
-
-.container h1{
-
-    font-size:28px;
-
-}
-
-
-
-.container h2{
-
-    font-size:20px;
-
-}
-
-
-
-.legal-footer{
-
-
-    flex-direction:column;
-
-    align-items:center;
-
-
-}
-
-
-}
-/*  */
-/* ================= COMPLETION PAGE ================= */
-
-.completion-page {
-    display: flex;
-    justify-content: center;
-    padding: 40px 20px;
-}
-
-.completion-card {
-    background: #fff;
-    padding: 25px;
-    width: 420px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.completion-card h1 {
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-.subtitle {
-    text-align: center;
-    color: #666;
-    margin-bottom: 20px;
-}
-
-/* Inputs */
-.input {
+/* ============================================================
+   NAVIGATION
+   Supports both direct links and links inside a nav element.
+   ============================================================ */
+
+.legal-nav {
+    position: relative;
+    z-index: 10;
     width: 100%;
-    padding: 10px;
-    margin: 6px 0 14px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
+    min-height: 78px;
+    padding: 16px clamp(18px, 5vw, 64px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.96);
+    border-bottom: 1px solid var(--legal-border);
+    box-shadow: 0 4px 20px rgba(24, 32, 29, 0.035);
 }
 
-.textarea {
-    min-height: 90px;
+.legal-nav .logo {
+    color: var(--legal-text);
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.35;
+    text-decoration: none;
+}
+
+.legal-nav nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.legal-nav nav a,
+.legal-nav > a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 13px;
+    border-radius: 10px;
+    color: var(--legal-text);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.legal-nav nav a:hover,
+.legal-nav > a:hover {
+    color: var(--legal-green-dark);
+    background: var(--legal-green-light);
+}
+
+/* ============================================================
+   PAGE LAYOUT
+   ============================================================ */
+
+.container {
+    width: min(100% - 36px, 980px);
+    margin: 0 auto;
+    padding: 54px 0 64px;
+}
+
+.legal-content {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.legal-heading {
+    margin: 0 auto 30px;
+    text-align: center;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    color: var(--legal-text);
+    line-height: 1.25;
+}
+
+h1 {
+    margin: 0 0 18px;
+    font-size: clamp(30px, 5vw, 44px);
+    font-weight: 800;
+    letter-spacing: -1.1px;
+}
+
+h2 {
+    margin-top: 32px;
+    font-size: clamp(21px, 3vw, 27px);
+}
+
+h3 {
+    margin-top: 24px;
+    font-size: 19px;
+}
+
+p {
+    overflow-wrap: anywhere;
+}
+
+.effective {
+    margin: 0 0 12px;
+    color: var(--legal-green);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+}
+
+.legal-intro {
+    max-width: 680px;
+    margin: 0 auto;
+    color: var(--legal-muted);
+    font-size: 16px;
+}
+
+.fade {
+    animation: legalFadeIn 0.45s ease both;
+}
+
+@keyframes legalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================
+   CONTENT CARDS & SIGNING FORMS
+   ============================================================ */
+
+.sign-box,
+.legal-card,
+.legal-box {
+    width: 100%;
+    margin: 0 auto 24px;
+    padding: clamp(22px, 4vw, 38px);
+    background: var(--legal-surface);
+    border: 1px solid var(--legal-border);
+    border-radius: var(--legal-radius);
+    box-shadow: var(--legal-shadow);
+}
+
+.sign-box > :first-child,
+.legal-card > :first-child,
+.legal-box > :first-child {
+    margin-top: 0;
+}
+
+.sign-box > :last-child,
+.legal-card > :last-child,
+.legal-box > :last-child {
+    margin-bottom: 0;
+}
+
+.container > h1 {
+    margin-bottom: 12px;
+}
+
+.container > .effective {
+    margin-bottom: 26px;
+    font-size: 14px;
+    letter-spacing: 0.2px;
+    text-transform: none;
+}
+
+/* ============================================================
+   FORMS
+   ============================================================ */
+
+#completionForm,
+#contactForm {
+    width: 100%;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 22px;
+}
+
+.form-field label,
+#completionForm label,
+.sign-box label {
+    color: var(--legal-text);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.input,
+#completionForm input,
+#completionForm select,
+#completionForm textarea,
+.sign-box input,
+.sign-box select,
+.sign-box textarea {
+    display: block;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    color: var(--legal-text);
+    background: #fff;
+    border: 1px solid #d9dfd9;
+    border-radius: 10px;
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.input::placeholder,
+#completionForm input::placeholder,
+#completionForm textarea::placeholder,
+.sign-box input::placeholder,
+.sign-box textarea::placeholder {
+    color: #858d87;
+}
+
+.input:focus,
+#completionForm input:focus,
+#completionForm select:focus,
+#completionForm textarea:focus,
+.sign-box input:focus,
+.sign-box select:focus,
+.sign-box textarea:focus {
+    border-color: var(--legal-green);
+    box-shadow: 0 0 0 3px rgba(49, 91, 60, 0.1);
+}
+
+textarea.input,
+.input.textarea,
+#completionForm textarea,
+.sign-box textarea {
+    min-height: 130px;
     resize: vertical;
 }
 
-/* Button */
-.completion-btn {
-    width: 100%;
-    padding: 12px;
-    background: #28a745;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
+#completionForm select,
+.sign-box select {
     cursor: pointer;
-    transition: 0.3s;
 }
 
-.completion-btn:hover {
-    background: #218838;
+/* Labels and spacing in the sign contract form */
+
+.sign-box > label {
+    display: block;
+    margin: 20px 0 7px;
 }
 
-/* Mobile */
-@media(max-width:500px){
-    .completion-card {
+.sign-box > label:first-child {
+    margin-top: 0;
+}
+
+/* Multiple selection: contractor services */
+
+.sign-box select[multiple] {
+    min-height: 145px;
+    padding: 8px;
+}
+
+.sign-box select[multiple] option {
+    padding: 7px;
+}
+
+/* ============================================================
+   CONTRACT DESCRIPTION AND OPTIONAL SECTIONS
+   ============================================================ */
+
+#documentInfo {
+    margin-top: 20px;
+    padding: 18px;
+    border: 1px solid #d5e2d2;
+    border-radius: 12px;
+    background: var(--legal-green-light);
+}
+
+#documentDescription {
+    margin-bottom: 0;
+    color: var(--legal-text);
+    overflow-wrap: anywhere;
+}
+
+#contractorSection,
+#clientSection,
+#jobCompletionSection {
+    margin-top: 24px;
+    padding: 22px;
+    border: 1px solid var(--legal-border);
+    border-radius: 14px;
+    background: #f8faf7;
+}
+
+#contractorSection h3,
+#clientSection h3,
+#jobCompletionSection h3,
+.sign-box > h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: var(--legal-green-dark);
+    font-size: 19px;
+}
+
+/* ============================================================
+   SIGNATURE CANVAS
+   ============================================================ */
+
+#canvas {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: 150px;
+    margin-top: 8px;
+    border: 1px solid #cbd5cc;
+    border-radius: 10px;
+    background: #fff;
+    cursor: crosshair;
+    touch-action: none;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+.buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 26px;
+}
+
+.legal-btn,
+button.legal-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 12px 22px;
+    color: #fff;
+    background: var(--legal-green);
+    border: 1px solid var(--legal-green);
+    border-radius: 10px;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.legal-btn:hover,
+button.legal-btn:hover {
+    background: var(--legal-green-dark);
+    box-shadow: 0 7px 18px rgba(36, 69, 46, 0.15);
+    transform: translateY(-1px);
+}
+
+.legal-btn:disabled,
+button.legal-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.sign-box .buttons {
+    margin-top: 24px;
+}
+
+.sign-box .legal-btn.clear {
+    color: var(--legal-green-dark);
+    background: var(--legal-green-light);
+    border-color: #b9c9ba;
+    box-shadow: none;
+}
+
+.sign-box .legal-btn.clear:hover {
+    background: #dce9d9;
+    box-shadow: none;
+}
+
+/* ============================================================
+   MESSAGES AND PDF LINKS
+   ============================================================ */
+
+.form-message,
+#msg {
+    margin: 18px 0 0;
+    font-size: 14px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+#msg:not(:empty) {
+    padding: 14px;
+    border: 1px solid var(--legal-border);
+    border-radius: 10px;
+    background: #f7f9f6;
+    line-height: 1.7;
+}
+
+#msg a {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.form-note {
+    margin: 16px 0 0;
+    color: var(--legal-muted);
+    font-size: 13px;
+}
+
+/* ============================================================
+   GENERAL LEGAL DOCUMENT CONTENT
+   ============================================================ */
+
+.legal-content ul,
+.legal-content ol {
+    padding-left: 25px;
+}
+
+.legal-content li {
+    margin-bottom: 8px;
+}
+
+.legal-content hr {
+    height: 1px;
+    margin: 28px 0;
+    background: var(--legal-border);
+    border: 0;
+}
+
+.legal-content strong {
+    color: var(--legal-text);
+}
+
+.legal-content table {
+    width: 100%;
+    margin: 22px 0;
+    border-collapse: collapse;
+}
+
+.legal-content th,
+.legal-content td {
+    padding: 12px;
+    border: 1px solid var(--legal-border);
+    text-align: left;
+    vertical-align: top;
+}
+
+.legal-content th {
+    background: var(--legal-green-light);
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+.legal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    margin-top: auto;
+    padding: 24px clamp(18px, 5vw, 50px);
+    background: #fff;
+    border-top: 1px solid var(--legal-border);
+}
+
+.legal-footer a {
+    color: var(--legal-muted);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.legal-footer a:hover {
+    color: var(--legal-green);
+    text-decoration: underline;
+}
+
+/* ============================================================
+   ADMIN LOGIN COMPATIBILITY
+   ============================================================ */
+
+.admin-login-main {
+    flex: 1;
+    min-height: calc(100vh - 78px - 65px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 50px 24px;
+    background:
+        radial-gradient(
+            circle at 15% 15%,
+            rgba(49, 91, 60, 0.07),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 85% 85%,
+            rgba(49, 91, 60, 0.05),
+            transparent 35%
+        );
+}
+
+.admin-login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.admin-login-intro {
+    width: 100%;
+    margin-bottom: 26px;
+    text-align: center;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 34px;
+    background: #fff;
+    border: 1px solid var(--legal-border);
+    border-radius: 22px;
+    box-shadow: var(--legal-shadow);
+}
+
+.back-home {
+    margin-top: 22px;
+    text-align: center;
+}
+
+/* ============================================================
+   RESPONSIVE DESIGN
+   ============================================================ */
+
+@media (max-width: 700px) {
+    .legal-nav {
+        align-items: center;
+        justify-content: flex-start;
+        flex-direction: row;
+        gap: 8px;
+        padding: 17px 20px;
+    }
+
+    .legal-nav nav {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 5px;
+    }
+
+    .legal-nav nav a,
+    .legal-nav > a {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+
+    .container {
+        width: min(100% - 28px, 980px);
+        padding: 36px 0 44px;
+    }
+
+    .legal-heading {
+        margin-bottom: 24px;
+    }
+
+    h1 {
+        letter-spacing: -0.5px;
+    }
+
+    .sign-box,
+    .legal-card,
+    .legal-box {
+        padding: 22px 18px;
+        border-radius: 16px;
+    }
+
+    #contractorSection,
+    #clientSection,
+    #jobCompletionSection {
+        padding: 16px;
+    }
+
+    .buttons,
+    .sign-box .buttons {
+        flex-direction: column;
+    }
+
+    .legal-btn,
+    button.legal-btn,
+    .sign-box .buttons .legal-btn {
+        width: 100%;
+    }
+
+    #canvas {
+        height: 140px;
+    }
+
+    .legal-footer {
+        gap: 12px 18px;
+        padding: 22px 16px;
+    }
+
+    .admin-login-main {
+        padding: 32px 16px;
+    }
+
+    .login-box {
+        padding: 24px 18px;
+    }
+
+    .legal-content table {
+        display: block;
+        overflow-x: auto;
+    }
+}
+
+/* REDUCED MOTION ACCESSIBILITY */
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+
+/* ============================================================
+   INDEPENDENT SUBCONTRACTOR AGREEMENT
+   Scoped layout fixes — preserves other legal pages
+   ============================================================ */
+
+body.subcontractor-agreement-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background:
+        radial-gradient(
+            circle at 12% 12%,
+            rgba(49, 91, 60, 0.06),
+            transparent 34%
+        ),
+        var(--legal-bg);
+    line-height: 1.65;
+}
+
+.subcontractor-agreement-page .container {
+    flex: 1;
+    width: min(100% - 36px, 900px);
+    margin: 0 auto;
+    padding: 42px 0 60px;
+}
+
+.subcontractor-agreement-page .container > h1 {
+    text-align: center;
+    margin-bottom: 14px;
+}
+
+.subcontractor-agreement-page .container > .effective {
+    text-align: center;
+    color: var(--legal-green);
+    margin-bottom: 28px;
+}
+
+.subcontractor-agreement-page .container > p {
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+
+.subcontractor-agreement-page .container > h2 {
+    margin-top: 34px;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--legal-border);
+    font-size: clamp(21px, 3vw, 26px);
+}
+
+/* Required-information and signature cards */
+
+.subcontractor-agreement-page .sign-box {
+    margin: 0 0 26px;
+    padding: clamp(20px, 4vw, 32px);
+    background: #fff;
+    border: 1px solid var(--legal-border);
+    border-radius: var(--legal-radius);
+    box-shadow: var(--legal-shadow);
+}
+
+/* Requirement and acknowledgment panels */
+
+.subcontractor-agreement-page .requirements-box {
+    margin: 0 0 26px;
+    padding: 8px 22px;
+    background: #fff;
+    border: 1px solid var(--legal-border);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(24, 32, 29, 0.04);
+}
+
+/* Each checkbox and its text stay aligned */
+
+.subcontractor-agreement-page .agreement-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 0;
+    padding: 16px 0;
+    color: var(--legal-text);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.7;
+    cursor: pointer;
+}
+
+.subcontractor-agreement-page .agreement-check
++ .agreement-check {
+    border-top: 1px solid #edf0ec;
+}
+
+/* Override the general text-input rules for checkboxes */
+
+.subcontractor-agreement-page
+.agreement-check input[type="checkbox"] {
+    flex: 0 0 18px;
+    width: 18px;
+    min-width: 18px;
+    height: 18px;
+    min-height: 18px;
+    margin: 4px 0 0;
+    padding: 0;
+    accent-color: var(--legal-green);
+    border: 1px solid #aeb9af;
+    border-radius: 4px;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+/* Keep form labels and fields spaced consistently */
+
+.subcontractor-agreement-page .sign-box > label {
+    display: block;
+    margin: 20px 0 7px;
+}
+
+.subcontractor-agreement-page .sign-box > label:first-child {
+    margin-top: 0;
+}
+
+.subcontractor-agreement-page .sign-box input:not([type="checkbox"]),
+.subcontractor-agreement-page .sign-box select {
+    width: 100%;
+    min-height: 48px;
+    margin-bottom: 4px;
+}
+
+/* Signature canvas: the HTML uses id="pad" */
+
+.subcontractor-agreement-page #pad {
+    display: block;
+    width: 100%;
+    max-width: 400px;
+    height: 150px;
+    margin-top: 8px;
+    background: #fff;
+    border: 1px solid #cbd5cc;
+    border-radius: 10px;
+    cursor: crosshair;
+    touch-action: none;
+}
+
+/* Signature action buttons */
+
+.subcontractor-agreement-page .legal-btn {
+    min-height: 48px;
+    padding: 12px 22px;
+    border-radius: 10px;
+}
+
+.subcontractor-agreement-page #clearSignatureButton {
+    color: var(--legal-green-dark);
+    background: var(--legal-green-light);
+    border-color: #b9c9ba;
+}
+
+.subcontractor-agreement-page #clearSignatureButton:hover {
+    background: #dce9d9;
+}
+
+/* Prevent long text and links from breaking the page */
+
+.subcontractor-agreement-page p,
+.subcontractor-agreement-page label {
+    overflow-wrap: anywhere;
+}
+
+/* Mobile layout */
+
+@media (max-width: 700px) {
+    .subcontractor-agreement-page .container {
+        width: calc(100% - 28px);
+        padding: 30px 0 40px;
+    }
+
+    .subcontractor-agreement-page .sign-box {
+        padding: 20px 16px;
+    }
+
+    .subcontractor-agreement-page .requirements-box {
+        padding: 4px 16px;
+    }
+
+    .subcontractor-agreement-page .agreement-check {
+        gap: 10px;
+        padding: 14px 0;
+    }
+
+    .subcontractor-agreement-page #pad {
+        max-width: 100%;
+    }
+
+    .subcontractor-agreement-page #clearSignatureButton,
+    .subcontractor-agreement-page #submitContractButton {
         width: 100%;
     }
 }

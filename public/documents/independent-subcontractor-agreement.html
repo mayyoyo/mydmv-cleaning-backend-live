@@ -17,7 +17,7 @@
 
 </head>
 
-<body>
+<body class="legal-page subcontractor-agreement-page">
 
 <!-- ================= NAVBAR ================= -->
 
@@ -55,6 +55,7 @@
 
 <p class="effective fade">
     Effective Date: January 1, 2026
+
 </p>
 
 <p class="fade">
@@ -1431,11 +1432,17 @@ async function submitContract() {
 
      /* ================= SEND TO SERVER ================= */
 
-        console.log("SIGN-CONTRACT: about to send request", data);
-const response =
-    await fetch(
-        "/api/sign-contract",
-        {
+
+const CONTRACT_API_BASE =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
+        ? "http://127.0.0.1:5000"
+        : "https://mydmv-cleaning-backend-live.onrender.com";
+
+const response = await fetch(
+    `${CONTRACT_API_BASE}/api/sign-contract`,
+    {
+
             method: "POST",
             headers: {
                 "Content-Type":
@@ -1542,7 +1549,6 @@ console.log("SIGN-CONTRACT RESPONSE OK:", response.ok);
         );
 
     }
-
 
     finally {
 
